@@ -1,7 +1,10 @@
 'use client';
 
 import React from 'react';
-import Form2, { Input, Select, NumberInput } from './';
+import Form2 from '@/components/form2';
+import Input from '@/components/form2/controls/Input';
+import Select from '@/components/form2/controls/Select';
+import NumberInput from '@/components/form2/controls/NumberInput';
 
 // 基本動態表單範例
 export function BasicDynamicForm() {
@@ -304,7 +307,7 @@ export function ShoppingCartForm() {
         onValuesChange={(changed, all) => {
           // 自動計算總金額
           if (changed.items) {
-            const total = all.items?.reduce((sum: number, item: any) => {
+            const total = (all.items as Array<any> || [])?.reduce((sum: number, item: any) => {
               return sum + (item.price * item.quantity || 0);
             }, 0) || 0;
             console.log('目前總金額:', total);

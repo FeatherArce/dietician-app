@@ -1,5 +1,7 @@
 import React from 'react';
-import Form2, { Input, Select, NumberInput } from './';
+import Form2 from '@/components/form2';
+import Input from '@/components/form2/controls/Input';
+import NumberInput from '@/components/form2/controls/NumberInput';
 
 // 簡化的動態表單範例 - 僅使用字符串路徑
 export function SimpleDynamicForm() {
@@ -14,8 +16,8 @@ export function SimpleDynamicForm() {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">動態用戶表單</h2>
-      
-      <Form2 
+
+      <Form2
         onFinish={handleFinish}
         onValuesChange={handleValuesChange}
         initialValues={{
@@ -40,7 +42,7 @@ export function SimpleDynamicForm() {
                       刪除
                     </button>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Form2.Item
                       name={`users.${name}.name`}
@@ -50,7 +52,7 @@ export function SimpleDynamicForm() {
                     >
                       <Input placeholder="請輸入姓名" />
                     </Form2.Item>
-                    
+
                     <Form2.Item
                       name={`users.${name}.email`}
                       label="電子郵件"
@@ -62,7 +64,7 @@ export function SimpleDynamicForm() {
                     >
                       <Input type="email" placeholder="請輸入電子郵件" />
                     </Form2.Item>
-                    
+
                     <Form2.Item
                       name={`users.${name}.age`}
                       label="年齡"
@@ -76,7 +78,7 @@ export function SimpleDynamicForm() {
                   </div>
                 </div>
               ))}
-              
+
               <button
                 type="button"
                 className="btn btn-secondary btn-outline w-full"
@@ -87,7 +89,7 @@ export function SimpleDynamicForm() {
             </>
           )}
         </Form2.List>
-        
+
         <div className="mt-6 flex gap-4">
           <button type="submit" className="btn btn-primary">
             提交表單
@@ -104,7 +106,7 @@ export function ShoppingCartForm() {
     const total = values.items?.reduce((sum: number, item: any) => {
       return sum + (item.price * item.quantity || 0);
     }, 0) || 0;
-    
+
     console.log('購物車提交:', { ...values, total });
     alert(`訂單總金額: $${total}`);
   };
@@ -112,13 +114,13 @@ export function ShoppingCartForm() {
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">購物車表單</h2>
-      
-      <Form2 
+
+      <Form2
         onFinish={handleFinish}
         onValuesChange={(changed, all) => {
           // 自動計算總金額
           if (changed.items || Object.keys(changed).some(key => key.startsWith('items.'))) {
-            const total = all.items?.reduce((sum: number, item: any) => {
+            const total = (all.items as Array<any> || [])?.reduce((sum: number, item: any) => {
               return sum + (item.price * item.quantity || 0);
             }, 0) || 0;
             console.log('目前總金額:', total);
@@ -131,9 +133,9 @@ export function ShoppingCartForm() {
           ]
         }}
       >
-        <Form2.Item 
-          name="customerName" 
-          label="客戶姓名" 
+        <Form2.Item
+          name="customerName"
+          label="客戶姓名"
           required
           rules={[{ required: true, message: '請輸入客戶姓名' }]}
         >
@@ -159,7 +161,7 @@ export function ShoppingCartForm() {
                         移除
                       </button>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                       <div className="md:col-span-2">
                         <Form2.Item
@@ -171,7 +173,7 @@ export function ShoppingCartForm() {
                           <Input placeholder="請輸入商品名稱" />
                         </Form2.Item>
                       </div>
-                      
+
                       <Form2.Item
                         name={`items.${name}.price`}
                         label="單價"
@@ -183,7 +185,7 @@ export function ShoppingCartForm() {
                       >
                         <NumberInput min={0.01} step={0.01} precision={2} />
                       </Form2.Item>
-                      
+
                       <Form2.Item
                         name={`items.${name}.quantity`}
                         label="數量"
@@ -199,7 +201,7 @@ export function ShoppingCartForm() {
                   </div>
                 ))}
               </div>
-              
+
               <div className="flex gap-2 mt-4">
                 <button
                   type="button"
@@ -208,7 +210,7 @@ export function ShoppingCartForm() {
                 >
                   + 新增商品
                 </button>
-                
+
                 <button
                   type="button"
                   className="btn btn-ghost"
@@ -220,7 +222,7 @@ export function ShoppingCartForm() {
             </>
           )}
         </Form2.List>
-        
+
         <div className="mt-6 flex gap-4">
           <button type="submit" className="btn btn-primary">
             確認訂單
@@ -240,17 +242,17 @@ export function TagManagerForm() {
   return (
     <div className="max-w-xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">標籤管理</h2>
-      
-      <Form2 
+
+      <Form2
         onFinish={handleFinish}
         initialValues={{
           title: '',
           tags: ['前端', '開發']
         }}
       >
-        <Form2.Item 
-          name="title" 
-          label="標題" 
+        <Form2.Item
+          name="title"
+          label="標題"
           required
           rules={[{ required: true, message: '請輸入標題' }]}
         >
@@ -274,7 +276,7 @@ export function TagManagerForm() {
                         <Input placeholder="請輸入標籤" size="sm" />
                       </Form2.Item>
                     </div>
-                    
+
                     <div className="flex gap-1">
                       {index > 0 && (
                         <button
@@ -309,7 +311,7 @@ export function TagManagerForm() {
                   </div>
                 ))}
               </div>
-              
+
               <div className="flex gap-2 mt-4">
                 <button
                   type="button"
@@ -318,7 +320,7 @@ export function TagManagerForm() {
                 >
                   + 新增標籤
                 </button>
-                
+
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm"
@@ -330,7 +332,7 @@ export function TagManagerForm() {
             </>
           )}
         </Form2.List>
-        
+
         <div className="mt-6">
           <button type="submit" className="btn btn-primary w-full">
             保存設定

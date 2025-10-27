@@ -72,14 +72,12 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   );
 };
 
-// 下拉選單
-interface SelectProps<T = string> {
-  label?: string;
-  value: T;
+// 會繼承自 HTMLSelectElement 的下拉選單，但排除原本的 onChange 屬性
+interface SelectProps<T = string> extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
+  label?: string
   onChange: (value: T) => void;
   options: Array<{ value: T; label: string }>;
   placeholder?: string;
-  className?: string;
   allowClear?: boolean; // 是否顯示清除按鈕
   layoutOptions?: React.SelectHTMLAttributes<HTMLDivElement>;
 }
@@ -95,6 +93,7 @@ export const Select = <T extends string = string>({
     className: "w-full",
   },
   allowClear = false,
+  ...props
 }: SelectProps<T>) => {
   const handleClear = () => {
     // 找到第一個空值選項，或使用空字串
@@ -121,6 +120,7 @@ export const Select = <T extends string = string>({
             className={`select select-bordered join-item flex-1 ${className}`}
             value={value}
             onChange={(e) => onChange(e.target.value as T)}
+            {...props}
           >
             <option value="" disabled>
               {placeholder}

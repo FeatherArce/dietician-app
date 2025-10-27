@@ -1,5 +1,8 @@
 import React from 'react';
-import Form2, { Input, Select, NumberInput } from './';
+import Form2 from '@/components/form2';
+import Input from '@/components/form2/controls/Input';
+import Select from '@/components/form2/controls/Select';
+import NumberInput from '@/components/form2/controls/NumberInput';
 
 // 使用陣列路徑的動態表單範例
 export function ArrayPathDynamicForm() {
@@ -14,8 +17,8 @@ export function ArrayPathDynamicForm() {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">陣列路徑動態表單</h2>
-      
-      <Form2 
+
+      <Form2
         onFinish={handleFinish}
         onValuesChange={handleValuesChange}
         initialValues={{
@@ -40,7 +43,7 @@ export function ArrayPathDynamicForm() {
                       刪除
                     </button>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* 使用陣列路徑語法 */}
                     <Form2.Item
@@ -51,7 +54,7 @@ export function ArrayPathDynamicForm() {
                     >
                       <Input placeholder="請輸入姓名" />
                     </Form2.Item>
-                    
+
                     <Form2.Item
                       name={['users', name, 'email']}
                       label="電子郵件"
@@ -63,7 +66,7 @@ export function ArrayPathDynamicForm() {
                     >
                       <Input type="email" placeholder="請輸入電子郵件" />
                     </Form2.Item>
-                    
+
                     <Form2.Item
                       name={['users', name, 'age']}
                       label="年齡"
@@ -77,7 +80,7 @@ export function ArrayPathDynamicForm() {
                   </div>
                 </div>
               ))}
-              
+
               <button
                 type="button"
                 className="btn btn-secondary btn-outline w-full"
@@ -88,7 +91,7 @@ export function ArrayPathDynamicForm() {
             </>
           )}
         </Form2.List>
-        
+
         <div className="mt-6 flex gap-4">
           <button type="submit" className="btn btn-primary">
             提交表單
@@ -108,8 +111,8 @@ export function NestedDynamicForm() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">嵌套動態表單 - 專案管理</h2>
-      
-      <Form2 
+
+      <Form2
         onFinish={handleFinish}
         initialValues={{
           projectName: '',
@@ -125,9 +128,9 @@ export function NestedDynamicForm() {
           ]
         }}
       >
-        <Form2.Item 
-          name="projectName" 
-          label="專案組名稱" 
+        <Form2.Item
+          name="projectName"
+          label="專案組名稱"
           required
           rules={[{ required: true, message: '請輸入專案組名稱' }]}
         >
@@ -169,7 +172,7 @@ export function NestedDynamicForm() {
                       </button>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <Form2.Item
                       name={['projects', projectName, 'name']}
@@ -179,7 +182,7 @@ export function NestedDynamicForm() {
                     >
                       <Input placeholder="請輸入專案名稱" />
                     </Form2.Item>
-                    
+
                     <Form2.Item
                       name={['projects', projectName, 'status']}
                       label="專案狀態"
@@ -195,14 +198,14 @@ export function NestedDynamicForm() {
                       />
                     </Form2.Item>
                   </div>
-                  
+
                   <Form2.Item
                     name={['projects', projectName, 'description']}
                     label="專案描述"
                   >
                     <Input placeholder="請輸入專案描述" />
                   </Form2.Item>
-                  
+
                   {/* 嵌套的任務列表 */}
                   <div className="mt-6">
                     <h4 className="text-lg font-medium mb-4">任務列表</h4>
@@ -221,7 +224,7 @@ export function NestedDynamicForm() {
                                   刪除
                                 </button>
                               </div>
-                              
+
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <Form2.Item
                                   name={['projects', projectName, 'tasks', taskName, 'title']}
@@ -231,7 +234,7 @@ export function NestedDynamicForm() {
                                 >
                                   <Input placeholder="請輸入任務標題" size="sm" />
                                 </Form2.Item>
-                                
+
                                 <Form2.Item
                                   name={['projects', projectName, 'tasks', taskName, 'hours']}
                                   label="預估時數"
@@ -242,7 +245,7 @@ export function NestedDynamicForm() {
                               </div>
                             </div>
                           ))}
-                          
+
                           <button
                             type="button"
                             className="btn btn-sm btn-ghost btn-outline w-full"
@@ -256,15 +259,15 @@ export function NestedDynamicForm() {
                   </div>
                 </div>
               ))}
-              
+
               <button
                 type="button"
                 className="btn btn-secondary btn-outline w-full"
-                onClick={() => projectOps.add({ 
-                  name: '', 
-                  description: '', 
+                onClick={() => projectOps.add({
+                  name: '',
+                  description: '',
                   status: 'planning',
-                  tasks: [{ title: '', hours: 1 }] 
+                  tasks: [{ title: '', hours: 1 }]
                 })}
               >
                 + 新增專案
@@ -272,7 +275,7 @@ export function NestedDynamicForm() {
             </>
           )}
         </Form2.List>
-        
+
         <div className="mt-8 flex gap-4">
           <button type="submit" className="btn btn-primary">
             提交所有專案
@@ -295,8 +298,8 @@ export function MixedPathForm() {
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">混合路徑表單</h2>
-      
-      <Form2 
+
+      <Form2
         onFinish={handleFinish}
         initialValues={{
           basicInfo: {
@@ -312,20 +315,20 @@ export function MixedPathForm() {
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-4">基本資料</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Form2.Item 
-              name="basicInfo.name" 
-              label="姓名" 
+            <Form2.Item
+              name="basicInfo.name"
+              label="姓名"
               required
             >
               <Input placeholder="請輸入姓名" />
             </Form2.Item>
-            
-            <Form2.Item 
-              name="basicInfo.email" 
+
+            <Form2.Item
+              name="basicInfo.email"
               label="電子郵件"
-              rules={[{ 
-                pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, 
-                message: '請輸入有效的電子郵件' 
+              rules={[{
+                pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: '請輸入有效的電子郵件'
               }]}
             >
               <Input type="email" placeholder="請輸入電子郵件" />
@@ -356,7 +359,7 @@ export function MixedPathForm() {
                         />
                       </Form2.Item>
                     </div>
-                    
+
                     <div className="flex-2">
                       <Form2.Item
                         name={['contacts', name, 'value']}
@@ -366,7 +369,7 @@ export function MixedPathForm() {
                         <Input placeholder="請輸入聯絡方式" />
                       </Form2.Item>
                     </div>
-                    
+
                     <button
                       type="button"
                       className="btn btn-error btn-sm mb-2"
@@ -377,7 +380,7 @@ export function MixedPathForm() {
                     </button>
                   </div>
                 ))}
-                
+
                 <button
                   type="button"
                   className="btn btn-secondary btn-outline btn-sm"
@@ -389,7 +392,7 @@ export function MixedPathForm() {
             )}
           </Form2.List>
         </div>
-        
+
         <div className="mt-6">
           <button type="submit" className="btn btn-primary">
             提交表單

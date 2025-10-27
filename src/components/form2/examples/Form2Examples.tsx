@@ -6,8 +6,13 @@
  */
 
 import React from 'react';
-import Form2 from './Form2';
-import { Input, TextArea, Select, Checkbox, RadioGroup, NumberInput } from './Form2Controls';
+import Form2 from '@/components/form2';
+import Input from '@/components/form2/controls/Input';
+import Select from '@/components/form2/controls/Select';
+import NumberInput from '@/components/form2/controls/NumberInput';
+import TextArea from '@/components/form2/controls/TextArea';
+import Checkbox from '@/components/form2/controls/Checkbox';
+import RadioGroup from '@/components/form2/controls/RadioGroup';
 
 // 基本使用示例
 export function BasicFormExample() {
@@ -69,8 +74,10 @@ export function BasicFormExample() {
           rules={[
             { 
               validator: async (value) => {
-                if (value < 18) return '年齡必須大於18歲';
-                if (value > 100) return '年齡必須小於100歲';
+                const num = Number(value);
+                if (isNaN(num)) return '年齡必須是數字';
+                if (num < 18) return '年齡必須大於18歲';
+                if (num > 100) return '年齡必須小於100歲';
                 return '';
               }
             }
@@ -203,7 +210,7 @@ export function ComplexValidationExample() {
   };
 
   // 自定義驗證器 - 檢查用戶名是否已存在
-  const checkUsernameExists = async (username: string) => {
+  const checkUsernameExists = async (username: any) => {
     // 模擬 API 調用
     await new Promise(resolve => setTimeout(resolve, 1000));
     
@@ -215,7 +222,7 @@ export function ComplexValidationExample() {
   };
 
   // 確認密碼驗證器
-  const confirmPasswordValidator = async (value: string, allValues: any) => {
+  const confirmPasswordValidator = async (value: any, allValues: any) => {
     if (value !== allValues.password) {
       return '兩次輸入的密碼不一致';
     }
