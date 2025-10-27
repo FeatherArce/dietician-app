@@ -11,7 +11,7 @@ import {
   FaEdit
 } from "react-icons/fa";
 import Breadcrumb from "@/components/Breadcrumb";
-import { authFetch } from "@/utils/auth-fetch";
+import { authFetch } from "@/libs/auth-fetch";
 
 interface Shop {
   id: string;

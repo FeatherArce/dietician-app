@@ -1,12 +1,12 @@
 "use client";
 
 import React from 'react';
-import { notification } from '@/components/Notification';
+import { Notification } from '@/components/Notification';
 import Breadcrumb from '@/components/Breadcrumb';
 
 export default function NotificationTestPage() {
   const showSuccess = () => {
-    notification.success({
+    Notification.success({
       title: '操作成功',
       message: '資料已成功儲存！',
       duration: 3000,
@@ -14,7 +14,7 @@ export default function NotificationTestPage() {
   };
 
   const showError = () => {
-    notification.error({
+    Notification.error({
       title: '操作失敗', 
       message: '伺服器連線異常，請稍後再試。',
       duration: 0,
@@ -34,7 +34,7 @@ export default function NotificationTestPage() {
   };
 
   const showWarning = () => {
-    notification.warning({
+    Notification.warning({
       title: '注意',
       message: '您有未儲存的變更，離開頁面將會遺失資料。',
       actions: [
@@ -48,13 +48,13 @@ export default function NotificationTestPage() {
   };
 
   const showInfo = () => {
-    notification.info({
+    Notification.info({
       message: '系統將在 5 分鐘後進行維護。',
     });
   };
 
   const showCustom = () => {
-    notification.open({
+    Notification.open({
       type: 'success',
       title: '自訂通知',
       message: (

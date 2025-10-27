@@ -17,7 +17,7 @@ type SelectValueType = string | readonly string[] | number | undefined;
 export interface SelectProps<T = string> extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'size'> {
     // override value to be generic
     size?: 'sm' | 'md' | 'lg';
-    onChange: (value: SelectValueType) => void;
+    onChange?: (value: SelectValueType) => void;
     // apply props
     layoutOptions?: React.SelectHTMLAttributes<HTMLDivElement>;
     options: Array<{ value: SelectValueType; label: string }>;
@@ -63,13 +63,17 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(({
     const errorClass = error ? 'select-error' : '';
     const showClearButton = allowClear && value && value !== '';
 
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        onChange?.(e.target.value);
+    }
+
     const handleClear = () => {
         // 找到第一個空值選項，或使用空字串
         const defaultOption = options.find(opt => opt.value === '');
         if (defaultOption) {
-            onChange(defaultOption.value);
+            onChange?.(defaultOption.value);
         } else {
-            onChange('');
+            onChange?.('');
         }
     };
 
@@ -83,9 +87,9 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(({
             {showClearButton ? (
                 <div className="join w-full">
                     <select
-                        className={`select join-item flex-1 ${className}`}
+                        className={`select select-bordered w-full ${sizeClass} ${errorClass} ${className}`.trim()}
                         value={value}
-                        onChange={(e) => onChange(e.target.value)}
+                        onChange={handleChange}
                         {...props}
                     >
                         <option value="" disabled>
@@ -108,9 +112,9 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(({
                 </div>
             ) : (
                 <select
-                    className={`select select-bordered ${className}`}
+                    className={`select select-bordered w-full ${sizeClass} ${errorClass} ${className}`.trim()}
                     value={value}
-                    onChange={(e) => onChange(e.target.value)}
+                    onChange={handleChange}
                 >
                     <option value="" disabled>
                         {placeholder}

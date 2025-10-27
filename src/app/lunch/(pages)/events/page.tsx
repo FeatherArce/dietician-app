@@ -16,7 +16,7 @@ import {
 } from "react-icons/fa";
 import { LunchEvent } from "@/prisma-generated/postgres-client";
 import Breadcrumb from "@/components/Breadcrumb";
-import { notification, useNotificationAPI } from "@/components/Notification";
+import { Notification, useNotificationAPI } from "@/components/Notification";
 import { toast, useToastAPI } from "@/components/Toast";
 import DataTable, { Column } from "@/components/DataTable";
 import SearchContainer from "@/components/SearchContainer";
@@ -142,7 +142,7 @@ export default function EventsPage() {
     const action = isActive ? "關閉" : "開啟";
 
     // 使用 notification 來顯示確認對話框
-    notification.warning({
+    Notification.warning({
       title: '確認操作',
       message: `確定要${action}此活動嗎？`,
       actions: [
@@ -435,7 +435,6 @@ export default function EventsPage() {
         pagination={{
           current: 1,
           pageSize: 20,
-          total: filteredEvents.length,
           showSizeChanger: true,
           pageSizeOptions: [10, 20, 50, 100],
           showQuickJumper: true,

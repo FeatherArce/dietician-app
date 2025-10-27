@@ -37,7 +37,7 @@ export interface FormContextType {
   setFieldValue: (name: string | (string | number)[], value: unknown) => void;
   setFieldError: (name: string | (string | number)[], error: string | string[] | undefined) => void;
   setFieldTouched: (name: string | (string | number)[], touched: boolean) => void;
-  validateField: (name: string | (string | number)[]) => Promise<void>;
+  validateField: (name: string | (string | number)[]) => Promise<string | undefined | null>;
   onValuesChange?: (changedValues: FormValues, allValues: FormValues) => void;
 }
 

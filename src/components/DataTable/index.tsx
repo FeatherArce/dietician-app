@@ -1,4 +1,5 @@
 "use client";
+import { cn } from '@/libs/utils';
 import React, { useState, useMemo } from 'react';
 import {
   FaSearch,
@@ -299,11 +300,19 @@ function DataTable<T extends Record<string, unknown>>({
   };
 
   // 獲取對齊樣式
-  const getAlignClass = (align?: TextAlign) => {
+  const getTextAlignClass = (align?: TextAlign) => {
     switch (align) {
       case 'center': return 'text-center';
       case 'right': return 'text-right';
       default: return 'text-left';
+    }
+  };
+
+  const getFlexAlignClass = (align?: TextAlign) => {
+    switch (align) {
+      case 'center': return 'justify-center';
+      case 'right': return 'justify-end';
+      default: return 'justify-start';
     }
   };
 
@@ -427,7 +436,7 @@ function DataTable<T extends Record<string, unknown>>({
             return (
               <td
                 key={column.key}
-                className={`${getAlignClass(column.align)} ${column.className || ''} text-base md:text-sm font-medium`}
+                className={`${getTextAlignClass(column.align)} ${column.className || ''} text-base md:text-sm font-medium`}
               >
                 {summaryColumn ? calculateSummary(summaryColumn, summaryData, allData) : ''}
               </td>
@@ -444,54 +453,61 @@ function DataTable<T extends Record<string, unknown>>({
       <div className="card bg-base-100 shadow-sm">
         <div className="overflow-x-auto">
           <table className={getTableClassName()}>
+            <colgroup>
+              {columns.map((column) => (
+                <col key={column.key} style={{ width: column.width }} />
+              ))}
+            </colgroup>
             <thead>
               <tr>
-                {columns.map((column) => (
-                  <th
-                    key={column.key}
-                    className={`${getAlignClass(column.align)} ${column.className || ''} text-base md:text-sm font-medium`}
-                    style={{ width: column.width }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={column.sortable ? 'cursor-pointer select-none' : ''}
-                        onClick={() => handleSort(column.key)}
-                      >
-                        {column.title}
-                      </span>
+                {columns.map((column) => {
+                  const alignClass = getFlexAlignClass(column.align);
+                  return (
+                    <th
+                      key={column.key}
+                      className={`${column.className || ''} text-base md:text-sm font-medium`}                      
+                    >
+                      <div className={cn("flex items-center gap-2", alignClass )}>
+                        <span
+                          className={cn(alignClass, column.sortable ? 'cursor-pointer select-none' : '')}
+                          onClick={() => handleSort(column.key)}
+                        >
+                          {column.title}
+                        </span>
 
-                      {renderSortIcon(column)}
+                        {renderSortIcon(column)}
 
-                      {/* 篩選功能 */}
-                      {column.filterable && (
-                        <div className="dropdown dropdown-bottom dropdown-end">
-                          <div tabIndex={0} role="button" className="btn btn-ghost btn-xs">
-                            <FaFilter className={`w-3 h-3 ${filters[column.key] ? 'text-primary' : 'text-base-content/30'}`} />
-                          </div>
-                          <div tabIndex={0} className="dropdown-content card card-compact w-64 p-2 shadow bg-base-100 z-[1]">
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="text"
-                                placeholder={`篩選 ${column.title}`}
-                                className="input input-bordered input-sm flex-1"
-                                value={filters[column.key] || ''}
-                                onChange={(e) => handleFilter(column.key, e.target.value)}
-                              />
-                              {filters[column.key] && (
-                                <button
-                                  className="btn btn-ghost btn-sm btn-circle"
-                                  onClick={() => clearFilter(column.key)}
-                                >
-                                  <FaTimes className="w-3 h-3" />
-                                </button>
-                              )}
+                        {/* 篩選功能 */}
+                        {column.filterable && (
+                          <div className="dropdown dropdown-bottom dropdown-end">
+                            <div tabIndex={0} role="button" className="btn btn-ghost btn-xs">
+                              <FaFilter className={`w-3 h-3 ${filters[column.key] ? 'text-primary' : 'text-base-content/30'}`} />
+                            </div>
+                            <div tabIndex={0} className="dropdown-content card card-compact w-64 p-2 shadow bg-base-100 z-[1]">
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  placeholder={`篩選 ${column.title}`}
+                                  className="input input-bordered input-sm flex-1"
+                                  value={filters[column.key] || ''}
+                                  onChange={(e) => handleFilter(column.key, e.target.value)}
+                                />
+                                {filters[column.key] && (
+                                  <button
+                                    className="btn btn-ghost btn-sm btn-circle"
+                                    onClick={() => clearFilter(column.key)}
+                                  >
+                                    <FaTimes className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  </th>
-                ))}
+                        )}
+                      </div>
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody>
@@ -527,7 +543,7 @@ function DataTable<T extends Record<string, unknown>>({
                         return (
                           <td
                             key={column.key}
-                            className={`${getAlignClass(column.align)} ${column.className || ''} text-base md:text-sm py-3`}
+                            className={`${getTextAlignClass(column.align)} ${column.className || ''} text-base md:text-sm py-3`}
                           >
                             {content}
                           </td>

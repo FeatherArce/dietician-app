@@ -1,5 +1,11 @@
 /* Form2 組件的基礎樣式 */
 
+:root {
+  --text-bc: #333333;
+  --text-er: #ff0000;
+  --border-b3 : #cccccc;
+}
+
 .form2 {
   width: 100%;
 }
@@ -12,12 +18,12 @@
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--fallback-bc, oklch(var(--bc)));
+  color: var(--text-bc);
   margin-bottom: 0.25rem;
 }
 
 .form-item-required {
-  color: var(--fallback-er, oklch(var(--er)));
+  color: var(--text-er);
 }
 
 .form-item-control {
@@ -25,7 +31,7 @@
 }
 
 .form-item-error-message {
-  color: var(--fallback-er, oklch(var(--er)));
+  color: var(--text-er);
   font-size: 0.75rem;
   margin-top: 0.25rem;
 }
@@ -39,20 +45,20 @@
 .form-item-error .form-item-control input,
 .form-item-error .form-item-control textarea,
 .form-item-error .form-item-control select {
-  border-color: var(--fallback-er, oklch(var(--er)));
+  border-color: var(--text-er);
 }
 
 /* 針對 DaisyUI 的特殊樣式調整 */
 .form-item-error .input {
-  border-color: var(--fallback-er, oklch(var(--er)));
+  border-color: var(--text-er);
 }
 
 .form-item-error .textarea {
-  border-color: var(--fallback-er, oklch(var(--er)));
+  border-color: var(--text-er);
 }
 
 .form-item-error .select {
-  border-color: var(--fallback-er, oklch(var(--er)));
+  border-color: var(--text-er);
 }
 
 /* 表單項目間距調整 */
@@ -140,7 +146,7 @@
   justify-content: flex-end;
   gap: 0.5rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--fallback-b3, oklch(var(--b3)));
+  border-top: 1px solid var(--border-b3);
   margin-top: 1.5rem;
 }
 
@@ -149,7 +155,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--fallback-b3, oklch(var(--b3)));
+  border-top: 1px solid var(--border-b3);
   margin-top: 1.5rem;
 }
 
@@ -158,7 +164,7 @@
   justify-content: flex-start;
   gap: 0.5rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--fallback-b3, oklch(var(--b3)));
+  border-top: 1px solid var(--border-b3);
   margin-top: 1.5rem;
 }
 
@@ -167,6 +173,6 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 1rem;
-  border-top: 1px solid var(--fallback-b3, oklch(var(--b3)));
+  border-top: 1px solid var(--border-b3);
   margin-top: 1.5rem;
 }

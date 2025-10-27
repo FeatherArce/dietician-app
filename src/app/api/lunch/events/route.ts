@@ -1,28 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { lunchEventService, type CreateLunchEventData, type LunchEventFilters } from '@/services/server/lunch/lunch-event-services';
+import { checkRequiredFields } from '@/libs/utils';
 
 export async function GET(request: NextRequest) {
     try {
         const searchParams = request.nextUrl.searchParams;
-        
+
         // 解析查詢參數
         const filters: LunchEventFilters = {};
-        
+
         const isActiveParam = searchParams.get('is_active');
         if (isActiveParam !== null) {
             filters.isActive = isActiveParam === 'true';
         }
-        
+
         const ownerIdParam = searchParams.get('owner_id');
         if (ownerIdParam) {
             filters.ownerId = ownerIdParam;
         }
-        
+
         const dateFromParam = searchParams.get('date_from');
         if (dateFromParam) {
             filters.eventDateFrom = new Date(dateFromParam);
         }
-        
+
         const dateToParam = searchParams.get('date_to');
         if (dateToParam) {
             filters.eventDateTo = new Date(dateToParam);
@@ -30,11 +31,11 @@ export async function GET(request: NextRequest) {
 
         const events = await lunchEventService.getEvents(filters);
         return NextResponse.json({ events, success: true });
-        
+
     } catch (error) {
         console.error('GET /api/lunch/events error:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch events', success: false }, 
+            { error: 'Failed to fetch events', success: false },
             { status: 500 }
         );
     }
@@ -45,12 +46,13 @@ export async function POST(request: NextRequest) {
         console.log('POST /api/lunch/events - Starting');
         const data = await request.json();
         console.log('Request data received:', data);
-        
+
         // 驗證必要欄位
-        if (!data.title || !data.event_date || !data.order_deadline || !data.owner_id) {
-            console.log('Validation failed - missing required fields');
+        const missingFields = checkRequiredFields(data, ['title', 'event_date', 'order_deadline', 'owner_id']);
+        if (missingFields.length > 0) {
+            console.log('Validation failed - missing fields:', missingFields);
             return NextResponse.json(
-                { error: '缺少必要欄位: title, event_date, order_deadline, owner_id', success: false }, 
+                { error: `缺少必要欄位: ${missingFields.join(', ')}`, success: false },
                 { status: 400 }
             );
         }
@@ -72,17 +74,17 @@ export async function POST(request: NextRequest) {
         console.log('Creating event with data:', eventData);
         const event = await lunchEventService.createEvent(eventData);
         console.log('Event created successfully:', event);
-        
-        return NextResponse.json({ 
-            event, 
-            message: '事件已新增', 
-            success: true 
+
+        return NextResponse.json({
+            event,
+            message: '事件已新增',
+            success: true
         }, { status: 201 });
-        
+
     } catch (error) {
         console.error('POST /api/lunch/events error:', error);
         return NextResponse.json(
-            { error: 'Failed to create event', success: false }, 
+            { error: 'Failed to create event', success: false },
             { status: 500 }
         );
     }
@@ -91,16 +93,16 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
     try {
         const data = await request.json();
-        
+
         if (!data.id) {
             return NextResponse.json(
-                { error: '缺少事件ID', success: false }, 
+                { error: '缺少事件ID', success: false },
                 { status: 400 }
             );
         }
 
         const { id, ...updateData } = data;
-        
+
         // 轉換日期欄位
         if (updateData.event_date) {
             updateData.event_date = new Date(updateData.event_date);
@@ -116,16 +118,16 @@ export async function PUT(request: NextRequest) {
         }
 
         const event = await lunchEventService.updateEvent(id, updateData);
-        return NextResponse.json({ 
-            event, 
-            message: '事件已更新', 
-            success: true 
+        return NextResponse.json({
+            event,
+            message: '事件已更新',
+            success: true
         });
-        
+
     } catch (error) {
         console.error('PUT /api/lunch/events error:', error);
         return NextResponse.json(
-            { error: 'Failed to update event', success: false }, 
+            { error: 'Failed to update event', success: false },
             { status: 500 }
         );
     }
@@ -134,25 +136,25 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
     try {
         const data = await request.json();
-        
+
         if (!data.id) {
             return NextResponse.json(
-                { error: '缺少事件ID', success: false }, 
+                { error: '缺少事件ID', success: false },
                 { status: 400 }
             );
         }
 
         const event = await lunchEventService.deleteEvent(data.id);
-        return NextResponse.json({ 
-            event, 
-            message: '事件已刪除', 
-            success: true 
+        return NextResponse.json({
+            event,
+            message: '事件已刪除',
+            success: true
         });
-        
+
     } catch (error) {
         console.error('DELETE /api/lunch/events error:', error);
         return NextResponse.json(
-            { error: 'Failed to delete event', success: false }, 
+            { error: 'Failed to delete event', success: false },
             { status: 500 }
         );
     }

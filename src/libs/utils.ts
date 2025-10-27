@@ -10,3 +10,13 @@ export function isEmpty(value: unknown): boolean {
 export function cn(...classes: (string | undefined | false)[]): string {
     return classes.filter(Boolean).join(' ');
 }
+
+export function checkRequiredFields<T>(obj: T, requiredFields: (keyof T)[]): string[] {
+    const missingFields: string[] = [];
+    for (const field of requiredFields) {
+        if (isEmpty(obj[field])) {
+            missingFields.push(field as string);
+        }
+    }
+    return missingFields;
+}

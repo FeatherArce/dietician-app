@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { authFetch } from '@/utils/auth-fetch';
+import { authFetch } from '@/libs/auth-fetch';
 import { DEFAULT_VALUES } from '@/constants/app-constants';
 import {
   FaPlus,

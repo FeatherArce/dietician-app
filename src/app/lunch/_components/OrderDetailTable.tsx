@@ -1,6 +1,6 @@
 'use client';
 import DataTable from '@/components/DataTable';
-import { formatCurrency } from '@/utils/formatter';
+import { formatCurrency } from '@/libs/formatter';
 import React, { useCallback, useMemo, useState } from 'react'
 import { FaClipboardList, FaUserFriends } from 'react-icons/fa';
 import { EventStatistics } from '../types';

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Form2 from '@/components/form2';
+import { Form2 } from '@/components/form2';
 import Input from '@/components/form2/controls/Input';
 import Select from '@/components/form2/controls/Select';
 import NumberInput from '@/components/form2/controls/NumberInput';

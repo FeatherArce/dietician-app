@@ -2,13 +2,20 @@
 
 import React, { useState } from 'react';
 import { FaMinus, FaPlus, FaCheck, FaTimes } from 'react-icons/fa';
-import Form2, { FormValues } from '@/components/form2';
+import { Form2, FormValues } from '@/components/form2';
 import Input from '@/components/form2/controls/Input';
 import NumberInput from '@/components/form2/controls/NumberInput';
 import TextArea from '@/components/form2/controls/TextArea';
 
 interface CustomMealFormProps {
   isOpen: boolean;
+  initialValues?: {
+    name: string;
+    price: number;
+    quantity: number;
+    note: string;
+    description: string;
+  };
   onClose: () => void;
   onSubmit: (data: {
     name: string;
@@ -19,7 +26,18 @@ interface CustomMealFormProps {
   }) => void;
 }
 
-export default function CustomMealForm({ isOpen, onClose, onSubmit }: CustomMealFormProps) {
+export default function CustomMealForm({
+  isOpen,
+  initialValues = {
+    name: '',
+    price: 0,
+    quantity: 1,
+    note: '',
+    description: ''
+  },
+  onClose,
+  onSubmit
+}: CustomMealFormProps) {
   const [currentQuantity, setCurrentQuantity] = useState(1);
   const [currentPrice, setCurrentPrice] = useState(0);
 
@@ -44,13 +62,7 @@ export default function CustomMealForm({ isOpen, onClose, onSubmit }: CustomMeal
       <div className="modal-box w-11/12 max-w-md">
         <Form2
           onFinish={handleFinish}
-          initialValues={{
-            name: '',
-            price: 0,
-            quantity: 1,
-            note: '',
-            description: ''
-          }}
+          initialValues={initialValues}
         >
           {/* 表單標題 */}
           <div className="flex justify-between items-center mb-4">

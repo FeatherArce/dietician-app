@@ -1,73 +1,96 @@
 /**
- * 認證 HTTP 客戶端工具
- * 自動加入認證標頭的 fetch 包裝器
+ * 帶有自動 token 刷新功能的 fetch 工具
  */
+import { AUTH_CONSTANTS } from '@/constants/app-constants';
 
-interface FetchOptions extends RequestInit {
-  headers?: Record<string, string>;
+export interface AuthFetchOptions extends RequestInit {
+  skipRefresh?: boolean; // 跳過自動刷新（避免無限循環）
 }
 
 /**
- * 帶認證的 fetch 包裝器
- * @param url 請求 URL
- * @param options fetch 選項
- * @returns Promise<Response>
+ * 嘗試刷新 access token
  */
-export async function authenticatedFetch(url: string, options: FetchOptions = {}): Promise<Response> {
-  const token = localStorage.getItem('auth-token');
-  
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
-
-  // 如果有 token，加入 Authorization header
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+async function refreshAccessToken(): Promise<boolean> {
+  try {
+    const response = await fetch(AUTH_CONSTANTS.REFRESH_ENDPOINT, {
+      method: 'POST',
+      credentials: 'include'
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.access_token) {
+        localStorage.setItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY, data.access_token);
+        return true;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to refresh token:', error);
   }
-
-  return fetch(url, {
-    ...options,
-    headers,
-  });
+  
+  return false;
 }
 
 /**
- * 帶認證的 JSON 請求
- * @param url 請求 URL  
- * @param options fetch 選項
- * @returns Promise<unknown>
+ * 帶自動認證處理的 fetch
  */
-export async function authenticatedFetchJson(url: string, options: FetchOptions = {}): Promise<unknown> {
-  const response = await authenticatedFetch(url, options);
+export async function authFetch(url: string, options: AuthFetchOptions = {}): Promise<Response> {
+  const { skipRefresh = false, ...fetchOptions } = options;
+  
+  // 獲取當前 token
+  const token = localStorage.getItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY);
+  
+  // 設置 Authorization header
+  const headers = {
+    ...fetchOptions.headers,
+    'Authorization': `Bearer ${token}`
+  };
+  
+  // 執行第一次請求
+  const response = await fetch(url, {
+    ...fetchOptions,
+    headers
+  });
+  
+  // 如果是 401 且未跳過刷新，嘗試刷新 token
+  if (response.status === 401 && !skipRefresh) {
+    const refreshSuccess = await refreshAccessToken();
+    
+    if (refreshSuccess) {
+      // 刷新成功，重新發送請求
+      const newToken = localStorage.getItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY);
+      const newHeaders = {
+        ...fetchOptions.headers,
+        'Authorization': `Bearer ${newToken}`
+      };
+      
+      return fetch(url, {
+        ...fetchOptions,
+        headers: newHeaders
+      });
+    } else {
+      // 刷新失敗，清除本地狀態並重定向到登入頁
+      localStorage.removeItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY);
+      window.location.href = AUTH_CONSTANTS.LOGIN_REDIRECT;
+    }
+  }
+  
+  return response;
+}
+
+/**
+ * 帶自動認證處理的 JSON fetch
+ */
+export async function authFetchJson<T = unknown>(
+  url: string, 
+  options: AuthFetchOptions = {}
+): Promise<T> {
+  const response = await authFetch(url, options);
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `HTTP ${response.status}`);
+  }
+  
   return response.json();
 }
-
-/**
- * GET 請求
- */
-export const authGet = (url: string) => authenticatedFetchJson(url);
-
-/**
- * POST 請求
- */
-export const authPost = (url: string, data?: unknown) => 
-  authenticatedFetchJson(url, {
-    method: 'POST',
-    body: data ? JSON.stringify(data) : undefined,
-  });
-
-/**
- * PUT 請求
- */
-export const authPut = (url: string, data?: unknown) => 
-  authenticatedFetchJson(url, {
-    method: 'PUT', 
-    body: data ? JSON.stringify(data) : undefined,
-  });
-
-/**
- * DELETE 請求
- */
-export const authDelete = (url: string) => 
-  authenticatedFetchJson(url, { method: 'DELETE' });

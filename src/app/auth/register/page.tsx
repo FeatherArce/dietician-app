@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormCard, FormField, FormErrors } from "@/components/form";
 import { useAuth } from "@/hooks/useAuth";
 import RegisterForm from "./RegisterForm";
-import { notification } from "@/components/Notification";
+import { Notification } from "@/components/Notification";
 import { register } from "@/services/client/auth";
 
 function RegisterPageOld() {
@@ -181,7 +181,7 @@ export default function RegisterPage() {
       }
     } catch (error) {
       console.error("Registration error:", error);
-      notification.error({ title: "註冊失敗", message: error instanceof Error ? error.message : "請稍後再試" });
+      Notification.error({ title: "註冊失敗", message: error instanceof Error ? error.message : "請稍後再試" });
     } finally {
       setIsLoading(false);
     }

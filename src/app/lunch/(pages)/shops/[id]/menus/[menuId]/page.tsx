@@ -13,7 +13,7 @@ import {
   FaToggleOff
 } from "react-icons/fa";
 import Breadcrumb from "@/components/Breadcrumb";
-import { authFetch } from "@/utils/auth-fetch";
+import { authFetch } from "@/libs/auth-fetch";
 import { Select } from "@/components/SearchContainer/SearchFields";
 import { ShopFormData } from "@/components/shop/ShopForm";
 import MenuCategoryManager, { MenuCategory } from "@/components/menu/MenuCategoryManager";

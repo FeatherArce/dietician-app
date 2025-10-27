@@ -56,7 +56,7 @@ const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(({
             value={value !== undefined ? value : ''}
             onChange={handleChange}
             onBlur={onBlur}
-            className={`input input-bordered w-full ${sizeClass} ${errorClass} ${className}`.trim()}
+            className={`input validator input-bordered w-full ${sizeClass} ${errorClass} ${className}`.trim()}
             {...props}
         />
     );

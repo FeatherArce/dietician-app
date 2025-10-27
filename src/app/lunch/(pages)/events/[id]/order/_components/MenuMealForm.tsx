@@ -1,8 +1,7 @@
 "use client";
-
 import React, { useState } from 'react';
 import { FaMinus, FaPlus, FaCheck, FaTimes } from 'react-icons/fa';
-import Form2, { FormValues } from '@/components/form2';
+import { Form2, FormValues } from '@/components/form2';
 import Input from '@/components/form2/controls/Input';
 import NumberInput from '@/components/form2/controls/NumberInput';
 

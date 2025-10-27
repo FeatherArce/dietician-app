@@ -105,7 +105,7 @@ export default function EventCard({
                         </div>
                     )}
 
-                    {!isOwner && event.owner && (
+                    {event.owner && (
                         <div className="flex items-center space-x-2">
                             <FaUser className="w-3 h-3 text-accent" />
                             <span>主辦人：{event.owner.name}</span>

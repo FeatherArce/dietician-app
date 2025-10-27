@@ -14,6 +14,7 @@ import {
   FaUsers,
   FaStore,
   FaUtensils,
+  FaEdit,
 } from "react-icons/fa";
 import Breadcrumb from "@/components/Breadcrumb";
 import Tabs from "@/components/Tabs";
@@ -21,7 +22,11 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { EventData, EventMenuItem, EventMenu, EventMenuCategory } from "@/types/LunchEvent";
 import MenuMealForm from "./_components/MenuMealForm";
 import CustomMealForm from "./_components/CustomMealForm";
-import { notification } from "@/components/Notification";
+import { Notification } from "@/components/Notification";
+import AddOrderForm from "./_components/AddOrderForm";
+import DataTable from "@/components/DataTable";
+import { Input } from "@/components/form2";
+import { formatCurrency, formatNumber } from "@/libs/formatter";
 
 interface OrderItem {
   id?: string;
@@ -32,6 +37,8 @@ interface OrderItem {
   description?: string;
   category_name?: string;
   menu_item_id?: string;
+
+  [key: string]: unknown; // 添加索引簽章以符合 Record<string, unknown>
 }
 
 interface ExistingOrder {
@@ -307,7 +314,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       const data = await response.json();
 
       if (data.success) {
-        notification.success({
+        Notification.success({
           message: existingOrder ? "訂單已更新！" : "訂單已提交！",
         });
         // 使用瀏覽器返回上一頁，而不是強制跳轉到特定頁面
@@ -317,7 +324,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       }
     } catch (error) {
       console.error("Failed to submit order:", error);
-      notification.error({
+      Notification.error({
         message: "提交訂單失敗：" + (error as Error).message,
       });
     } finally {
@@ -507,89 +514,104 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* 左側：菜單選擇 */}
-        <div className="lg:col-span-2">
-          <div className="card bg-base-100 shadow-sm">
-            <div className="card-body">
-              <div className="flex justify-between items-center">
-                <h3 className="card-title">菜單</h3>
-                {event.allow_custom_items && (
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    onClick={openCustomForm}
-                  >
-                    <FaPlus className="w-3 h-3 mr-1" />
-                    自訂餐點
-                  </button>
-                )}
-              </div>
-              <p className="text-gray-500">請選擇您想要的餐點，若餐點不在菜單上，請透過 &quot;自訂餐點&quot; 功能新增。</p>
-
-              {tabMenus?.length > 0 ? (
-                tabMenus?.map((menu, index) => (
-                  <Tabs
-                    key={`tab-menu-${index}`}
-                    items={(menu?.categories || []).map(category => ({
-                      id: category.id,
-                      label: category.name,
-                      icon: <FaUtensils className="w-3 h-3 mr-1" />,
-                      content: (
-                        <TabMenuContent category={category} />
-                      )
-                    }))}
-                    variant="boxed"
-                  />
-                ))
-              ) : (
-                <div className="text-center py-8 text-base-content/50">
-                  <FaUtensils className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                  <p>此活動尚未設定菜單</p>
-                  {event.allow_custom_items && (
-                    <p className="mt-2">您可以使用上方的「自訂餐點」按鈕新增項目</p>
-                  )}
-                </div>
+      {/* 菜單 */}
+      <div className="">
+        <div className="card bg-base-100 shadow-sm">
+          <div className="card-body">
+            <div className="flex justify-between items-center">
+              <h3 className="card-title">菜單</h3>
+              {event.allow_custom_items && (
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={openCustomForm}
+                >
+                  <FaPlus className="w-3 h-3 mr-1" />
+                  自訂餐點
+                </button>
               )}
             </div>
+            <p className="text-gray-500">請選擇您想要的餐點，若餐點不在菜單上，請透過 &quot;自訂餐點&quot; 功能新增。</p>
+
+            {tabMenus?.length > 0 ? (
+              tabMenus?.map((menu, index) => (
+                <Tabs
+                  key={`tab-menu-${index}`}
+                  items={(menu?.categories || []).map(category => ({
+                    id: category.id,
+                    label: category.name,
+                    icon: <FaUtensils className="w-3 h-3 mr-1" />,
+                    content: (
+                      <TabMenuContent category={category} />
+                    )
+                  }))}
+                  variant="boxed"
+                />
+              ))
+            ) : (
+              <div className="text-center py-8 text-base-content/50">
+                <FaUtensils className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                <p>此活動尚未設定菜單</p>
+                {event.allow_custom_items && (
+                  <p className="mt-2">您可以使用上方的「自訂餐點」按鈕新增項目</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* 右側：訂單摘要 */}
-        <div className="space-y-6">
-          <div className="card bg-base-100 shadow-sm sticky top-4">
-            <div className="card-body">
-              <h3 className="card-title">訂單摘要</h3>
+      {/* 訂單摘要 */}
+      <div className="space-y-6">
+        <div className="card bg-base-100 shadow-sm sticky top-4">
+          <div className="card-body">
+            <h3 className="card-title">訂單摘要</h3>
 
-              {/* 訂單項目 */}
-              <div className="space-y-3">
-                <div className="form-control vertical">
-                  <label className="label">
-                    <span className="label-text">訂單項目</span>
-                  </label>
-                </div>
-                {orderItems.length === 0 ? (
-                  <p className="text-base-content/70 text-center py-4">尚未選擇餐點</p>
-                ) : (
-                  orderItems.map((item, index) => (
-                    <div key={index} className="border border-base-300 rounded p-3 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <h6 className="font-medium">{item.name}</h6>
-                          <p className="text-sm text-base-content/70">${item.price} × {item.quantity} = ${item.price * item.quantity}</p>
-                        </div>
+            {/* 訂單項目 */}
+            <div className="space-y-3">
+              <div className="form-control vertical">
+                <label className="label">
+                  <span className="label-text">訂單項目</span>
+                </label>
+              </div>
+              <div>
+                <DataTable<OrderItem>
+                  dataSource={orderItems}
+                  columns={[
+                    { title: '餐點', key: 'name' },
+                    {
+                      title: '單價',
+                      key: 'price',
+                      align: 'right',
+                      width: 100,
+                      render: (_, record) => formatCurrency(record.price)
+                    },
+                    {
+                      title: '數量',
+                      key: 'quantity',
+                      align: 'right',
+                      width: 100,
+                      render: (_, record, index) => formatNumber(record.quantity)
+                    },
+                    {
+                      title: '小計',
+                      key: 'subtotal',
+                      align: 'right',
+                      width: 100,
+                      render: (_, record) => {
+                        return formatCurrency(record.price * record.quantity);
+                      }
+                    },
+                    {
+                      title: '備註',
+                      key: 'note',
+                    },
+                    {
+                      title: '操作', key: 'actions', render: (_, record, index) => (<>
                         <div className="flex items-center space-x-2">
                           <button
                             className="btn btn-ghost btn-xs"
-                            onClick={() => updateItemQuantity(index, -1)}
                           >
-                            <FaMinus className="w-3 h-3" />
-                          </button>
-                          <span className="w-8 text-center">{item.quantity}</span>
-                          <button
-                            className="btn btn-ghost btn-xs"
-                            onClick={() => updateItemQuantity(index, 1)}
-                          >
-                            <FaPlus className="w-3 h-3" />
+                            <FaEdit className="w-3 h-3" />
                           </button>
                           <button
                             className="btn btn-error btn-xs"
@@ -598,63 +620,52 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
                             <RiDeleteBin6Line className="w-4 h-4" />
                           </button>
                         </div>
-                      </div>
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text text-sm">餐點備註</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="input input-bordered input-xs"
-                          value={item.note || ""}
-                          onChange={(e) => setOrderItems(orderItems.map((orderItem, i) =>
-                            i === index ? { ...orderItem, note: e.target.value } : orderItem
-                          ))}
-                          placeholder="餐點備註 (例：不要辣、加蛋...)"
-                        />
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* 備註 */}
-              <div className="form-control vertical">
-                <label className="label">
-                  <span className="label-text">訂單備註</span>
-                </label>
-                <textarea
-                  className="textarea textarea-bordered w-full"
-                  value={orderNote}
-                  onChange={(e) => setOrderNote(e.target.value)}
-                  placeholder="特殊需求或備註..."
-                  rows={3}
+                      </>)
+                    },
+                  ]}
+                  summary={{
+                    show: true,
+                    columns: [
+                      { key: 'subtotal-title', render: () => <span className="font-bold">總計</span> },
+                      {
+                        key: 'subtotal',
+                        render: (data, allData) => {
+                          const subtotal = allData.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+                          return (
+                            <div className="flex justify-end">
+                              <span className="font-bold">總計: {formatCurrency(subtotal)}</span>
+                            </div>
+                          )
+                        }
+                      },
+                    ]
+                  }}
                 />
               </div>
-
-              {/* 總計 */}
-              <div className="divider"></div>
-              <div className="flex justify-between items-center text-lg font-bold">
-                <span>總計：</span>
-                <span className="text-primary">${calculateTotal()}</span>
-              </div>
-
-              {/* 提交按鈕 */}
-              <button
-                className="btn btn-primary w-full"
-                onClick={submitOrder}
-                disabled={submitting || orderItems.length === 0}
-              >
-                {submitting ? (
-                  <span className="loading loading-spinner loading-sm"></span>
-                ) : (
-                  <>
-                    <FaCheck className="w-4 h-4" />
-                    {existingOrder ? "更新訂單" : "提交訂單"}
-                  </>
-                )}
-              </button>
             </div>
+
+            {/* 總計 */}
+            <div className="divider"></div>
+            <div className="flex justify-between items-center text-lg font-bold">
+              <span>總計：</span>
+              <span className="text-primary">${calculateTotal()}</span>
+            </div>
+
+            {/* 提交按鈕 */}
+            <button
+              className="btn btn-primary w-full"
+              onClick={submitOrder}
+              disabled={submitting || orderItems.length === 0}
+            >
+              {submitting ? (
+                <span className="loading loading-spinner loading-sm"></span>
+              ) : (
+                <>
+                  <FaCheck className="w-4 h-4" />
+                  {existingOrder ? "更新訂單" : "提交訂單"}
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>

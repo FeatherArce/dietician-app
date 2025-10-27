@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { authFetch } from '@/utils/auth-fetch';
+import { authFetch } from '@/libs/auth-fetch';
 import {
   FaPlus,
   FaEdit,

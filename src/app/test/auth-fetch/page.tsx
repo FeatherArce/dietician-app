@@ -10,7 +10,7 @@
 'use client';
 
 import { useState } from 'react';
-import { authFetch, authFetchJson } from '@/utils/auth-fetch';
+import { authFetch, authFetchJson } from '@/libs/auth-fetch';
 import { AUTH_CONSTANTS } from '@/constants/app-constants';
 
 export default function AuthFetchTestPage() {

@@ -19,7 +19,7 @@ import FullShopForm, {
   ShopFormData,
   ShopFormErrors
 } from "@/components/shop/ShopForm";
-import { authFetch } from "@/utils/auth-fetch";
+import { authFetch } from "@/libs/auth-fetch";
 import MenuCategoryManager, { MenuCategory } from "@/components/menu/MenuCategoryManager";
 import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
 import { Select } from "@/components/SearchContainer/SearchFields";

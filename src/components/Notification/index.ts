@@ -52,7 +52,7 @@ class NotificationAPI {
   }
 }
 
-export const notification = new NotificationAPI();
+export const Notification = new NotificationAPI();
 
 // Hook for initializing the API
 export const useNotificationAPI = () => {
@@ -60,10 +60,10 @@ export const useNotificationAPI = () => {
   
   // 初始化 API
   React.useEffect(() => {
-    notification.setAddFunction(add);
+    Notification.setAddFunction(add);
   }, [add]);
 
-  return notification;
+  return Notification;
 };
 
 // 重新匯出必要的元件和 hooks

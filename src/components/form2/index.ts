@@ -1,5 +1,4 @@
 // Form2 組件庫統一入口
-export { Form2 } from './Form2';
 export { default as FormItem } from './FormItem';
 export { useFormContext, FormContext } from './context';
 export { pathToString, getNestedValue, setNestedValue } from './utils';
@@ -49,4 +48,4 @@ export {
 } from './Form2List';
 
 // 默認導出複合組件
-export { default } from './Form2';
+export { default as Form2 } from './Form2';

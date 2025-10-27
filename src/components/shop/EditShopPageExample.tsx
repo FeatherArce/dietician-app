@@ -18,7 +18,7 @@ import FullShopForm, {
   validateShopForm,
   cleanShopFormData
 } from "@/components/shop/ShopForm";
-import { authFetch } from "@/utils/auth-fetch";
+import { authFetch } from "@/libs/auth-fetch";
 
 interface ShopData extends ShopFormData {
   id: string;
