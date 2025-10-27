@@ -62,7 +62,8 @@ export default function LunchPage() {
         try {
             setLoading(true);
             // 獲取用戶已參與的活動（包含建立的和有訂單的）
-            const url = `/api/lunch/events/participated?userId=${user?.id}`;
+            // const url = `/api/lunch/events/participated?userId=${user?.id}`;
+            const url = `/api/lunch/events`;
             const response = await fetch(url, {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem('auth-token')}`,
@@ -289,6 +290,7 @@ export default function LunchPage() {
                         ]}
                         value={selectedActiveType}
                         onChange={setSelectedActiveType}
+                        allowClear={true}
                     />
                 </SearchContainer>
 
