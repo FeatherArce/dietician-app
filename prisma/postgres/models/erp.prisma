@@ -1,0 +1,70 @@
+model Employee {
+  id         String       @id @default(uuid())
+  name       String
+  department String
+  position   String
+  hireDate   DateTime
+  salary     Float
+  attendance Attendance[]
+  leaves     Leave[]
+}
+
+model Attendance {
+  id         String   @id @default(uuid())
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId String
+  date       DateTime
+  type       String
+}
+
+model Leave {
+  id         String   @id @default(uuid())
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId String
+  type       String
+  start      DateTime
+  end        DateTime
+}
+
+model Finance {
+  id          String   @id @default(uuid())
+  type        String
+  amount      Float
+  date        DateTime
+  account     String
+  description String
+}
+
+model Purchase {
+  id         String   @id @default(uuid())
+  supplierId String
+  items      Json
+  total      Float
+  status     String
+  createdAt  DateTime
+}
+
+model Inventory {
+  id        String   @id @default(uuid())
+  productId String
+  location  String
+  qty       Int
+  updatedAt DateTime
+}
+
+model Production {
+  id        String   @id @default(uuid())
+  productId String
+  start     DateTime
+  end       DateTime
+  status    String
+  cost      Float
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  type      String
+  title     String
+  status    String
+  createdAt DateTime
+}

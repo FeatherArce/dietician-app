@@ -1,0 +1,73 @@
+/* Notification Modal 樣式 */
+
+/* Modal 進入動畫 */
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes modal-fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.modal.modal-open {
+  animation: modal-fade-in 0.2s ease-out;
+}
+
+.modal.modal-closing {
+  animation: modal-fade-out 0.2s ease-out;
+}
+
+/* 自訂 modal 樣式 */
+.modal-box.notification-modal {
+  max-width: 28rem; /* 448px */
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* 確保 modal 在最上層 */
+.modal {
+  z-index: 9999;
+}
+
+/* 圖示樣式 */
+.notification-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* 按鈕樣式調整 */
+.modal-action .btn {
+  min-width: 4rem;
+}
+
+/* 回應式設計 */
+@media (max-width: 640px) {
+  .modal-box.notification-modal {
+    max-width: calc(100vw - 2rem);
+    margin: 1rem;
+  }
+  
+  .modal-action {
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+  }
+  
+  .modal-action .btn {
+    width: 100%;
+  }
+}

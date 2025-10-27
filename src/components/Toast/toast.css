@@ -1,0 +1,90 @@
+/* Toast 動畫效果 */
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+/* Toast 容器樣式 */
+.toast {
+  max-width: 400px;
+  z-index: 9998; /* 低於 notification modal 的 z-index */
+}
+
+.toast .alert {
+  min-width: 280px;
+  max-width: 400px;
+}
+
+/* 不同位置的動畫 */
+.toast-start .alert {
+  animation: slide-in-left 0.3s ease-out;
+}
+
+.toast-end .alert {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+.toast-top .alert {
+  animation: slide-in-top 0.3s ease-out;
+}
+
+.toast-bottom .alert {
+  animation: slide-in-bottom 0.3s ease-out;
+}
+
+/* 回應式設計 */
+@media (max-width: 640px) {
+  .toast {
+    max-width: calc(100vw - 2rem);
+    left: 1rem !important;
+    right: 1rem !important;
+  }
+  
+  .toast .alert {
+    min-width: auto;
+    width: 100%;
+  }
+}

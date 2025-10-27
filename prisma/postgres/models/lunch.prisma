@@ -1,0 +1,156 @@
+model LunchOrder {
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt // 新增更新時間
+  total      Float    @default(0)
+  note       String? // 訂餐備註
+
+  // 收款相關欄位
+  is_paid      Boolean   @default(false) // 是否已收款
+  paid_at      DateTime? // 收款時間
+  paid_method  String?   // 收款方式 (現金/轉帳/LINE Pay等)
+  paid_note    String?   // 收款備註
+
+  // 關聯
+  user_id  String
+  user     User       @relation(fields: [user_id], references: [id])
+  event_id String
+  event    LunchEvent @relation(fields: [event_id], references: [id])
+
+  // 訂餐項目（改為關聯模式）
+  items LunchOrderItem[] // 新增：訂餐項目關聯
+
+  @@unique([user_id, event_id]) // 每個人每個事件只能有一個訂單
+  @@map("orders")
+}
+
+// 新增：訂餐項目 model
+model LunchOrderItem {
+  id       String  @id @default(uuid())
+  name     String // 餐點名稱（快照）
+  price    Float // 價格（快照）
+  quantity Int     @default(1) // 數量
+  note     String? // 備註
+
+  // 快照資料（保存訂購當時的狀態）
+  description   String? // 餐點描述（快照）
+  category_name String? // 分類名稱（快照）
+
+  // 可選的菜單項目參照（用於追蹤和統計，但不影響顯示）
+  menu_item_id String?
+  menu_item    MenuItem? @relation(fields: [menu_item_id], references: [id], onDelete: SetNull)
+
+  // 關聯到訂單
+  order_id String
+  order    LunchOrder @relation(fields: [order_id], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}
+
+model LunchEvent {
+  id             String    @id @default(uuid())
+  title          String
+  description    String?
+  event_date     DateTime  @default(now()) // 重新命名，更清楚表示用餐日期
+  order_deadline DateTime // 新增：訂餐截止時間
+  start_at       DateTime? // 用餐開始時間
+  end_at         DateTime? // 用餐結束時間
+  location       String? // 用餐地點
+  is_active      Boolean   @default(true)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt // 新增更新時間
+
+  // 發起人
+  owner_id String
+  owner    User   @relation("LunchEventOwner", fields: [owner_id], references: [id])
+
+  // 商店關聯（改為可選，支援自由輸入模式）
+  shop_id String? // 改為可選
+  shop    Shop?   @relation(fields: [shop_id], references: [id])
+
+  // 自由輸入模式
+  allow_custom_items Boolean @default(false) // 是否允許自由輸入餐點
+
+  // 關聯
+  attendees User[]       @relation("LunchEventAttendees")
+  orders    LunchOrder[]
+
+  @@map("lunch_events")
+}
+
+model Shop {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  address     String?
+  phone       String?
+  email       String?
+  website     String? // 新增：官網
+  is_active   Boolean  @default(true) // 新增：是否啟用
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // 關聯（改為一對多）
+  menus  Menu[] // 一個商店可以有多個菜單
+  events LunchEvent[]
+
+  @@map("shops")
+}
+
+model Menu {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  is_available Boolean  @default(true)
+  is_default   Boolean  @default(false) // 新增：是否為該商店的預設菜單
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  // 關聯
+  shop_id    String // 修正：明確指定關聯
+  shop       Shop           @relation(fields: [shop_id], references: [id])
+  categories MenuCategory[]
+  items      MenuItem[]
+
+  @@map("menus")
+}
+
+model MenuCategory {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  sort_order  Int      @default(0) // 新增：排序
+  is_active   Boolean  @default(true) // 新增：是否啟用
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // 關聯
+  menu_id String // 修正欄位名稱
+  menu    Menu       @relation(fields: [menu_id], references: [id])
+  items   MenuItem[] // 修正關聯名稱
+
+  @@map("menu_categories")
+}
+
+model MenuItem {
+  id           String   @id @default(uuid())
+  name         String
+  description  String? // 新增：餐點描述
+  price        Float
+  is_available Boolean  @default(true) // 新增：是否可點
+  sort_order   Int      @default(0) // 新增：排序
+  image_url    String? // 新增：餐點圖片
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  // 關聯
+  menu_id     String
+  menu        Menu          @relation(fields: [menu_id], references: [id])
+  category_id String?
+  category    MenuCategory? @relation(fields: [category_id], references: [id])
+
+  // 反向關聯（修復 LunchOrderItem 關聯問題）
+  order_items LunchOrderItem[] // 新增：被訂購的項目
+
+  @@map("menu_items")
+}

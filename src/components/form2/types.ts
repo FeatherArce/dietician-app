@@ -1,0 +1,66 @@
+import { ReactNode } from 'react';
+
+// 表單值的類型
+export type FormValues = Record<string, unknown>;
+
+// 表單錯誤的類型
+export type FormErrors = Record<string, string | string[]>;
+
+// 驗證規則類型
+export interface ValidationRule {
+  required?: boolean;
+  message?: string;
+  min?: number;
+  max?: number;
+  pattern?: RegExp;
+  validator?: (value: unknown, values: FormValues) => string | Promise<string>;
+}
+
+// 表單項目實例接口
+export interface FormItemInstance {
+  name: string | (string | number)[];
+  getValue: () => unknown;
+  setValue: (value: unknown) => void;
+  getError: () => string | string[] | undefined;
+  setError: (error: string | string[] | undefined) => void;
+  validate: () => Promise<string | undefined>;
+  rules?: ValidationRule[];
+}
+
+// 表單上下文類型
+export interface FormContextType {
+  values: FormValues;
+  errors: FormErrors;
+  touched: Record<string, boolean>;
+  registerField: (name: string | (string | number)[], instance: FormItemInstance) => void;
+  unregisterField: (name: string | (string | number)[]) => void;
+  setFieldValue: (name: string | (string | number)[], value: unknown) => void;
+  setFieldError: (name: string | (string | number)[], error: string | string[] | undefined) => void;
+  setFieldTouched: (name: string | (string | number)[], touched: boolean) => void;
+  validateField: (name: string | (string | number)[]) => Promise<void>;
+  onValuesChange?: (changedValues: FormValues, allValues: FormValues) => void;
+}
+
+// 表單屬性接口
+export interface Form2Props {
+  children: ReactNode;
+  initialValues?: FormValues;
+  onFinish?: (values: FormValues) => void | Promise<void>;
+  onFinishFailed?: (errorInfo: { values: FormValues; errors: FormErrors }) => void;
+  onValuesChange?: (changedValues: FormValues, allValues: FormValues) => void;
+  className?: string;
+  validateTrigger?: 'onChange' | 'onBlur' | 'onSubmit';
+}
+
+// 表單項目屬性接口
+export interface FormItemProps {
+  name: string | (string | number)[];
+  label?: string;
+  rules?: ValidationRule[];
+  children: ReactNode;
+  className?: string;
+  required?: boolean;
+  help?: string;
+  validateTrigger?: 'onChange' | 'onBlur';
+  valuePropName?: string;
+}

@@ -1,0 +1,29 @@
+/* 自定義 form-control 樣式 */
+.form-control {
+    display: flex;
+    gap: 5px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.form-control.vertical {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.form-control.horizontal {
+    flex-direction: row;
+    align-items: center;
+}
+
+.form-control .label {
+    @apply mr-4 mb-0;
+    /* 水平排列時，標籤右邊距 */
+}
+
+.form-control .input,
+.form-control .select,
+.form-control .textarea {
+    @apply flex-1;
+    /* 水平排列時，輸入框佔滿剩餘空間 */
+}

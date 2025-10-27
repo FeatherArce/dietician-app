@@ -1,0 +1,58 @@
+model Customer {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  tags        String[]
+  contactInfo Json
+  files       String[]
+  createdAt   DateTime
+  updatedAt   DateTime
+  contacts    Contact[]
+  leads       Lead[]
+  services    Service[]
+}
+
+model Contact {
+  id         String   @id @default(uuid())
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String
+  name       String
+  position   String
+  phone      String
+  email      String
+  note       String
+}
+
+model Lead {
+  id         String   @id @default(uuid())
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String
+  title      String
+  status     String
+  amount     Float
+  owner      String
+  createdAt  DateTime
+  updatedAt  DateTime
+}
+
+model Activity {
+  id             String   @id @default(uuid())
+  title          String
+  type           String
+  relatedCustomer String
+  owner          String
+  status         String
+  startDate      DateTime
+  endDate        DateTime
+}
+
+model Service {
+  id         String   @id @default(uuid())
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String
+  type       String
+  status     String
+  description String
+  createdAt  DateTime
+  updatedAt  DateTime
+}

@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "../styles/form.css";
+
+@plugin "daisyui" {
+  themes: light --default, dark, cupcake, bumblebee, emerald, corporate, synthwave, retro, cyberpunk, valentine, halloween, garden, forest, aqua, lofi, pastel, fantasy, wireframe, luxury, dracula, cmyk;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
