@@ -14,7 +14,8 @@ import {
     FaShare,
     FaExternalLinkAlt,
     FaChartBar,
-    FaInfo
+    FaInfo,
+    FaEdit
 } from 'react-icons/fa';
 import type { EventWithDetails, MyOrder, User } from '../types';
 import LoadingIndicator from '@/components/LoadingIndicator';
@@ -63,7 +64,27 @@ export default function EventCard({
             <div className="card-body p-4 grid grid-rows-[auto_auto_1fr_auto] gap-4">
                 <div className="flex justify-between items-start">
                     <h3 className="card-title text-lg">{event.title}</h3>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
+                        {/* 管理功能按鈕 - 只有管理者能看到 */}
+                        {hasManagePermission && (
+                            <>
+                                <Link
+                                    href={`/lunch/events/${event.id}`}
+                                    className="btn btn-ghost btn-sm"
+                                >
+                                    <FaEdit className="w-3 h-3" />
+                                    編輯
+                                    <LoadingIndicator />
+                                </Link>
+                                {/* <Link
+                                href={`/lunch/events/${event.id}/edit`}
+                                className="btn btn-warning btn-sm"
+                            >
+                                編輯
+                            </Link> */}
+                            </>
+                        )}
+
                         <button
                             onClick={() => {
                                 const shareUrl = `${window.location.origin}/lunch/events/${event.id}/join`;
@@ -76,6 +97,7 @@ export default function EventCard({
                             <FaShare className="w-3 h-3" />
                             分享
                         </button>
+
                     </div>
                 </div>
 
@@ -179,29 +201,9 @@ export default function EventCard({
                             className="btn btn-ghost btn-sm"
                         >
                             <FaChartBar className="w-3 h-3" />
-                            統計
+                            訂單統計
                             <LoadingIndicator />
                         </button>
-                    )}
-
-                    {/* 管理功能按鈕 - 只有管理者能看到 */}
-                    {hasManagePermission && (
-                        <>
-                            <Link
-                                href={`/lunch/events/${event.id}`}
-                                className="btn btn-ghost btn-sm"
-                            >
-                                <FaInfo className="w-3 h-3" />
-                                詳細資訊
-                                <LoadingIndicator />
-                            </Link>
-                            {/* <Link
-                                href={`/lunch/events/${event.id}/edit`}
-                                className="btn btn-warning btn-sm"
-                            >
-                                編輯
-                            </Link> */}
-                        </>
                     )}
 
                     {/* 通用按鈕 - 所有人都能看到 */}
