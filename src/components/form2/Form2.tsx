@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useCallback, useRef, FormEvent, useEffect, useMemo, useImperativeHandle } from 'react';
-import type { Form2Props, FormValues, FormErrors, FormItemInstance, Form2Ref } from './types';
+import type { Form2Props, FormValues, FormErrors, FormItemInstance, Form2Ref, FormValidateResult } from './types';
 import { FormContext, useFormContext } from './context';
 import FormItem from './FormItem';
 import Form2List from './Form2List';
@@ -145,7 +145,7 @@ function Form2(
   }, [setFieldError, values]);
 
   // 驗證所有字段
-  const validateFields = useCallback(async (): Promise<{ isValid: boolean; errors: FormErrors }> => {
+  const validateFields = useCallback(async (): Promise<FormValidateResult> => {
     const fieldNames = Array.from(fieldInstancesRef.current.keys());
     const fieldErrors: FormErrors = {};
     await Promise.all(fieldNames.map(async (name) => {
@@ -225,16 +225,18 @@ function Form2(
 
   useImperativeHandle(ref, () => ({
     submit: () => {
-      if (formRef.current) {
-        formRef.current.requestSubmit();
-      }
+       formRef.current?.requestSubmit();       
     },
-    // reset: () => {
-    //   setValues(stableInitialValues);
-    //   setErrors({});
-    //   setTouched({});
-    // },
-  }), [formRef]);
+    reset: () => {
+      formRef.current?.reset();
+      setValues(stableInitialValues);
+      setErrors({});
+      setTouched({});
+    },
+    validate: async () => {
+      return await validateFields();
+    }
+  }), [formRef, stableInitialValues]);
 
   return (
     <FormContext.Provider value={contextValue}>

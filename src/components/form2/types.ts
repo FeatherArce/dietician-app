@@ -6,6 +6,12 @@ export type FormValues = Record<string, unknown>;
 // 表單錯誤的類型
 export type FormErrors = Record<string, string | string[]>;
 
+// 表單驗證結果接口
+export interface FormValidateResult {
+  isValid: boolean;
+  errors: FormErrors;
+}
+
 // 驗證規則類型
 export interface ValidationRule {
   required?: boolean;
@@ -54,8 +60,8 @@ export interface Form2Props {
 
 export interface Form2Ref {
   submit: () => void;
-  // reset?: () => void;
-  // validate?: () => Promise<FormErrors>;
+  reset: () => void;
+  validate?: () => Promise<FormValidateResult>;
 }
 
 // 表單項目屬性接口
