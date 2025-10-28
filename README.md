@@ -1,6 +1,5 @@
 This is a dynamic website for 'Dietician'.
 
-
 ## Frameworks
 - [Next.js](https://nextjs.org)
 - [DaisyUI](https://daisyui.com)
@@ -44,8 +43,14 @@ pnpm seed:create-admin  # 建立管理員帳號
 pnpm seed:create-test   # 建立測試使用者帳號
 ```
 
-## Deploy on Vercel
+## Branchs
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- main          主幹，所有更新都先回到 main 上，開發也從 main 建分支出去。
+- production    Deploy 使用 production 分支。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+開發子功能時，請從 main 上建立分支，並且分支名稱請遵守以下格式：
+`feature/[日期]-[描述]`
+
+## Deploy
+
+目前將會使用 [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) 進行建置，建置說明可參考 [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)。
