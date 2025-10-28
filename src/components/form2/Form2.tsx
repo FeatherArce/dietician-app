@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useCallback, useRef, FormEvent, useEffect, useMemo } from 'react';
-import type { Form2Props, FormValues, FormErrors, FormItemInstance } from './types';
+import React, { useState, useCallback, useRef, FormEvent, useEffect, useMemo, useImperativeHandle } from 'react';
+import type { Form2Props, FormValues, FormErrors, FormItemInstance, Form2Ref } from './types';
 import { FormContext, useFormContext } from './context';
 import FormItem from './FormItem';
 import Form2List from './Form2List';
@@ -8,14 +8,17 @@ import { pathToString, setNestedValue, getNestedValue } from './utils';
 import './Form2.css';
 
 // 主要表單組件
-function Form2({
-  children,
-  initialValues = {},
-  onFinish,
-  onFinishFailed,
-  onValuesChange,
-  className = '',
-}: Form2Props) {
+function Form2(
+  {
+    children,
+    initialValues = {},
+    onFinish,
+    onFinishFailed,
+    onValuesChange,
+    className = '',
+  }: Form2Props,
+  ref: React.Ref<Form2Ref>) {
+  const formRef = useRef<HTMLFormElement>(null);
   // 使用 useMemo 來穩定 initialValues，避免不必要的重新渲染
   const stableInitialValues = useMemo(() => initialValues, [JSON.stringify(initialValues)]);
 
@@ -220,9 +223,23 @@ function Form2({
     onValuesChange,
   };
 
+  useImperativeHandle(ref, () => ({
+    submit: () => {
+      if (formRef.current) {
+        formRef.current.requestSubmit();
+      }
+    },
+    // reset: () => {
+    //   setValues(stableInitialValues);
+    //   setErrors({});
+    //   setTouched({});
+    // },
+  }), [formRef]);
+
   return (
     <FormContext.Provider value={contextValue}>
       <form
+        ref={formRef}
         onSubmit={handleSubmit}
         className={`form2 ${className}`}
         noValidate
@@ -233,8 +250,11 @@ function Form2({
   );
 }
 
+// 使用 forwardRef 以支持外部引用
+const ForwardForm2 = React.forwardRef(Form2);
+
 // 將 Form2 和 FormItem 組合成一個複合組件
-const Form2Compound = Object.assign(Form2, {
+const Form2Compound = Object.assign(ForwardForm2, {
   Item: FormItem,
   List: Form2List,
   useForm: useFormContext,

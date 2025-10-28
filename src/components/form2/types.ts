@@ -52,6 +52,12 @@ export interface Form2Props {
   validateTrigger?: 'onChange' | 'onBlur' | 'onSubmit';
 }
 
+export interface Form2Ref {
+  submit: () => void;
+  // reset?: () => void;
+  // validate?: () => Promise<FormErrors>;
+}
+
 // 表單項目屬性接口
 export interface FormItemProps {
   name: string | (string | number)[];
