@@ -46,7 +46,7 @@ pnpm seed:create-test   # 建立測試使用者帳號
 ## Branchs
 
 - main          主幹，所有更新都先回到 main 上，開發也從 main 建分支出去。
-- production    Deploy 使用 production 分支。
+- production    Deploy 使用 production 分支，發布前需再從 main merge。
 
 開發子功能時，請從 main 上建立分支，並且分支名稱請遵守以下格式：
 `feature/[日期]-[描述]`
@@ -54,3 +54,5 @@ pnpm seed:create-test   # 建立測試使用者帳號
 ## Deploy
 
 目前將會使用 [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) 進行建置，建置說明可參考 [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)。
+
+Vercel 會自動抓取指定分支的更新情況，有更新就會 deploy，所以只需要管理 production 分支的同步情況，就可以控制更新頻率，無須擔心會瘋狂 deploy。
