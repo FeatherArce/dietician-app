@@ -30,11 +30,11 @@ export default function Tabs({
     onTabChange
 }: TabsProps) {
 
-    const [currentTab, setCurrentTab] = useState<string>('');
-
-    useEffect(() => {
-        setCurrentTab(activeTab || items[0]?.id);
-    }, [activeTab, items]);
+    // 支援 controlled (透過 activeTab prop) 與 uncontrolled 使用
+    const defaultTab = items[0]?.id ?? '';
+    const [internalTab, setInternalTab] = useState<string>(defaultTab);
+    // 如果 internalTab 不存在於 items（例如 items 變更），render 時改用 defaultTab，避免在 effect 中 setState
+    const currentTab = activeTab ?? (items.some((it) => it.id === internalTab) ? internalTab : defaultTab);
 
     const styles = useMemo(() => {
         const tabVariant = variant === 'default' ? 'tabs-box' : `tabs-${variant}`;
@@ -44,9 +44,10 @@ export default function Tabs({
     }, [variant, size, position, className]);
 
     const handleTabChange = useCallback((tabId: string) => {
-        setCurrentTab(tabId);
+        // 只有在 uncontrolled 時更新 internal state
+        if (activeTab === undefined) setInternalTab(tabId);
         onTabChange?.(tabId);
-    }, [onTabChange]);
+    }, [onTabChange, activeTab]);
 
     return (
         <div className="w-full grid grid-rows-[auto_1fr]">

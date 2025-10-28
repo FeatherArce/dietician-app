@@ -310,7 +310,6 @@ export default function UsersPage() {
         pagination={{
           current: 1,
           pageSize: 20,
-          total: filteredUsers.length,
           showSizeChanger: true,
           pageSizeOptions: [10, 20, 50, 100],
           showQuickJumper: true,

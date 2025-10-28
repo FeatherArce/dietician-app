@@ -20,7 +20,7 @@ function Form2(
   ref: React.Ref<Form2Ref>) {
   const formRef = useRef<HTMLFormElement>(null);
   // 使用 useMemo 來穩定 initialValues，避免不必要的重新渲染
-  const stableInitialValues = useMemo(() => initialValues, [JSON.stringify(initialValues)]);
+  const stableInitialValues = useMemo(() => initialValues, [initialValues]);
 
   const [values, setValues] = useState<FormValues>(stableInitialValues);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -195,20 +195,20 @@ function Form2(
   }, [values, errors, onFinish, onFinishFailed, validateFields]);
 
   // 更新初始值時同步到字段
-  useEffect(() => {
-    console.log('Initial values changed:', stableInitialValues);
-    setValues(prev => {
-      // 檢查是否真的有變化，避免不必要的更新
-      const hasChanges = Object.keys(stableInitialValues).some(key =>
-        prev[key] !== stableInitialValues[key]
-      ) || Object.keys(prev).length !== Object.keys(stableInitialValues).length;
+  // useEffect(() => {
+  //   console.log('Initial values changed:', stableInitialValues);
+  //   setValues(prev => {
+  //     // 檢查是否真的有變化，避免不必要的更新
+  //     const hasChanges = Object.keys(stableInitialValues).some(key =>
+  //       prev[key] !== stableInitialValues[key]
+  //     ) || Object.keys(prev).length !== Object.keys(stableInitialValues).length;
 
-      if (hasChanges) {
-        return { ...prev, ...stableInitialValues };
-      }
-      return prev;
-    });
-  }, [stableInitialValues]);
+  //     if (hasChanges) {
+  //       return { ...prev, ...stableInitialValues };
+  //     }
+  //     return prev;
+  //   });
+  // }, [stableInitialValues]);
 
   const contextValue = {
     values,
@@ -236,7 +236,7 @@ function Form2(
     validate: async () => {
       return await validateFields();
     }
-  }), [formRef, stableInitialValues]);
+  }), [formRef, stableInitialValues, validateFields]);
 
   return (
     <FormContext.Provider value={contextValue}>

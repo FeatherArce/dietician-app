@@ -32,7 +32,11 @@ export default function ForgotPasswordPage() {
         setError(data.error || "發送失敗");
       }
     } catch (err) {
-      setError("網路錯誤，請稍後再試");
+      let message = "網路錯誤，請稍後再試";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
     } finally {
       setLoading(false);
     }

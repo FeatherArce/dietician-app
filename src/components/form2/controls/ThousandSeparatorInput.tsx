@@ -73,7 +73,7 @@ export default function ThousandSeparatorInput({
     if (formattedExternalValue !== displayValue) {
       setDisplayValue(formattedExternalValue);
     }
-  }, [value]);
+  }, [displayValue, value]);
 
   return (
     <input

@@ -80,7 +80,7 @@ export default function LunchPage() {
         } finally {
             setLoading(false);
         }
-    }, [user?.id]);
+    }, []);
 
     const fetchMyOrders = useCallback(async () => {
         if (!user?.id) return;

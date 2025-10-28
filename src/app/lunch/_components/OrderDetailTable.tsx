@@ -41,7 +41,7 @@ export default function OrderDetailTable({ statistics }: OrderDetailTableProps) 
     // #region Download Report
 
     // 生成統計報告文字
-    const generateReportText = () => {
+    const generateReportText = useCallback(() => {
         const { shop, totalOrders, totalAmount, participantCount, orders, itemSummary } = statistics;
 
         let report = `【訂餐統計報告】\n\n`;
@@ -100,7 +100,7 @@ export default function OrderDetailTable({ statistics }: OrderDetailTableProps) 
         }
 
         return report;
-    };
+    }, [statistics]);
 
     // 下載統計報告
     const downloadReport = useCallback(() => {
@@ -114,7 +114,7 @@ export default function OrderDetailTable({ statistics }: OrderDetailTableProps) 
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-    }, []);
+    }, [generateReportText]);
 
     // #endregion
 
@@ -339,7 +339,7 @@ function MenuOrderDetailTable({ statistics }: { statistics: EventStatistics }) {
                     render: (value, record) => {
                         return (
                             <ul>
-                                {(value as String[] || []).map((note, index) => (
+                                {(value as string[] || []).map((note, index) => (
                                     <li key={index}>{note}</li>
                                 ))}
                             </ul>

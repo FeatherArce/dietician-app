@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useFormContext } from './context';
 import { getNestedValue, setNestedValue, pathToString } from './utils';
 import type { FormValues } from './types';// 動態列表操作接口
@@ -28,19 +28,18 @@ let globalKeyCounter = 0;
 
 export default function Form2List({ name, children, initialValue = [] }: Form2ListProps) {
   const { values, setFieldValue, errors } = useFormContext();
-  const keyCounterRef = useRef(globalKeyCounter);
   
   // 獲取當前列表值
   const listValue = (getNestedValue(values, name) || initialValue) as any[];
   
   // 為每個項目生成唯一的 key
   const [fieldKeys, setFieldKeys] = useState<number[]>(() => {
-    return listValue.map(() => ++keyCounterRef.current);
+    return listValue.map((_, index) => index);
   });
 
   // 添加項目
   const add = useCallback((defaultValue: any = {}, insertIndex?: number) => {
-    const newKey = ++keyCounterRef.current;
+    const newKey = ++globalKeyCounter;
     const currentList = [...listValue];
     const currentKeys = [...fieldKeys];
     
@@ -105,11 +104,7 @@ export default function Form2List({ name, children, initialValue = [] }: Form2Li
   }));
 
   // 操作對象
-  const operations: ListOperations = {
-    add,
-    remove,
-    move,
-  };
+  const operations: ListOperations = useMemo(() => ({ add, remove, move }), [add, remove, move]);
 
   // 獲取列表級別的錯誤
   const listErrors = getNestedValue(errors, name) as string[] | undefined;

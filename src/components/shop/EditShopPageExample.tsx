@@ -156,7 +156,7 @@ export default function EditShopPageExample() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [shopId, router]);
 
   if (authLoading || initialLoading) {
     return (

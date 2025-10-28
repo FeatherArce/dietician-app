@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import Form2 from '@/components/form2';
+import { Form2 } from '@/components/form2';
 import Input from '@/components/form2/controls/Input';
 import Select from '@/components/form2/controls/Select';
 import NumberInput from '@/components/form2/controls/NumberInput';
@@ -58,9 +58,9 @@ export function BasicFormExample() {
           label="電子郵件"
           required
           rules={[
-            { 
-              pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, 
-              message: '請輸入有效的電子郵件格式' 
+            {
+              pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: '請輸入有效的電子郵件格式'
             }
           ]}
         >
@@ -72,7 +72,7 @@ export function BasicFormExample() {
           label="年齡"
           required
           rules={[
-            { 
+            {
               validator: async (value) => {
                 const num = Number(value);
                 if (isNaN(num)) return '年齡必須是數字';
@@ -213,7 +213,7 @@ export function ComplexValidationExample() {
   const checkUsernameExists = async (username: any) => {
     // 模擬 API 調用
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     const existingUsernames = ['admin', 'user', 'test'];
     if (existingUsernames.includes(username.toLowerCase())) {
       return '用戶名已存在';
@@ -250,9 +250,9 @@ export function ComplexValidationExample() {
           required
           rules={[
             { min: 6, message: '密碼至少需要6個字符' },
-            { 
-              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 
-              message: '密碼必須包含大小寫字母和數字' 
+            {
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+              message: '密碼必須包含大小寫字母和數字'
             }
           ]}
         >

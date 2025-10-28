@@ -148,7 +148,7 @@ function DataTable<T extends Record<string, unknown>>({
     });
 
     return result;
-  }, [dataSource, searchText, filters, columns]);
+  }, [dataSource, filters, columns]);
 
   // 處理排序
   const sortedData = useMemo(() => {
@@ -465,9 +465,9 @@ function DataTable<T extends Record<string, unknown>>({
                   return (
                     <th
                       key={column.key}
-                      className={`${column.className || ''} text-base md:text-sm font-medium`}                      
+                      className={`${column.className || ''} text-base md:text-sm font-medium`}
                     >
-                      <div className={cn("flex items-center gap-2", alignClass )}>
+                      <div className={cn("flex items-center gap-2", alignClass)}>
                         <span
                           className={cn(alignClass, column.sortable ? 'cursor-pointer select-none' : '')}
                           onClick={() => handleSort(column.key)}

@@ -111,7 +111,7 @@ export default function FormItem({
             return error;
         },
         rules: mergedRules,
-    }), [name, formValues, setFieldValue, validate, localError, mergedRules, label]);
+    }), [name, setFieldValue, validate, localError, mergedRules, errors, setFieldError, getCurrentValue]);
 
     // 註冊和取消註冊字段
     useEffect(() => {
@@ -224,7 +224,7 @@ export default function FormItem({
 
     const showError = (localError !== undefined && localError !== '') || (fieldError !== undefined && fieldError !== '');
     const errorMessage = localError || fieldError;
-        
+
     return (
         <div className={`form-item ${className} ${showError ? 'form-item-error' : ''}`}>
             {label && (

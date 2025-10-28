@@ -174,7 +174,7 @@ export default function EditShopPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router, shopId]);
 
   // 載入狀態
   if (authLoading || initialLoading) {

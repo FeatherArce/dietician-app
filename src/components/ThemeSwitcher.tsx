@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 // 官方預設主題（可根據 tailwind.config.js daisyui.theme 設定自訂）
 const defaultThemes = [
@@ -30,11 +30,14 @@ export default function ThemeSwitcher() {
   const [themes, setThemes] = useState<string[]>(defaultThemes);
   const [current, setCurrent] = useState<string>("light");
 
-  useEffect(() => {
-    setCurrent(
-      document.documentElement.getAttribute("data-theme") || "light"
-    );
+  const checkTheme = useCallback(() => {
+    const theme = document.documentElement.getAttribute("data-theme");
+    setCurrent(theme || "light");
   }, []);
+
+  useEffect(() => {
+    checkTheme();
+  }, [checkTheme]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const theme = e.target.value;

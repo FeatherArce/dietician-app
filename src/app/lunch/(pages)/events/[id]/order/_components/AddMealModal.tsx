@@ -52,7 +52,7 @@ export default function AddMealModal({
       quantity: 1,
       note: '',
     };
-  }, []);
+  }, [settings.from, settings.menu_item]);
 
   useEffect(() => {
     if (open) {

@@ -175,7 +175,6 @@ export default function DataTableExample() {
   const paginationConfig: PaginationConfig = {
     current: 1,
     pageSize: 10,
-    total: sampleUsers.length,
     showSizeChanger: true,
     pageSizeOptions: [5, 10, 20, 50],
     showQuickJumper: true,

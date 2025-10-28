@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionFromRequest } from '@/services/server/auth/request-utils';
-import { menuCategoryService, UpdateMenuCategoryData } from '@/services/server/lunch/shop-services';
+import { menuCategoryService } from '@/services/server/lunch/shop-services';
 
 // PATCH /api/lunch/menus/[menuId]/categories/[categoryId] - 更新分類
 export async function PATCH(
@@ -8,7 +8,7 @@ export async function PATCH(
   { params }: { params: Promise<{ menuId: string; categoryId: string }> }
 ) {
   try {
-    const user = await getSessionFromRequest(request);
+    const user = getSessionFromRequest(request);
     if (!user) {
       return NextResponse.json({ error: '請先登入' }, { status: 401 });
     }
