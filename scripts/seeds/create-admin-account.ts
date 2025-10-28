@@ -1,7 +1,7 @@
 // 直接使用 pnpm script 執行此檔案以建立管理員帳號
-import { UserRole } from '@/prisma-generated/postgres-client';
-import prisma from '@/services/prisma';
-import { generateSecureToken, PasswordService } from '@/services/server/auth';
+import { UserRole } from '../../prisma-generated/postgres-client';
+import prisma from '../../src/services/prisma';
+import { generateSecureToken, PasswordService } from '../../src/services/server/auth';
 
 async function createAdminAccount() {
     const adminData = {

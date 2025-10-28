@@ -1,6 +1,6 @@
-import { UserRole } from '@/prisma-generated/postgres-client';
-import prisma from '@/services/prisma';
-import { generateSecureToken, PasswordService } from '@/services/server/auth';
+import { UserRole } from '../../prisma-generated/postgres-client';
+import prisma from '../../src/services/prisma';
+import { generateSecureToken, PasswordService } from '../../src/services/server/auth';
 
 export const testUserData = {
     name: "TEST",

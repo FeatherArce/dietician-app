@@ -15,10 +15,9 @@
     "db:deploy": "npx prisma migrate deploy --schema ./prisma/postgres",
     "db:reset": "npx prisma migrate reset --schema ./prisma/postgres --force",
     "db:seed": "npx prisma db seed --schema ./prisma/postgres",
-    "db:seed-complete": "tsx scripts/seed-complete-lunch.ts",
-    "db:studio": "npx prisma studio --schema ./prisma/postgres",
-    "db:init": "tsx scripts/init-sqlite-db.ts",
-    "seed:create-admin": "tsx src/libs/seeds/create-admin-account.ts"
+    "db:studio": "npx prisma studio --schema ./prisma/postgres",    
+    "seed:create-admin": "tsx scripts/seeds/create-admin-account.ts",
+    "seed:create-test": "tsx scripts/seeds/create-test-account.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^6.17.0",

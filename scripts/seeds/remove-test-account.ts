@@ -1,4 +1,4 @@
-import prisma from '@/services/prisma';
+import prisma from '../../src/services/prisma';
 import { testUserData } from './create-test-account';
 
 async function deleteTestAccount() {
