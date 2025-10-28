@@ -1,23 +1,88 @@
-import React from 'react'
-import Modal, { ModalTriggerButton } from './Modal';
-import { FaPlus } from 'react-icons/fa';
+import { Form2Ref } from '@/components/form2/types';
+import Modal, { ModalRef } from '@/components/Modal';
+import { EventMenuItem } from '@/types/LunchEvent';
+import { useEffect, useMemo, useRef } from 'react';
+import MealForm from './MealForm';
 
 interface AddMealModalProps {
+  settings: {
+    from: 'menu' | 'custom';
+    menu_item?: EventMenuItem;
+  }
   open?: boolean;
+  onOk: (values: any) => void;
   onClose?: () => void;
 }
 
-const id = "add-meal-modal";
-export default function AddMealModal({ open, onClose }: AddMealModalProps) {
-  return (
-    <>
-      <ModalTriggerButton id={id}>
-        <FaPlus className="w-3 h-3 mr-1" />
-        自訂餐點
-      </ModalTriggerButton>
-      <Modal id={id} title="新增餐點" open={open} onClose={onClose}>
+export interface MenuFormValues {
+  name: string;
+  price: number;
+  quantity: number;
+  note: string;
+  description?: string;
+  menu_item_id?: string;
+  [x: string]: unknown;
+}
 
-      </Modal>
-    </>
+const id = "add-meal-modal";
+export default function AddMealModal({
+  settings = { from: 'custom' },
+  open = false,
+  onOk,
+  onClose
+}: AddMealModalProps) {
+  const modalRef = useRef<ModalRef>(null);
+  const formRef = useRef<Form2Ref>(null);
+  const initialValues: MenuFormValues = useMemo(() => {
+    if (settings.from === 'menu' && settings.menu_item) {
+      return {
+        menu_item_id: settings.menu_item.id,
+        name: settings.menu_item.name,
+        description: settings.menu_item.description || '',
+        price: settings.menu_item.price,
+        quantity: 1,
+        note: '',
+      };
+    }
+    return {
+      menu_item_id: undefined,
+      name: '',
+      description: '',
+      price: 0,
+      quantity: 1,
+      note: '',
+    };
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      modalRef.current?.open();
+    } else {
+      modalRef.current?.close();
+    }
+  }, [open]);
+
+  return (
+    <Modal
+      ref={modalRef}
+      id={id}
+      title="新增餐點"
+      onOk={() => {
+        formRef.current?.submit();
+      }}
+      onClose={() => {
+        modalRef.current?.close();
+        onClose?.();
+      }}
+    >
+      <MealForm
+        ref={formRef}
+        initialValues={initialValues}
+        onSubmit={(values) => {
+          onOk?.(values);
+          modalRef.current?.close();
+        }}
+      />
+    </Modal>
   )
 }

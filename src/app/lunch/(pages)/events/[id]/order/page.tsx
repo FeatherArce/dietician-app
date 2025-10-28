@@ -1,32 +1,27 @@
 "use client";
-
-import React, { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import Breadcrumb from "@/components/Breadcrumb";
+import DataTable from "@/components/DataTable";
+import { Notification } from "@/components/Notification";
+import Tabs from "@/components/Tabs";
+import { formatCurrency, formatNumber } from "@/libs/formatter";
 import { useAuthStore } from "@/stores/auth-store";
+import { EventData, EventMenu, EventMenuCategory, EventMenuItem } from "@/types/LunchEvent";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FaArrowLeft,
-  FaPlus,
-  FaMinus,
-  FaShoppingCart,
   FaCheck,
   FaClock,
-  FaUsers,
-  FaStore,
-  FaUtensils,
   FaEdit,
+  FaPlus,
+  FaShoppingCart,
+  FaStore,
+  FaUsers,
+  FaUtensils
 } from "react-icons/fa";
-import Breadcrumb from "@/components/Breadcrumb";
-import Tabs from "@/components/Tabs";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { EventData, EventMenuItem, EventMenu, EventMenuCategory } from "@/types/LunchEvent";
-import MenuMealForm from "./_components/MenuMealForm";
-import CustomMealForm from "./_components/CustomMealForm";
-import { Notification } from "@/components/Notification";
-import AddOrderForm from "./_components/AddOrderForm";
-import DataTable from "@/components/DataTable";
-import { Input } from "@/components/form2";
-import { formatCurrency, formatNumber } from "@/libs/formatter";
+import AddMealModal, { MenuFormValues } from "./_components/AddMealModal";
 
 interface OrderItem {
   id?: string;
@@ -58,9 +53,11 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [eventId, setEventId] = useState<string>("");
-  const [showMenuForm, setShowMenuForm] = useState(false);
-  const [showCustomForm, setShowCustomForm] = useState(false);
-  const [selectedMenuItem, setSelectedMenuItem] = useState<EventMenuItem | null>(null);
+  const [addMealModalSettings, setAddMealModalSettings] = useState<{
+    from: 'menu' | 'custom';
+    menu_item?: EventMenuItem;
+    open: boolean;
+  }>({ from: 'custom', open: false });
 
   // 解析動態參數
   useEffect(() => {
@@ -140,107 +137,30 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
 
   // 開啟菜單項目設定視窗
   const openMenuForm = (menuItem: EventMenuItem) => {
-    setSelectedMenuItem(menuItem);
-    setShowMenuForm(true);
+    setAddMealModalSettings({ from: 'menu', menu_item: menuItem, open: true });
   };
 
   // 開啟客製化項目設定視窗
   const openCustomForm = () => {
-    setShowCustomForm(true);
+    setAddMealModalSettings({ from: 'custom', open: true });
   };
 
-  // 處理菜單餐點提交
-  const handleMenuItemSubmit = (data: {
-    name: string;
-    price: number;
-    quantity: number;
-    note: string;
-    description?: string;
-    menu_item_id?: string;
-  }) => {
-    const newOrderItem: OrderItem = {
-      name: data.name,
-      price: data.price,
-      quantity: data.quantity,
-      description: data.description,
-      note: data.note,
-      menu_item_id: data.menu_item_id,
+  const handleMenuModalOk = useCallback((values: MenuFormValues) => {
+    setAddMealModalSettings({ from: 'custom', open: false });
+    const appendedItem: OrderItem = {
+      name: values.name,
+      price: values.price,
+      quantity: values.quantity,
+      note: values.note,
+      description: values.description,
+      menu_item_id: values.menu_item_id,
     };
+    setOrderItems((prevItems) => [...prevItems, appendedItem]);
+  }, []);
 
-    setOrderItems([...orderItems, newOrderItem]);
-    setShowMenuForm(false);
-    setSelectedMenuItem(null);
-  };
-
-  // 處理自訂餐點提交
-  const handleCustomItemSubmit = (data: {
-    name: string;
-    price: number;
-    quantity: number;
-    note: string;
-    description?: string;
-  }) => {
-    const newOrderItem: OrderItem = {
-      name: data.name,
-      price: data.price,
-      quantity: data.quantity,
-      description: data.description,
-      note: data.note,
-      menu_item_id: undefined,
-    };
-
-    setOrderItems([...orderItems, newOrderItem]);
-    setShowCustomForm(false);
-  };
-
-  // 關閉表單視窗
-  const closeMenuForm = () => {
-    setShowMenuForm(false);
-    setSelectedMenuItem(null);
-  };
-
-  const closeCustomForm = () => {
-    setShowCustomForm(false);
-  };
-
-  // Form2 處理函數
-  const handleMenuFormSubmit = (data: {
-    name: string;
-    price: number;
-    quantity: number;
-    note: string;
-    description?: string;
-    menu_item_id?: string;
-  }) => {
-    const orderItem: OrderItem = {
-      id: data.menu_item_id,
-      name: data.name,
-      price: data.price,
-      quantity: data.quantity,
-      note: data.note,
-      description: data.description,
-    };
-    setOrderItems([...orderItems, orderItem]);
-    closeMenuForm();
-  };
-
-  const handleCustomFormSubmit = (data: {
-    name: string;
-    price: number;
-    quantity: number;
-    note: string;
-    description?: string;
-  }) => {
-    const orderItem: OrderItem = {
-      name: data.name,
-      price: data.price,
-      quantity: data.quantity,
-      note: data.note,
-      description: data.description,
-    };
-    setOrderItems([...orderItems, orderItem]);
-    closeCustomForm();
-  };
+  const handleMenuModalClose = useCallback(() => {
+    setAddMealModalSettings({ from: 'custom', open: false });
+  }, []);
 
   // 更新項目數量
   const updateItemQuantity = (index: number, change: number) => {
@@ -576,7 +496,28 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
               <div>
                 <DataTable<OrderItem>
                   dataSource={orderItems}
+                  pagination={false}
                   columns={[
+                    {
+                      title: '', 
+                      key: 'actions',
+                      width: 100,
+                       render: (_, record, index) => (<>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            className="btn btn-ghost btn-xs"
+                          >
+                            <FaEdit className="w-3 h-3" />
+                          </button>
+                          <button
+                            className="btn btn-error btn-xs"
+                            onClick={() => removeItem(index)}
+                          >
+                            <RiDeleteBin6Line className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </>)
+                    },
                     { title: '餐點', key: 'name' },
                     {
                       title: '單價',
@@ -605,23 +546,6 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
                       title: '備註',
                       key: 'note',
                     },
-                    {
-                      title: '操作', key: 'actions', render: (_, record, index) => (<>
-                        <div className="flex items-center space-x-2">
-                          <button
-                            className="btn btn-ghost btn-xs"
-                          >
-                            <FaEdit className="w-3 h-3" />
-                          </button>
-                          <button
-                            className="btn btn-error btn-xs"
-                            onClick={() => removeItem(index)}
-                          >
-                            <RiDeleteBin6Line className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </>)
-                    },
                   ]}
                   summary={{
                     show: true,
@@ -645,10 +569,10 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
             </div>
 
             {/* 總計 */}
-            <div className="divider"></div>
+            {/* <div className="divider"></div> */}
             <div className="flex justify-between items-center text-lg font-bold">
               <span>總計：</span>
-              <span className="text-primary">${calculateTotal()}</span>
+              <span className="text-primary">{formatCurrency(calculateTotal())}</span>
             </div>
 
             {/* 提交按鈕 */}
@@ -670,26 +594,12 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
         </div>
       </div>
 
-      {/* Form2 組件 */}
-      {showMenuForm && selectedMenuItem && (
-        <MenuMealForm
-          menuItem={{
-            ...selectedMenuItem,
-            description: selectedMenuItem.description || undefined
-          }}
-          isOpen={showMenuForm}
-          onClose={closeMenuForm}
-          onSubmit={handleMenuFormSubmit}
-        />
-      )}
-
-      {showCustomForm && (
-        <CustomMealForm
-          isOpen={showCustomForm}
-          onClose={closeCustomForm}
-          onSubmit={handleCustomFormSubmit}
-        />
-      )}
+      <AddMealModal
+        settings={addMealModalSettings}
+        open={addMealModalSettings.open}
+        onOk={handleMenuModalOk}
+        onClose={handleMenuModalClose}
+      />
     </div>
   );
 }
