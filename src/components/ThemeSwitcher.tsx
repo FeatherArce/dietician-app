@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 // 官方預設主題（可根據 tailwind.config.js daisyui.theme 設定自訂）
 const defaultThemes = [
@@ -28,16 +28,17 @@ const defaultThemes = [
 
 export default function ThemeSwitcher() {
   const [themes, setThemes] = useState<string[]>(defaultThemes);
-  const [current, setCurrent] = useState<string>("light");
+  const [current, setCurrent] = useState<string>(() => {
+  // 讀取 DOM 中當前的 data-theme 作為元件的預設主題
+    return document.documentElement.getAttribute("data-theme") || "light";
+  });
 
-  const checkTheme = useCallback(() => {
-    const theme = document.documentElement.getAttribute("data-theme");
-    setCurrent(theme || "light");
-  }, []);
-
+  // 確保當前 state 與 document 的 data-theme 同步
   useEffect(() => {
-    checkTheme();
-  }, [checkTheme]);
+    if (document.documentElement.getAttribute("data-theme") !== current) {
+      document.documentElement.setAttribute("data-theme", current);
+    }
+  }, [current]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const theme = e.target.value;
@@ -52,9 +53,9 @@ export default function ThemeSwitcher() {
         onChange={handleChange}
         value={current}
       >
-        {themes.map((theme) => (
+        {themes?.map((theme) => (
           <option key={theme} value={theme}>
-            {theme.charAt(0).toUpperCase() + theme.slice(1)}
+            {theme?.charAt(0).toUpperCase() + theme?.slice(1)}
           </option>
         ))}
       </select>
