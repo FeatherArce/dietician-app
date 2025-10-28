@@ -23,7 +23,7 @@ interface EventStatisticsProps {
     className?: string;
 }
 
-export default function EventStatistics({ statistics, className = '' }: EventStatisticsProps) {    
+export default function EventStatistics({ statistics, className = '' }: EventStatisticsProps) {
     const [showContactInfo, setShowContactInfo] = useState(true);
 
     // 格式化金額
@@ -207,7 +207,7 @@ export default function EventStatistics({ statistics, className = '' }: EventSta
 
                 {/* 統計摘要 */}
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-                    <div className="stat bg-primary/10 rounded-lg">
+                    <div className="stat bg-primary/10 rounded-lg !border-r-0 shadow">
                         <div className="stat-figure text-primary">
                             <FaShoppingCart size={24} />
                         </div>
@@ -215,7 +215,7 @@ export default function EventStatistics({ statistics, className = '' }: EventSta
                         <div className="stat-value text-lg text-primary">{statistics.totalOrders}</div>
                         <div className="stat-desc">筆訂單</div>
                     </div>
-                    <div className="stat bg-success/10 rounded-lg">
+                    <div className="stat bg-success/10 rounded-lg !border-r-0 shadow">
                         <div className="stat-figure text-success">
                             <FaUsers size={24} />
                         </div>
@@ -223,7 +223,7 @@ export default function EventStatistics({ statistics, className = '' }: EventSta
                         <div className="stat-value text-lg text-success">{statistics.participantCount}</div>
                         <div className="stat-desc">位顧客</div>
                     </div>
-                    <div className="stat bg-warning/10 rounded-lg">
+                    <div className="stat bg-warning/10 rounded-lg !border-r-0 shadow">
                         <div className="stat-figure text-warning">
                             <FaDollarSign size={24} />
                         </div>
@@ -231,7 +231,7 @@ export default function EventStatistics({ statistics, className = '' }: EventSta
                         <div className="stat-value text-lg text-warning">{formatCurrency(statistics.totalAmount)}</div>
                         <div className="stat-desc">新台幣</div>
                     </div>
-                    <div className="stat bg-info/10 rounded-lg">
+                    <div className="stat bg-info/10 rounded-lg !border-r-0 shadow">
                         <div className="stat-figure text-info">
                             <FaDollarSign size={20} />
                         </div>
@@ -241,7 +241,7 @@ export default function EventStatistics({ statistics, className = '' }: EventSta
                         </div>
                         <div className="stat-desc">筆訂單</div>
                     </div>
-                    <div className="stat bg-error/10 rounded-lg">
+                    <div className="stat bg-error/10 rounded-lg !border-r-0 shadow">
                         <div className="stat-figure text-error">
                             <FaDollarSign size={20} />
                         </div>
