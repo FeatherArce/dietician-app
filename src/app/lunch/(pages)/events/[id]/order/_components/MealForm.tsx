@@ -5,14 +5,30 @@ import NumberInput from '@/components/form2/controls/NumberInput';
 import TextArea from '@/components/form2/controls/TextArea';
 import { Form2Ref } from '@/components/form2/types';
 import React, { useCallback, useImperativeHandle, useMemo } from 'react';
-import { MenuFormValues } from './AddMealModal';
+
+export enum MealFormMode {
+  ADD = 'add',
+  EDIT = 'edit',
+}
+
+export interface MenuFormValues {
+  name: string;
+  price: number;
+  quantity: number;
+  note: string;
+  description?: string;
+  menu_item_id?: string;
+  [x: string]: unknown;
+}
 
 interface CustomMealFormProps {
+  mode: MealFormMode;
   initialValues?: MenuFormValues;
   onSubmit: (values: MenuFormValues) => void;
 }
 
 function MealForm({
+  mode = MealFormMode.ADD,
   initialValues,
   onSubmit
 }: CustomMealFormProps,
@@ -23,7 +39,13 @@ function MealForm({
   useImperativeHandle(ref, () => ({
     submit: () => {
       formRef.current?.submit();
-    }
+    },
+    reset: () => {
+      formRef.current?.reset();
+    },
+    setFieldsValue: (values: Partial<FormValues>) => {
+      formRef.current?.setFieldsValue(values);
+    },
   }));
 
   const isFromMenu = useMemo(() => {
@@ -60,11 +82,6 @@ function MealForm({
     //   setFormValues(allValues);
     // }}
     >
-      {/* 表單標題 */}
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="font-bold text-lg">自訂餐點</h3>
-      </div>
-
       {/* 餐點名稱 */}
       <Form2.Item
         name="name"
@@ -72,13 +89,14 @@ function MealForm({
         required
         rules={[
           { required: true, message: '請輸入餐點名稱' },
-        ]}
+        ]}        
+        help={initialValues?.description}
       >
         <Input placeholder="例：牛肉麵" disabled={isFromMenu} />
       </Form2.Item>
 
       {/* 餐點說明 */}
-      <Form2.Item
+      {/* <Form2.Item
         name="description"
         label="餐點說明"
       >
@@ -87,7 +105,7 @@ function MealForm({
           rows={2}
           disabled={isFromMenu}
         />
-      </Form2.Item>
+      </Form2.Item> */}
 
       {/* 價格 */}
       <Form2.Item
@@ -103,7 +121,7 @@ function MealForm({
           min={0}
           precision={0}
           step={1}
-          placeholder="0"
+          placeholder="請輸入價格"
           disabled={isFromMenu}
         />
       </Form2.Item>
@@ -121,8 +139,7 @@ function MealForm({
         <NumberInput
           min={1}
           precision={0}
-          placeholder="1"
-          className="text-center w-20"
+          placeholder="請輸入數量"          
         />
       </Form2.Item>
 
