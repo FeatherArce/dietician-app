@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import DataTable, { type Column } from '@/components/DataTable';
 import { Form2, FormItem, Input } from '@/components/form2';
 import React, { useCallback } from 'react'

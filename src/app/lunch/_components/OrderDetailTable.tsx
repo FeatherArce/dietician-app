@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import DataTable from '@/components/DataTable';
 import { formatCurrency } from '@/libs/formatter';
 import React, { useCallback, useMemo, useState } from 'react'

@@ -7,7 +7,7 @@
  * 3. 處理認證失敗的情況
  */
 
-'use client';
+"use client";
 
 import { useState } from 'react';
 import { authFetch, authFetchJson } from '@/libs/auth-fetch';

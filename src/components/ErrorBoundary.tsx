@@ -1,7 +1,7 @@
 // ErrorBoundary.tsx
 // 目標是建立一個簡單的錯誤邊界組件來捕捉子組件中的錯誤，會配合 Suspense 與 SWR 使用
 
-'use client';
+"use client";
 import React, { Component, ReactNode } from 'react';
 interface ErrorBoundaryProps {
     children: ReactNode;

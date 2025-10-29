@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React from 'react';
 import { LunchEvent } from '@/prisma-generated/postgres-client';
 import { FaCartPlus } from 'react-icons/fa';

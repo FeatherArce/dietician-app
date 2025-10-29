@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { FaUser, FaEnvelope, FaUserTag, FaArrowLeft, FaSave } from 'react-icons/fa';
 import Breadcrumb from '@/components/Breadcrumb';
@@ -32,8 +32,10 @@ interface FormErrors {
 export default function EditUserPage() {
   const router = useRouter();
   const params = useParams();
-  const userId = params.id as string;
-  
+  const userId = useMemo(() => {
+    return params?.id || null;
+  }, [params]);
+
   const [userData, setUserData] = useState<UserData | null>(null);
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -45,36 +47,40 @@ export default function EditUserPage() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  // 載入用戶資料
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch(`/api/lunch/users/${userId}`);
-        if (response.ok) {
-          const data = await response.json();
-          const user = data.user;
-          setUserData(user);
-          setFormData({
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            is_active: user.is_active
-          });
-        } else {
-          throw new Error('用戶不存在');
-        }
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
-        setErrors({ general: '載入用戶資料失敗' });
-      } finally {
-        setInitialLoading(false);
+  // 取得用戶資料
+  const getUsers = useCallback(async () => {
+    if (!userId) return;
+    if (typeof userId !== 'string') {
+      setErrors({ general: '無效的用戶ID' });
+      setInitialLoading(false);
+      return;
+    }
+    try {
+      const response = await fetch(`/api/lunch/users/${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        const user = data.user;
+        setUserData(user);
+        setFormData({
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          is_active: user.is_active
+        });
+      } else {
+        throw new Error('用戶不存在');
       }
-    };
-
-    if (userId) {
-      fetchUser();
+    } catch (error) {
+      console.error('Failed to fetch user:', error);
+      setErrors({ general: '載入用戶資料失敗' });
+    } finally {
+      setInitialLoading(false);
     }
   }, [userId]);
+
+  useEffect(() => {
+    getUsers();
+  }, [getUsers]);
 
   const validateForm = (): FormErrors => {
     const newErrors: FormErrors = {};
@@ -106,7 +112,7 @@ export default function EditUserPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
@@ -171,8 +177,8 @@ export default function EditUserPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">找不到用戶</h2>
-          <button 
-            onClick={() => router.back()} 
+          <button
+            onClick={() => router.back()}
             className="btn btn-primary"
           >
             返回上一頁
@@ -185,12 +191,12 @@ export default function EditUserPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* 麵包屑導航 */}
-      <Breadcrumb 
+      <Breadcrumb
         items={[
           { label: '使用者管理', href: '/lunch/users' },
           { label: userData.name, href: `/lunch/users/${userId}` },
           { label: '編輯', current: true }
-        ]} 
+        ]}
       />
 
       {/* 頁面標題 */}

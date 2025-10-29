@@ -1,4 +1,4 @@
-'use client'
+"use client"
 import { useLinkStatus } from 'next/link'
 
 export default function LoadingIndicator() {

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React from 'react';
 import { Form2 } from '@/components/form2';

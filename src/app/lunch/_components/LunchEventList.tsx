@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { LunchEvent } from '@/prisma-generated/postgres-client';
 import swrFetcher from '@/services/swrFetcher';
 import React, { useCallback } from 'react'

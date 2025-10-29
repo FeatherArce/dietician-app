@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { useLoadingStore } from "@/stores/loading-store";
 
 export default function LoadingOverlay() {
