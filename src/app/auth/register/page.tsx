@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import RegisterForm from "./RegisterForm";
+import { toast } from "@/components/Toast";
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +23,8 @@ export default function RegisterPage() {
 
       if (res.response.ok) {
         console.log("Registration successful:");
+        toast.success("註冊成功！正在為您登入...");
+
         // 註冊成功，使用 Zustand store 儲存登入狀態
         login(result.user, result.token);
 
@@ -29,6 +32,7 @@ export default function RegisterPage() {
         router.push("/lunch");
       } else {
         console.log("Register failed:", { result });
+        toast.error("註冊失敗，請檢查輸入資料");
         if (result.errors && Array.isArray(result.errors)) {
           setErrors(result.errors);
         } else {
