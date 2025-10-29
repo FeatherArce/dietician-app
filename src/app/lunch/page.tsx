@@ -15,6 +15,8 @@ import EventCard from './_components/EventCard';
 import EventStatistics from './_components/EventStatistics';
 import OrderDetailModal from './_components/OrderDetailModal';
 import type { EventStatistics as EventStatisticsType, EventWithDetails, MyOrder } from './types';
+import { AUTH_CONSTANTS } from '@/constants/app-constants';
+import { authFetch } from '@/libs/auth-fetch';
 
 enum EventActiveType {
     ACTIVE = 'active',
@@ -64,11 +66,7 @@ export default function LunchPage() {
             // 獲取用戶已參與的活動（包含建立的和有訂單的）
             // const url = `/api/lunch/events/participated?userId=${user?.id}`;
             const url = `/api/lunch/events`;
-            const response = await fetch(url, {
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem('auth-token')}`,
-                },
-            });
+            const response = await authFetch(url);
             const data = await response.json();
 
             if (data.success && data.events) {
@@ -86,11 +84,7 @@ export default function LunchPage() {
         if (!user?.id) return;
 
         try {
-            const response = await fetch(`/api/lunch/orders?userId=${user.id}`, {
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem('auth-token')}`,
-                },
-            });
+            const response = await authFetch(`/api/lunch/orders?userId=${user.id}`);
             const data = await response.json();
 
             if (data.success && data.orders) {
@@ -107,11 +101,7 @@ export default function LunchPage() {
 
         setLoadingEventStats(true);
         try {
-            const response = await fetch(`/api/lunch/events/${eventId}?include=details`, {
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem('auth-token')}`,
-                },
-            });
+            const response = await authFetch(`/api/lunch/events/${eventId}?include=details`);
 
             if (response.ok) {
                 const data = await response.json();

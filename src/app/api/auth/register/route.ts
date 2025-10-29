@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AuthService } from '@/services/server/auth';
+import { AUTH_CONSTANTS } from '@/constants/app-constants';
 
 export async function POST(request: NextRequest) {
     try {
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
             message: 'Registration successful'
         });
         
-        response.cookies.set('auth-token', token, {
+        response.cookies.set(AUTH_CONSTANTS.ACCESS_TOKEN_KEY, token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',

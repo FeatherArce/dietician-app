@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import { FaCalendarAlt, FaStore, FaUsers } from 'react-icons/fa';
 import Link from 'next/link';
+import { authFetch } from '@/libs/auth-fetch';
 
 interface EventWithDetails {
     id: string;
@@ -52,11 +53,7 @@ export default function JoinEventPage() {
                     
                     // 如果用戶已登入，檢查是否已有訂單
                     if (user?.id) {
-                        const orderResponse = await fetch(`/api/lunch/orders?userId=${user.id}&eventId=${eventId}`, {
-                            headers: {
-                                "Authorization": `Bearer ${localStorage.getItem('auth-token')}`,
-                            },
-                        });
+                        const orderResponse = await authFetch(`/api/lunch/orders?userId=${user.id}&eventId=${eventId}`);
                         const orderData = await orderResponse.json();
                         setHasOrder(orderData.success && orderData.orders && orderData.orders.length > 0);
                     }

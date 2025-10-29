@@ -23,6 +23,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import EventStatistics from "../../../_components/EventStatistics";
 import OrderDetailModal from "./_components/OrderDetailModal";
 import type { EventStatistics as EventStatisticsType } from "../../../types";
+import { authFetch } from "@/libs/auth-fetch";
 
 interface EventWithDetails extends LunchEvent {
   orderCount: number;
@@ -128,11 +129,10 @@ export default function EventDetailPage() {
   // 處理收款狀態變更
   const handlePaymentStatusChange = async (orderId: string, isPaid: boolean) => {
     try {
-      const response = await fetch(`/api/lunch/orders/${orderId}/payment`, {
+      const response = await authFetch(`/api/lunch/orders/${orderId}/payment`, {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem('auth-token')}`,
         },
         body: JSON.stringify({ 
           is_paid: isPaid,

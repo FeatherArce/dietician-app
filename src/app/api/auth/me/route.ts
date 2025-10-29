@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SessionService } from '@/services/server/auth';
 import { userService } from '@/services/server/lunch/user-services';
+import { AUTH_CONSTANTS } from '@/constants/app-constants';
 
 export async function GET(request: NextRequest) {
     try {
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
         
         // 如果沒有 Authorization header，則從 cookie 取得
         if (!token) {
-            token = request.cookies.get('auth-token')?.value;
+            token = request.cookies.get(AUTH_CONSTANTS.ACCESS_TOKEN_KEY)?.value;
         }
         
         if (!token) {

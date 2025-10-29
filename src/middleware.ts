@@ -36,7 +36,7 @@ function matchesPattern(pathname: string, patterns: string[]): boolean {
 /**
  * 從請求中驗證使用者會話
  */
- async function validateSession(request: NextRequest) {
+async function validateSession(request: NextRequest) {
     const token = request.cookies.get(AUTH_CONSTANTS.ACCESS_TOKEN_KEY)?.value;
     if (!token) {
         return null;
@@ -72,7 +72,6 @@ function createUnauthorizedResponse() {
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
-    console.log(`Middleware processing request for: ${pathname}`);
 
     // 靜態資源和 Next.js 內部路由跳過
     if (
@@ -88,9 +87,7 @@ export async function middleware(request: NextRequest) {
     const session = await validateSession(request);
     const isAuthenticated = !!session;
 
-    console.log(`User is ${isAuthenticated ? 'authenticated' : 'not authenticated'}`);
-
-    if (pathname === '/') {
+    if (pathname === homepage) {
         return NextResponse.next();
     }
 

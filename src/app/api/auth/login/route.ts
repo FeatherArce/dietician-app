@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AuthService } from '@/services/server/auth';
+import { AUTH_CONSTANTS } from '@/constants/app-constants';
 
 export async function POST(request: NextRequest) {
     try {
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
         });
         
         // 設定主要 token
-        response.cookies.set('auth-token', token, {
+        response.cookies.set(AUTH_CONSTANTS.ACCESS_TOKEN_KEY, token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
         
         // 設定 refresh token（如果有的話）
         if (refreshToken) {
-            response.cookies.set('refresh-token', refreshToken, {
+            response.cookies.set(AUTH_CONSTANTS.REFRESH_TOKEN_KEY, refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax',

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SessionService } from '@/services/server/auth';
 import { userService } from '@/services/server/lunch/user-services';
+import { AUTH_CONSTANTS } from '@/constants/app-constants';
 
 export async function POST(request: NextRequest) {
     try {
         // 從 cookie 取得 refresh token
-        const refreshToken = request.cookies.get('refresh-token')?.value;
+        const refreshToken = request.cookies.get(AUTH_CONSTANTS.REFRESH_TOKEN_KEY)?.value;
         
         if (!refreshToken) {
             return NextResponse.json(
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
             message: 'Token refreshed successfully'
         });
         
-        response.cookies.set('auth-token', newToken, {
+        response.cookies.set(AUTH_CONSTANTS.ACCESS_TOKEN_KEY, newToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
