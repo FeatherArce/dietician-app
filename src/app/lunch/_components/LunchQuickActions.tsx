@@ -11,6 +11,10 @@ import {
 export default function LunchQuickActions() {
     const { user } = useAuthStore();
 
+    if(!user) {
+        return null;
+    }
+
     return (
         <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-sm">
