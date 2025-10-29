@@ -1,17 +1,15 @@
 "use client";
-
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { FaUser, FaEnvelope, FaUserTag, FaArrowLeft, FaSave } from 'react-icons/fa';
 import Breadcrumb from '@/components/Breadcrumb';
-import { getUserRoleLabel } from '@/types/User';
-import { UserRole } from '@/prisma-generated/postgres-client';
-import PageTitle from '@/components/page/PageTitle';
 import { Checkbox, Form2, Input, Select } from '@/components/form2';
 import { Form2Ref, FormValues } from '@/components/form2/types';
-import { UpdateUser } from '@/services/client/user';
-import { Notification } from '@/components/Notification';
+import PageTitle from '@/components/page/PageTitle';
 import { toast } from '@/components/Toast';
+import { UserRole } from '@/prisma-generated/postgres-client';
+import { UpdateUser } from '@/services/client/user';
+import { getUserRoleLabel } from '@/types/User';
+import { useParams, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FaSave } from 'react-icons/fa';
 
 interface UserData {
   id: string;
@@ -70,7 +68,7 @@ export default function EditUserPage() {
       return;
     }
     try {
-      const response = await fetch(`/api/lunch/users/${userId}`);
+      const response = await fetch(`/api/users/${userId}`);
       if (response.ok) {
         const data = await response.json();
         const user = data.user;
@@ -155,8 +153,8 @@ export default function EditUserPage() {
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
-          { label: '使用者管理', href: '/lunch/users' },
-          { label: userData.name, href: `/lunch/users/${userId}` },
+          { label: '使用者管理', href: '/users' },
+          { label: userData.name, href: `/users/${userId}` },
           { label: '編輯', current: true }
         ]}
       />

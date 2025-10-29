@@ -291,9 +291,10 @@ export const userService = {
 
             // 權限層級: ADMIN > MODERATOR > USER
             const roleHierarchy = {
+                [UserRole.GUEST]: 0,
                 [UserRole.USER]: 1,
                 [UserRole.MODERATOR]: 2,
-                [UserRole.ADMIN]: 3
+                [UserRole.ADMIN]: 3,
             };
 
             return roleHierarchy[user.role] >= roleHierarchy[requiredRole];

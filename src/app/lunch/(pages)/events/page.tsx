@@ -275,7 +275,7 @@ export default function EventsPage() {
       render: (_, record) => (
         record.owner ? (
           <Link
-            href={`/lunch/users/${record.owner.id}`}
+            href={`/users/${record.owner.id}`}
             className="link text-sm"
           >
             {record.owner.name}

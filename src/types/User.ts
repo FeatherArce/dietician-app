@@ -8,6 +8,8 @@ export function getUserRoleLabel(role: UserRole): string {
             return '管理者';
         case UserRole.USER:
             return '一般用戶';
+        case UserRole.GUEST:
+            return '訪客';
         default:
             return `未知角色 (${role})`;
     }

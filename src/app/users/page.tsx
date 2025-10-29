@@ -63,7 +63,7 @@ export default function UsersPage() {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const response = await fetch("/api/lunch/users");
+      const response = await fetch("/api/users");
       if (response.ok) {
         const data = await response.json();
         setUsers(data.users || []);
@@ -82,7 +82,7 @@ export default function UsersPage() {
 
   const toggleUserStatus = useCallback(async (userId: string, isActive: boolean) => {
     try {
-      const response = await fetch(`/api/lunch/users/${userId}`, {
+      const response = await fetch(`/api/users/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_active: !isActive }),
@@ -101,12 +101,14 @@ export default function UsersPage() {
       ADMIN: "badge-error",
       USER: "badge-info",
       MODERATOR: "badge-warning",
+      GUEST: "badge-secondary"
     };
 
     const labels: Record<UserRole, string> = {
       ADMIN: getUserRoleLabel(UserRole.ADMIN),
       MODERATOR: getUserRoleLabel(UserRole.MODERATOR),
       USER: getUserRoleLabel(UserRole.USER),
+      GUEST: getUserRoleLabel(UserRole.GUEST)
     };
 
     return (
@@ -203,14 +205,14 @@ export default function UsersPage() {
       render: (_, record) => (
         <div className="flex justify-center space-x-1">
           <Link
-            href={`/lunch/users/${record.id}`}
+            href={`/users/${record.id}`}
             className="btn btn-ghost btn-xs"
             title="檢視詳細"
           >
             <FaEye className="w-3 h-3" />
           </Link>
           <Link
-            href={`/lunch/users/${record.id}/edit`}
+            href={`/users/${record.id}/edit`}
             className="btn btn-ghost btn-xs"
             title="編輯"
           >
@@ -259,7 +261,7 @@ export default function UsersPage() {
             管理系統使用者，查看訂餐記錄和統計資料
           </p>
         </div>
-        <Link href="/lunch/users/new" className="btn btn-primary">
+        <Link href="/users/new" className="btn btn-primary">
           <FaPlus className="w-4 h-4" />
           新增使用者
         </Link>

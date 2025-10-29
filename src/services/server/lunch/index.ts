@@ -18,8 +18,8 @@ export {
 } from './shop-services';
 
 // User Services
-export * from './user-services';
-export { userService } from './user-services';
+export * from '../user-services';
+export { userService } from '../user-services';
 
 // 便利的組合導出
 export const lunchServices = {
@@ -29,5 +29,5 @@ export const lunchServices = {
     menu: () => import('./shop-services').then(m => m.menuService),
     menuCategory: () => import('./shop-services').then(m => m.menuCategoryService),
     menuItem: () => import('./shop-services').then(m => m.menuItemService),
-    user: () => import('./user-services').then(m => m.userService),
+    user: () => import('../user-services').then(m => m.userService),
 } as const;

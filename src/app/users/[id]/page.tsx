@@ -45,16 +45,16 @@ export default function UserDetailPage() {
 
   const fetchUser = useCallback(async () => {
     try {
-      const response = await fetch(`/api/lunch/users/${userId}`);
+      const response = await fetch(`/api/users/${userId}`);
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
       } else {
-        router.push("/lunch/users");
+        router.push("/users");
       }
     } catch (error) {
       console.error("Failed to fetch user:", error);
-      router.push("/lunch/users");
+      router.push("/users");
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ export default function UserDetailPage() {
     
     setUpdating(true);
     try {
-      const response = await fetch(`/api/lunch/users/${userId}`, {
+      const response = await fetch(`/api/users/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_active: !user.is_active }),
@@ -92,12 +92,14 @@ export default function UserDetailPage() {
       ADMIN: "badge-error",
       USER: "badge-info",
       MODERATOR: "badge-warning",
+      GUEST: "badge-secondary"
     };
     
     const labels: Record<UserRole, string> = {
       ADMIN: getUserRoleLabel(UserRole.ADMIN),
       MODERATOR: getUserRoleLabel(UserRole.MODERATOR),
       USER: getUserRoleLabel(UserRole.USER),
+      GUEST: getUserRoleLabel(UserRole.GUEST)
     };
 
     return (
@@ -138,7 +140,7 @@ export default function UserDetailPage() {
       {/* 麵包屑導航 */}
       <Breadcrumb 
         items={[
-          { label: '使用者管理', href: '/lunch/users' },
+          { label: '使用者管理', href: '/users' },
           { label: user.name, current: true }
         ]} 
       />
@@ -172,7 +174,7 @@ export default function UserDetailPage() {
         
         <div className="flex space-x-2">
           <Link
-            href={`/lunch/users/${userId}/edit`}
+            href={`/users/${userId}/edit`}
             className="btn btn-ghost"
           >
             <FaEdit className="w-4 h-4" />

@@ -26,7 +26,7 @@ export default function LunchQuickActions() {
             <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow-lg border border-base-200">
                 {user?.role === UserRole.ADMIN && (<>
                     <li>
-                        <Link href="/lunch/users" className="flex items-center space-x-2">
+                        <Link href="/users" className="flex items-center space-x-2">
                             <FaUsers className="w-4 h-4" />
                             <span>用戶管理</span>
                         </Link>

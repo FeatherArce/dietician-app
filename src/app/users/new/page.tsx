@@ -93,7 +93,7 @@ export default function NewUserPage() {
     setErrors({});
 
     try {
-      const response = await fetch('/api/lunch/users', {
+      const response = await fetch('/api/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ export default function NewUserPage() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        router.push('/lunch/users');
+        router.push('/users');
       } else {
         throw new Error(data.error || '創建用戶失敗');
       }
@@ -136,7 +136,7 @@ export default function NewUserPage() {
       {/* 麵包屑導航 */}
       <Breadcrumb 
         items={[
-          { label: '使用者管理', href: '/lunch/users' },
+          { label: '使用者管理', href: '/users' },
           { label: '新增用戶', current: true }
         ]} 
       />

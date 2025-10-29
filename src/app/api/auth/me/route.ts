@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SessionService } from '@/services/server/auth';
-import { userService } from '@/services/server/lunch/user-services';
+import { userService } from '@/services/server/user-services';
 import { AUTH_CONSTANTS } from '@/constants/app-constants';
 
 export async function GET(request: NextRequest) {

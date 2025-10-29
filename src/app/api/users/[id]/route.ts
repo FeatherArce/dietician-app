@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { userService } from '@/services/server/lunch/user-services';
+import { userService } from '@/services/server/user-services';
 import { UserRole } from '@/prisma-generated/postgres-client';
 
 export async function GET(

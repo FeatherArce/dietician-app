@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { userService, type CreateUserData, type UserFilters } from '@/services/server/lunch/user-services';
+import { userService, type CreateUserData, type UserFilters } from '@/services/server/user-services';
 import { UserRole } from '@/prisma-generated/postgres-client';
 import { PasswordService } from '@/services/server/auth';
 
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ users, success: true });
         
     } catch (error) {
-        console.error('GET /api/lunch/users error:', error);
+        console.error('GET /api/users error:', error);
         return NextResponse.json(
             { error: 'Failed to fetch users', success: false }, 
             { status: 500 }
