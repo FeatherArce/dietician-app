@@ -119,9 +119,9 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(({
                     <option value="" disabled>
                         {placeholder}
                     </option>
-                    {options.map((option, label, index) => (
-                        <option key={`option-${index}`} value={option.value}>
-                            {option.label}
+                    {options.map(({ label, value }, index) => (
+                        <option key={`option-${label}-${value}-${index}`} value={value}>
+                            {label}
                         </option>
                     ))}
                 </select>
