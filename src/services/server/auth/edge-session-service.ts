@@ -41,23 +41,66 @@ export class EdgeSessionService {
         return secret;
     }
 
+    private static base64UrlDecode(input: string): ArrayBuffer {
+        const base64 = input.replace(/-/g, '+').replace(/_/g, '/');
+        const binaryString = atob(base64);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer; // 返回 ArrayBuffer
+    }
+
     /**
      * 驗證訪問 token（Edge Runtime 版本）
      * @param token JWT token
      * @returns UserSession | null
      */
-    static verifyAccessToken(token: string): UserSession | null {
+    static async verifyAccessToken(token: string): Promise<UserSession | null> {
+        // This code block is commented out because 'crypto' module is not supported in Edge Runtime
+        // try {
+        //     const decoded = jwt.verify(token, this.getSecretKey()) as UserSession;
+        //     console.log('Decoded token:', decoded);
+
+        //     // 基本驗證
+        //     if (!decoded.userId || !decoded.username || !decoded.role) {
+        //         return null;
+        //     }
+
+        //     return decoded;
+        // } catch (error) {
+        //     // Token 無效、過期或格式錯誤
+        //     console.error('Token verification error:', error);
+        //     return null;
+        // }
         try {
-            const decoded = jwt.verify(token, this.getSecretKey()) as UserSession;
-            
-            // 基本驗證
-            if (!decoded.userId || !decoded.username || !decoded.role) {
+            const [header, payload, signature] = token.split('.');
+            const secretKey = new TextEncoder().encode(this.getSecretKey());
+            const key = await crypto.subtle.importKey(
+                'raw',
+                secretKey,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['verify']
+            );
+
+            const isValid = await crypto.subtle.verify(
+                'HMAC',
+                key,
+                this.base64UrlDecode(signature),
+                new TextEncoder().encode(`${header}.${payload}`)
+            );
+
+            if (!isValid) {
                 return null;
             }
-            
-            return decoded;
+
+            const decodedPayload = JSON.parse(atob(payload));
+            return decodedPayload as UserSession;
         } catch (error) {
             // Token 無效、過期或格式錯誤
+            console.error('Token verification error:', error);
             return null;
         }
     }
