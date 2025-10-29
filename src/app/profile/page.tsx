@@ -89,24 +89,24 @@ export default function ProfilePage() {
       icon: FaUser,
       description: '修改個人資料'
     },
-    {
-      id: 'password' as TabType,
-      label: '變更密碼',
-      icon: FaKey,
-      description: '更改登入密碼'
-    },
+    // {
+    //   id: 'password' as TabType,
+    //   label: '變更密碼',
+    //   icon: FaKey,
+    //   description: '更改登入密碼'
+    // },
     {
       id: 'settings' as TabType,
       label: '偏好設定',
       icon: FaCog,
       description: '系統偏好設定'
     },
-    {
-      id: 'security' as TabType,
-      label: '安全設定',
-      icon: FaLock,
-      description: '帳戶安全選項'
-    }
+    // {
+    //   id: 'security' as TabType,
+    //   label: '安全設定',
+    //   icon: FaLock,
+    //   description: '帳戶安全選項'
+    // }
   ];
 
   // 載入用戶資料
@@ -324,8 +324,8 @@ export default function ProfilePage() {
         return renderAccountInfo();
       case 'profile':
         return renderProfileEdit();
-      case 'password':
-        return renderPasswordChange();
+      // case 'password':
+      //   return renderPasswordChange();
       case 'settings':
         return renderSettings();
       case 'security':
