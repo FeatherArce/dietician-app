@@ -6,6 +6,8 @@ import { NotificationConfig, NotificationItem } from './types';
 interface NotificationContextType {
   notifications: NotificationItem[];
   add: (config: NotificationConfig) => string;
+  // requestClose 標記為正在關閉 (觸發離場動畫)，remove 會真正從陣列移除
+  requestClose: (id: string) => void;
   remove: (id: string) => void;
   clear: () => void;
 }
@@ -41,6 +43,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     });
   }, []);
 
+  // 標記為正在關閉；UI 應在動畫結束時呼叫 remove
+  const requestClose = useCallback((id: string) => {
+    setNotifications(prev => prev.map(n => (n.id === id ? { ...n, isClosing: true } : n)));
+  }, []);
+
   const add = useCallback((config: NotificationConfig): string => {
     const id = config.id || generateId();
     const notification: NotificationItem = {
@@ -57,22 +64,22 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
     setNotifications(prev => [...prev, notification]);
 
-    // 自動關閉
+    // 自動關閉：先 requestClose 觸發離場動畫，再由 UI 在動畫結束時執行 remove
     if (notification.duration > 0) {
       setTimeout(() => {
-        remove(id);
+        requestClose(id);
       }, notification.duration);
     }
 
     return id;
-  }, [generateId, remove]);
+  }, [generateId, requestClose]);
 
   const clear = useCallback(() => {
     setNotifications([]);
   }, []);
 
   return (
-    <NotificationContext.Provider value={{ notifications, add, remove, clear }}>
+    <NotificationContext.Provider value={{ notifications, add, requestClose, remove, clear }}>
       {children}
     </NotificationContext.Provider>
   );

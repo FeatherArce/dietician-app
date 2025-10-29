@@ -24,4 +24,6 @@ export interface NotificationItem extends Required<Omit<NotificationConfig, 'act
   actions?: NotificationAction[];
   onClose?: () => void;
   createdAt: number;
+  // 當通知要求關閉時會被標記，讓 UI 能播放離場動畫後再真正移除
+  isClosing?: boolean;
 }
