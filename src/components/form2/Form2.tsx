@@ -6,6 +6,7 @@ import FormItem from './FormItem';
 import Form2List from './Form2List';
 import { pathToString, setNestedValue, getNestedValue } from './utils';
 import './Form2.css';
+import FormButton from './FormButton';
 
 // 主要表單組件
 function Form2(
@@ -56,6 +57,13 @@ function Form2(
       return newValues;
     });
   }, [onValuesChange]);
+
+  const setFieldsValue = useCallback((newValues: FormValues) => {
+    setValues(prevValues => {
+      const updatedValues = { ...prevValues, ...newValues };
+      return updatedValues;
+    });
+  }, []);
 
   // 設置字段錯誤
   const setFieldError = useCallback((name: string | (string | number)[], error: string | string[] | undefined) => {
@@ -235,8 +243,10 @@ function Form2(
     },
     validate: async () => {
       return await validateFields();
-    }
-  }), [formRef, stableInitialValues, validateFields]);
+    },
+    setFieldValue,
+    setFieldsValue,
+  }), [formRef, stableInitialValues, validateFields, setFieldValue, setFieldsValue]);
 
   return (
     <FormContext.Provider value={contextValue}>
@@ -259,6 +269,7 @@ const ForwardForm2 = React.forwardRef(Form2);
 const Form2Compound = Object.assign(ForwardForm2, {
   Item: FormItem,
   List: Form2List,
+  Button: FormButton,
   useForm: useFormContext,
 });
 
