@@ -217,17 +217,17 @@ export const userService = {
         }
     },
 
-    // 刪除使用者（軟刪除，設為不啟用）
-    async deactivateUser(id: string) {
+    // 刪除使用者（軟刪除）
+    async deleteUser(id: string) {
         try {
             const user = await prisma.user.update({
                 where: { id },
-                data: { is_active: false },
+                data: { is_deleted: true },
                 select: {
                     id: true,
                     name: true,
                     email: true,
-                    is_active: true
+                    is_deleted: true
                 }
             });
             return user;

@@ -195,7 +195,7 @@ export async function DELETE(request: NextRequest) {
         }
 
         // 使用 deactivateUser 而不是 deleteUser（軟刪除）
-        const user = await userService.deactivateUser(data.id);
+        const user = await userService.deleteUser(data.id);
         return NextResponse.json({ 
             user, 
             message: '使用者已停用', 
