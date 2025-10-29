@@ -3,15 +3,17 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/stores/auth-store";
-import { 
-  FaArrowLeft, 
-  FaStore, 
+import {
+  FaArrowLeft,
+  FaStore,
   FaSpinner,
   FaSave,
   FaEdit
 } from "react-icons/fa";
 import Breadcrumb from "@/components/Breadcrumb";
 import { authFetch } from "@/libs/auth-fetch";
+import { UserRole } from "@/prisma-generated/postgres-client";
+import UnauthorizedView from "@/components/UnauthorizedView";
 
 interface Shop {
   id: string;
@@ -47,13 +49,13 @@ export default function EditEventPage() {
   const params = useParams();
   const eventId = params.id as string;
   const { user, isAuthenticated, isLoading: authLoading } = useAuthStore();
-  
+
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [shops, setShops] = useState<Shop[]>([]);
   const [loadingShops, setLoadingShops] = useState(true);
   const [eventData, setEventData] = useState<EventData | null>(null);
-  
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -83,11 +85,11 @@ export default function EditEventPage() {
       try {
         const response = await fetch(`/api/lunch/events/${eventId}`);
         const data = await response.json();
-        
+
         if (data.success && data.event) {
           const event = data.event;
           setEventData(event);
-          
+
           setFormData({
             title: event.title,
             description: event.description || "",
@@ -134,7 +136,7 @@ export default function EditEventPage() {
     fetchShops();
   }, []);
 
-    const validateForm = () => {
+  const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.title.trim()) {
@@ -151,7 +153,7 @@ export default function EditEventPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -201,7 +203,7 @@ export default function EditEventPage() {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
-    
+
     // 清除對應的錯誤
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -238,8 +240,8 @@ export default function EditEventPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">活動不存在</h2>
           <p className="mb-4">找不到指定的活動</p>
-          <button 
-            onClick={() => router.back()} 
+          <button
+            onClick={() => router.back()}
             className="btn btn-primary"
           >
             返回
@@ -249,44 +251,35 @@ export default function EditEventPage() {
     );
   }
 
-  // 檢查是否有編輯權限：活動擁有者、管理員或系統管理員
-  const hasEditPermission = 
-    eventData.owner_id === user?.id || 
-    user?.role === 'ADMIN' || 
-    user?.role === 'MODERATOR';
+  const hasEditPermission =
+    eventData.owner_id === user?.id ||
+    user?.role === UserRole.ADMIN ||
+    user?.role === UserRole.MODERATOR;
 
   if (!hasEditPermission) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">權限不足</h2>
-          <p className="mb-4">只有活動擁有者或管理員可以編輯此活動</p>
-          <button 
-            onClick={() => router.back()} 
-            className="btn btn-primary"
-          >
-            返回
-          </button>
-        </div>
-      </div>
+      <UnauthorizedView
+        title="權限不足"
+        message="只有活動擁有者或管理者可以編輯此活動"
+      />
     );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
       {/* 麵包屑導航 */}
-      <Breadcrumb 
+      <Breadcrumb
         items={[
           { label: '活動管理', href: '/lunch/events' },
           { label: eventData.title, href: `/lunch/events/${eventId}` },
           { label: '編輯', current: true }
-        ]} 
+        ]}
       />
 
       {/* 頁面標題 */}
       <div className="flex items-center space-x-4 mb-6">
-        <button 
-          onClick={() => router.back()} 
+        <button
+          onClick={() => router.back()}
           className="btn btn-ghost btn-circle"
         >
           <FaArrowLeft className="w-5 h-5" />
@@ -307,7 +300,7 @@ export default function EditEventPage() {
           <div className="card bg-base-100 shadow-sm">
             <div className="card-body">
               <h2 className="card-title text-xl mb-4">基本資訊</h2>
-              
+
               <div className="grid grid-cols-1 gap-6">
                 {/* 活動名稱 */}
                 <div className="form-control w-full">
@@ -389,7 +382,7 @@ export default function EditEventPage() {
                 <FaStore className="w-5 h-5 text-primary" />
                 商店設定
               </h2>
-              
+
               <div className="grid grid-cols-1 gap-6">
                 <div className="form-control w-full">
                   <label className="label">

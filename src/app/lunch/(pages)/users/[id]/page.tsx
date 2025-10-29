@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa";
 import { User, UserRole } from "@/prisma-generated/postgres-client";
 import Breadcrumb from "@/components/Breadcrumb";
+import { getUserRoleLabel } from "@/types/User";
 
 interface UserWithStats extends User {
   orderCount: number;
@@ -94,9 +95,9 @@ export default function UserDetailPage() {
     };
     
     const labels: Record<UserRole, string> = {
-      ADMIN: "管理員",
-      USER: "使用者",
-      MODERATOR: "版主",
+      ADMIN: getUserRoleLabel(UserRole.ADMIN),
+      MODERATOR: getUserRoleLabel(UserRole.MODERATOR),
+      USER: getUserRoleLabel(UserRole.USER),
     };
 
     return (

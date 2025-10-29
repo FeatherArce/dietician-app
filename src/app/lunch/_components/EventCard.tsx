@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { LunchEvent } from '@/prisma-generated/postgres-client';
+import { LunchEvent, UserRole } from '@/prisma-generated/postgres-client';
 import {
     FaCalendarAlt,
     FaUsers,
@@ -52,8 +52,7 @@ export default function EventCard({
 }: EventCardProps) {
     // 檢查用戶是否為活動建立者
     const isOwner = event.owner_id === user?.id;
-    // 計算是否有管理權限：擁有者 或 管理員/系統管理員
-    const hasManagePermission = isOwner || user?.role === 'ADMIN' || user?.role === 'MODERATOR';
+    const hasManagePermission = isOwner || user?.role === UserRole.ADMIN || user?.role === UserRole.MODERATOR;
 
     // 檢查用戶是否有此活動的訂單
     const userOrder = getUserOrderForEvent(event.id);

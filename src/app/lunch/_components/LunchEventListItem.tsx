@@ -21,8 +21,7 @@ export default function LunchEventListItem({
     onDelete,
     onEdit,
     onOrder
-}: LunchEventItemProps) {
-    // 計算是否有管理權限：擁有者 或 管理員/系統管理員
+}: LunchEventItemProps) {    
     const hasManagePermission = 
         event.owner_id === currentUserId || 
         currentUserRole === 'ADMIN' || 

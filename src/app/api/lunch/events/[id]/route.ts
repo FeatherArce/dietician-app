@@ -79,14 +79,13 @@ export async function PUT(
             );
         }
 
-        // 權限檢查：事件擁有者、管理員或系統管理員
         const isOwner = existingEvent.owner_id === session.userId;
         const isAdmin = session.role === UserRole.ADMIN;
         const isModerator = session.role === UserRole.MODERATOR;
         
         if (!isOwner && !isAdmin && !isModerator) {
             return NextResponse.json(
-                { error: '權限不足，只有事件擁有者或管理員可以編輯此事件', success: false }, 
+                { error: '權限不足，只有事件擁有者或管理者可以編輯此事件', success: false }, 
                 { status: 403 }
             );
         }
@@ -236,7 +235,7 @@ export async function DELETE(
         
         if (!isOwner && !isAdmin && !isModerator) {
             return NextResponse.json(
-                { error: '權限不足，只有事件擁有者或管理員可以刪除此事件', success: false }, 
+                { error: '權限不足，只有事件擁有者或管理者可以刪除此事件', success: false }, 
                 { status: 403 }
             );
         }

@@ -96,8 +96,8 @@ export default function DataTableExample() {
       width: 100,
       render: (value) => {
         const roleConfig = {
-          ADMIN: { text: '管理員', class: 'badge-error' },
-          MODERATOR: { text: '版主', class: 'badge-warning' },
+          ADMIN: { text: '系統管理員', class: 'badge-error' },
+          MODERATOR: { text: '管理者', class: 'badge-warning' },
           USER: { text: '用戶', class: 'badge-info' }
         };
         const config = roleConfig[value as keyof typeof roleConfig];

@@ -16,6 +16,8 @@ import {
   FaLock,
   FaPalette
 } from "react-icons/fa";
+import { UserRole } from "@/prisma-generated/postgres-client";
+import { getUserRoleLabel } from "@/types/User";
 
 type TabType = 'info' | 'profile' | 'password' | 'settings' | 'security';
 
@@ -358,7 +360,7 @@ export default function ProfilePage() {
             </label>
             <input
               type="text"
-              value={user?.role === 'ADMIN' ? '管理員' : user?.role === 'MODERATOR' ? '管理者' : '一般用戶'}
+              value={getUserRoleLabel(user?.role || UserRole.USER)}
               className="input input-bordered w-full"
               disabled
             />

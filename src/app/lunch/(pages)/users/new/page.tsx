@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaEnvelope, FaLock, FaUserTag, FaArrowLeft, FaSave } from 'react-icons/fa';
 import Breadcrumb from '@/components/Breadcrumb';
+import { getUserRoleLabel } from '@/types/User';
+import { UserRole } from '@/prisma-generated/postgres-client';
 
 interface FormData {
   name: string;
@@ -280,9 +282,9 @@ export default function NewUserPage() {
                     onChange={(e) => handleInputChange('role', e.target.value as FormData['role'])}
                     disabled={loading}
                   >
-                    <option value="USER">一般用戶</option>
-                    <option value="MODERATOR">管理員</option>
-                    <option value="ADMIN">系統管理員</option>
+                    <option value="USER">{getUserRoleLabel(UserRole.USER)}</option>
+                    <option value="MODERATOR">{getUserRoleLabel(UserRole.MODERATOR)}</option>
+                    <option value="ADMIN">{getUserRoleLabel(UserRole.ADMIN)}</option>
                   </select>
                   {errors.role && (
                     <label className="label">
@@ -291,7 +293,7 @@ export default function NewUserPage() {
                   )}
                   <label className="label">
                     <span className="label-text-alt">
-                      一般用戶：基本權限 | 管理員：管理權限 | 系統管理員：完整權限
+                      一般用戶：基本權限 | 管理者：管理權限 | 系統管理員：完整權限
                     </span>
                   </label>
                 </div>
