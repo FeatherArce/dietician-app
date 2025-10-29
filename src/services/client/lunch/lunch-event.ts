@@ -1,7 +1,8 @@
+import { authFetch } from "@/libs/auth-fetch";
 import { LunchEvent } from "@/prisma-generated/postgres-client";
 
 export async function createLunchEvent(data: Partial<LunchEvent>) {
-    const response = await fetch('/api/lunch/events', {
+    const response = await authFetch('/api/lunch/events', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
