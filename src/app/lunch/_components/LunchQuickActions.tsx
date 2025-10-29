@@ -20,12 +20,6 @@ export default function LunchQuickActions() {
                 </svg>
             </div>
             <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow-lg border border-base-200">
-                <li>
-                    <Link href="/lunch/events" className="flex items-center space-x-2">
-                        <FaCalendarAlt className="w-4 h-4" />
-                        <span>活動管理</span>
-                    </Link>
-                </li>
                 {user?.role === UserRole.ADMIN && (<>
                     <li>
                         <Link href="/lunch/users" className="flex items-center space-x-2">
@@ -34,6 +28,12 @@ export default function LunchQuickActions() {
                         </Link>
                     </li>
                 </>)}
+                <li>
+                    <Link href="/lunch/events" className="flex items-center space-x-2">
+                        <FaCalendarAlt className="w-4 h-4" />
+                        <span>活動管理</span>
+                    </Link>
+                </li>
                 {(user?.role === UserRole.ADMIN || user?.role === UserRole.MODERATOR) && (
                     <>
                         <li>
