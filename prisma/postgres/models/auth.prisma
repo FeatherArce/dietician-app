@@ -3,12 +3,13 @@ enum UserRole {
   USER // 一般使用者
   ADMIN // 系統管理員（可維護商店與菜單）
   MODERATOR // 管理者
+  GUEST // 訪客
 }
 
 model User {
-  id    String @id @default(uuid())
+  id    String  @id @default(uuid())
   name  String // 顯示名稱/使用者名稱
-  email String @unique // 改為必填，用於登入
+  email String  @unique // 改為必填，用於登入
   note  String?
 
   // 認證相關欄位
@@ -18,8 +19,9 @@ model User {
   reset_token         String? // 密碼重設 token
   reset_token_expires DateTime? // 重設 token 過期時間
 
-  role      UserRole @default(USER) // 使用者角色
-  is_active Boolean  @default(true) // 是否啟用
+  role       UserRole @default(USER) // 使用者角色
+  is_active  Boolean  @default(true) // 是否啟用
+  is_deleted Boolean  @default(false) // 是否刪除（軟刪除）
 
   // 使用者偏好設定
   preferred_theme String @default("light") // 偏好主題
