@@ -21,9 +21,13 @@ import {
   FaUtensils
 } from "react-icons/fa";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import AddMealModal, { MenuFormValues } from "./_components/AddMealModal";
+import MealModal, { MealModalSettings } from "./_components/MealModal";
+import PageTitle from "@/components/page/PageTitle";
+import { MealFormMode, MenuFormValues } from "./_components/MealForm";
+import { toast } from "@/components/Toast";
+import { authFetch } from "@/libs/auth-fetch";
 
-interface OrderItem {
+export interface OrderItem {
   id?: string;
   name: string;
   price: number;
@@ -43,6 +47,7 @@ interface ExistingOrder {
   items: OrderItem[];
 }
 
+
 export default function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuthStore();
@@ -53,11 +58,11 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [eventId, setEventId] = useState<string>("");
-  const [addMealModalSettings, setAddMealModalSettings] = useState<{
-    from: 'menu' | 'custom';
-    menu_item?: EventMenuItem;
-    open: boolean;
-  }>({ from: 'custom', open: false });
+  const [mealModalSettings, setMealModalSettings] = useState<MealModalSettings>({
+    mode: MealFormMode.ADD,
+    from: 'custom',
+    open: false
+  });
 
   // 解析動態參數
   useEffect(() => {
@@ -100,11 +105,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       if (!user?.id || !eventId) return;
 
       try {
-        const response = await fetch(`/api/lunch/orders/user/${user.id}/event/${eventId}`, {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem('auth-token')}`,
-          },
-        });
+        const response = await authFetch(`/api/lunch/orders/user/${user.id}/event/${eventId}`);
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.order) {
@@ -136,17 +137,99 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
   };
 
   // 開啟菜單項目設定視窗
-  const openMenuForm = (menuItem: EventMenuItem) => {
-    setAddMealModalSettings({ from: 'menu', menu_item: menuItem, open: true });
+  const openAddMenuMealModal = (menuItem: EventMenuItem) => {
+    setMealModalSettings({
+      mode: MealFormMode.ADD,
+      from: 'menu',
+      menu_item: menuItem,
+      open: true
+    });
   };
 
   // 開啟客製化項目設定視窗
-  const openCustomForm = () => {
-    setAddMealModalSettings({ from: 'custom', open: true });
+  const openAddCustomMealModal = () => {
+    setMealModalSettings({
+      mode: MealFormMode.ADD,
+      from: 'custom',
+      open: true
+    });
   };
 
-  const handleMenuModalOk = useCallback((values: MenuFormValues) => {
-    setAddMealModalSettings({ from: 'custom', open: false });
+  const openEditMealModal = (item: OrderItem, index: number) => {
+    if (!item) return;
+
+    let foundedMenuItem = null;
+    if (item.menu_item_id) {
+      tabMenus?.forEach((menu) => {
+        menu?.categories.forEach((category) => {
+          const foundItem = category.items.find((i) => i.id === item.menu_item_id);
+          if (foundItem) {
+            foundedMenuItem = foundItem;
+          }
+        });
+      });
+    }
+
+    setMealModalSettings({
+      mode: MealFormMode.EDIT,
+      index,
+      values: item,
+      from: foundedMenuItem ? 'menu' : 'custom',
+      menu_item: foundedMenuItem || undefined,
+      open: true
+    });
+  };
+
+  // 新增或更新訂單項目，為了避免有重複項目，需要先檢查新增項目是否已存在
+  // 如果備註有差異，則合併備註，否則只更新數量
+  const appendOrderItem = useCallback((newItem: OrderItem) => {
+    console.log("Appending order item", newItem);
+    setOrderItems((prevItems) => {
+      const existingItemIndex = prevItems?.findIndex(item =>
+        item.name === newItem.name &&
+        item.price === newItem.price
+      );
+
+      if (existingItemIndex !== -1) {
+        // 如果已存在，則合併備註
+        const existingItem = prevItems[existingItemIndex];
+        const tempItem = Object.assign({}, existingItem);
+        tempItem.quantity += newItem.quantity;
+        console.log("Merging order item", {
+          existingItem,
+          newItem,
+          tempItem,
+          hasNote: !!newItem.note,
+          noteCompare: newItem.note !== tempItem.note
+        });
+        if (!!newItem.note && newItem.note !== tempItem.note) {
+          tempItem.note = tempItem.note + ' / ' + newItem.note;
+        }
+
+        const remainingItems = prevItems.filter((_, index) => index !== existingItemIndex);
+        return [...remainingItems, tempItem];
+      }
+
+      // 如果不存在，則新增項目
+      return [...prevItems, newItem];
+    });
+  }, []);
+
+  const updateOrderItem = useCallback((index: number, updatedItem: OrderItem) => {
+    console.log("Updating order item", index, updatedItem);
+    setOrderItems((prevItems) => {
+      const updatedItems = [...prevItems];
+      updatedItems[index] = updatedItem;
+      return updatedItems;
+    });
+  }, []);
+
+  const handleMenuModalOk = useCallback((values: MenuFormValues, settings: MealModalSettings) => {
+    setMealModalSettings({
+      mode: MealFormMode.ADD,
+      from: 'custom',
+      open: false
+    });
     const appendedItem: OrderItem = {
       name: values.name,
       price: values.price,
@@ -155,11 +238,20 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       description: values.description,
       menu_item_id: values.menu_item_id,
     };
-    setOrderItems((prevItems) => [...prevItems, appendedItem]);
-  }, []);
+
+    if (settings.mode === MealFormMode.ADD) {
+      appendOrderItem(appendedItem);
+    } else if (settings.mode === MealFormMode.EDIT && typeof settings.index === 'number') {
+      updateOrderItem(settings.index, appendedItem);
+    }
+  }, [appendOrderItem, updateOrderItem]);
 
   const handleMenuModalClose = useCallback(() => {
-    setAddMealModalSettings({ from: 'custom', open: false });
+    setMealModalSettings({
+      mode: MealFormMode.ADD,
+      from: 'custom',
+      open: false
+    });
   }, []);
 
   // 更新項目數量
@@ -222,11 +314,10 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
           total: calculateTotal()
         };
 
-      const response = await fetch(url, {
+      const response = await authFetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem('auth-token')}`,
         },
         body: JSON.stringify(payload),
       });
@@ -234,9 +325,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       const data = await response.json();
 
       if (data.success) {
-        Notification.success({
-          message: existingOrder ? "訂單已更新！" : "訂單已提交！",
-        });
+        toast.success(existingOrder ? "訂單已更新！" : "訂單已提交！");
         // 使用瀏覽器返回上一頁，而不是強制跳轉到特定頁面
         router.back();
       } else {
@@ -301,7 +390,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
             key={item.id}
             className={`card border cursor-pointer transition-all hover:shadow-md ${!item.is_available ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary'
               }`}
-            onClick={() => item.is_available && openMenuForm(item)}
+            onClick={() => item.is_available && openAddMenuMealModal(item)}
           >
             <div className="card-body p-4">
               <h4 className="font-semibold text-sm">{item.name}</h4>
@@ -394,23 +483,15 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       />
 
       {/* 頁面標題 */}
-      <div className="flex items-center space-x-4 mb-6">
-        <button
-          onClick={() => router.back()}
-          className="btn btn-ghost btn-circle"
-        >
-          <FaArrowLeft className="w-5 h-5" />
-        </button>
-        <div>
-          <h1 className="text-3xl font-bold flex items-center space-x-3">
+      <PageTitle
+        title={
+          <div className="flex items-center gap-3">
             <FaShoppingCart className="w-8 h-8 text-primary" />
             <span>參與訂餐</span>
-          </h1>
-          <p className="text-base-content/70 mt-1">
-            {event.title} - {existingOrder ? "修改訂單" : "新增訂單"}
-          </p>
-        </div>
-      </div>
+          </div>
+        }
+        description={`${event.title} - ${existingOrder ? "修改訂單" : "新增訂單"}`}
+      />
 
       {/* 活動資訊卡片 */}
       <div className="card bg-base-100 shadow-sm mb-6">
@@ -443,7 +524,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
               {event.allow_custom_items && (
                 <button
                   className="btn btn-secondary btn-sm"
-                  onClick={openCustomForm}
+                  onClick={openAddCustomMealModal}
                 >
                   <FaPlus className="w-3 h-3 mr-1" />
                   自訂餐點
@@ -499,13 +580,16 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
                   pagination={false}
                   columns={[
                     {
-                      title: '', 
+                      title: '',
                       key: 'actions',
                       width: 100,
-                       render: (_, record, index) => (<>
+                      render: (_, record, index) => (<>
                         <div className="flex items-center space-x-2">
                           <button
                             className="btn btn-ghost btn-xs"
+                            onClick={() => {
+                              openEditMealModal(record, index);
+                            }}
                           >
                             <FaEdit className="w-3 h-3" />
                           </button>
@@ -519,6 +603,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
                       </>)
                     },
                     { title: '餐點', key: 'name' },
+                    { title: '備註', key: 'note', },
                     {
                       title: '單價',
                       key: 'price',
@@ -542,35 +627,31 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
                         return formatCurrency(record.price * record.quantity);
                       }
                     },
-                    {
-                      title: '備註',
-                      key: 'note',
-                    },
                   ]}
-                  summary={{
-                    show: true,
-                    columns: [
-                      { key: 'subtotal-title', render: () => <span className="font-bold">總計</span> },
-                      {
-                        key: 'subtotal',
-                        render: (data, allData) => {
-                          const subtotal = allData.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-                          return (
-                            <div className="flex justify-end">
-                              <span className="font-bold">總計: {formatCurrency(subtotal)}</span>
-                            </div>
-                          )
-                        }
-                      },
-                    ]
-                  }}
+                // summary={{
+                //   show: true,
+                //   columns: [
+                //     { key: 'subtotal-title', render: () => <span className="font-bold">總計</span> },
+                //     {
+                //       key: 'subtotal',
+                //       render: (data, allData) => {
+                //         const subtotal = allData.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+                //         return (
+                //           <div className="flex justify-end">
+                //             <span className="font-bold">總計: {formatCurrency(subtotal)}</span>
+                //           </div>
+                //         )
+                //       }
+                //     },
+                //   ]
+                // }}
                 />
               </div>
             </div>
 
             {/* 總計 */}
             {/* <div className="divider"></div> */}
-            <div className="flex justify-between items-center text-lg font-bold">
+            <div className="flex justify-end items-center text-lg font-bold">
               <span>總計：</span>
               <span className="text-primary">{formatCurrency(calculateTotal())}</span>
             </div>
@@ -594,9 +675,9 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
         </div>
       </div>
 
-      <AddMealModal
-        settings={addMealModalSettings}
-        open={addMealModalSettings.open}
+      <MealModal
+        settings={mealModalSettings}
+        open={mealModalSettings.open}
         onOk={handleMenuModalOk}
         onClose={handleMenuModalClose}
       />
