@@ -1,13 +1,13 @@
 "use client";
-
 import React from 'react';
 import { useToast } from './ToastProvider';
 import { ToastItem } from './ToastItem';
+import { useToastAPI } from '.';
 
 const getPositionClasses = (position: string) => {
   const classes = {
     'top-right': 'toast-top toast-end',
-    'top-left': 'toast-top toast-start', 
+    'top-left': 'toast-top toast-start',
     'bottom-right': 'toast-bottom toast-end',
     'bottom-left': 'toast-bottom toast-start',
     'top-center': 'toast-top toast-center',
@@ -17,6 +17,7 @@ const getPositionClasses = (position: string) => {
 };
 
 export const ToastContainer: React.FC = () => {
+  useToastAPI();
   const { toasts, remove } = useToast();
 
   // 按位置分組 toast
