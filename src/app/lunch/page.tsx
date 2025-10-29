@@ -24,7 +24,7 @@ enum EventActiveType {
 /**
  * 訂餐頁面
  * 使用流程：
- * 1. 揪團人開啟訂餐事件，需選擇餐廳、訂餐截止時間；沒有餐廳則需要新增，餐廳沒有菜單可以讓使用者自己填寫餐點資訊
+ * 1. 揪團人開啟訂餐事件，需選擇商店、訂餐截止時間；沒有商店則需要新增，商店沒有菜單可以讓使用者自己填寫餐點資訊
  * 2. 預設進入畫面可以看到進行中的訂餐事件，並參與訂餐，需填寫餐點資訊 (系統會另外紀錄訂餐人資訊與IP)
  * 3. 訂餐人可以看到自己的訂單資訊，並可以修改 (by IP or 登入)
  * 4. 揪團人可以看到所有訂單資訊，並可以新增、刪除或修改訂單與餐點資訊 (by IP or 登入)
@@ -206,7 +206,7 @@ export default function LunchPage() {
     }, [isAuthenticated, isLoading, user?.id, fetchEvents, fetchMyOrders]);
 
     // 顯示事件統計
-    const showEventStatistics = (eventId: string) => {        
+    const showEventStatistics = (eventId: string) => {
         setShowEventStats(true);
         fetchEventStats(eventId);
     };

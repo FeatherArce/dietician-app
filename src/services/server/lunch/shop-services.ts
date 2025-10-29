@@ -1,5 +1,5 @@
+import { Prisma } from '@/prisma-generated/postgres-client';
 import prisma from '@/services/prisma';
-import { Shop, Menu, MenuCategory, MenuItem, Prisma } from '@/prisma-generated/postgres-client';
 
 // Shop Service 類型定義
 export type CreateShopData = {

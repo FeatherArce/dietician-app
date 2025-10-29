@@ -211,11 +211,11 @@ export default function NewEventPage() {
             <Input name="location" placeholder="例如：公司1樓大廳" />
           </Form2.Item>
           <Form2.Item
-            label="餐廳"
+            label="商店"
             name="shop_id"
           >
             <Select
-              placeholder="選擇餐廳"
+              placeholder="選擇商店"
               disabled={loadingShops}
               options={(shops.map(shop => ({ value: shop.id, label: shop.address ? `${shop.name} (${shop.address})` : shop.name })))}
             />
@@ -226,7 +226,7 @@ export default function NewEventPage() {
             valuePropName="checked"
           >
             <Checkbox
-              label="允許參與者新增商店菜單以外的餐點"
+              label="允許參與者新增菜單以外的餐點"
             />
           </Form2.Item>
 

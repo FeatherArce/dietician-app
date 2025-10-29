@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import AdminQuickActions from './_components/AdminQuickActions';
+import LunchQuickActions from './_components/LunchQuickActions';
 
 export default function LunchLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,7 +8,7 @@ export default function LunchLayout({ children }: { children: React.ReactNode })
       <main className="grid grid-rows-[auto_1fr] gap-2 p-2 md:py-4 bg-base-100 min-h-screen">
         {/* 管理員功能區域 */}
         <div className="flex justify-end">
-          <AdminQuickActions />
+          <LunchQuickActions />
         </div>
         
         {children}

@@ -1,27 +1,23 @@
 "use client";
-import { useState, useEffect, useMemo, useCallback } from "react";
-import Link from "next/link";
-import {
-  FaPlus,
-  FaEdit,
-  FaEye,
-  FaCalendarAlt,
-  FaToggleOn,
-  FaToggleOff,
-  FaUsers,
-  FaClock,
-  FaStore,
-  FaThLarge,
-  FaTable
-} from "react-icons/fa";
-import { LunchEvent } from "@/prisma-generated/postgres-client";
 import Breadcrumb from "@/components/Breadcrumb";
-import { Notification, useNotificationAPI } from "@/components/Notification";
-import { toast, useToastAPI } from "@/components/Toast";
 import DataTable, { Column } from "@/components/DataTable";
+import { Notification, useNotificationAPI } from "@/components/Notification";
 import SearchContainer from "@/components/SearchContainer";
 import { SearchInput, Select } from "@/components/SearchContainer/SearchFields";
+import { toast, useToastAPI } from "@/components/Toast";
 import PageContainer from "@/components/page/PageContainer";
+import { LunchEvent } from "@/prisma-generated/postgres-client";
+import { useAuthStore } from "@/stores/auth-store";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  FaCalendarAlt,
+  FaEdit,
+  FaEye,
+  FaPlus,
+  FaToggleOff,
+  FaToggleOn
+} from "react-icons/fa";
 
 interface EventWithStats extends LunchEvent {
   orderCount?: number;
@@ -42,7 +38,7 @@ export default function EventsPage() {
   // 初始化 notification 和 toast API
   useNotificationAPI();
   useToastAPI();
-
+  const { user } = useAuthStore();
   const [events, setEvents] = useState<EventWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -51,12 +47,12 @@ export default function EventsPage() {
 
   // 統一的篩選邏輯
   const filteredEvents: EventWithStats[] = useMemo(() => {
-    return events.filter(event => {
+    return (events || []).filter(event => {
       // 狀態篩選
       if (statusFilter) {
         const now = new Date();
         const orderDeadline = new Date(event.order_deadline);
-        
+
         switch (statusFilter) {
           case "ACTIVE":
             if (!event.is_active) return false;
@@ -102,12 +98,12 @@ export default function EventsPage() {
         const matchLocation = event.location?.toLowerCase().includes(searchLower);
         const matchShop = event.shop?.name?.toLowerCase().includes(searchLower);
         const matchOwner = event.owner?.name?.toLowerCase().includes(searchLower);
-        
+
         if (!matchTitle && !matchDescription && !matchLocation && !matchShop && !matchOwner) {
           return false;
         }
       }
-      
+
       return true;
     });
   }, [events, statusFilter, dateFilter, searchTerm]);
@@ -121,7 +117,10 @@ export default function EventsPage() {
 
   const fetchEvents = useCallback(async () => {
     try {
-      const response = await fetch("/api/lunch/events?include=stats");
+      const newParameters = new URLSearchParams();
+      newParameters.append("include", "stats");
+      if (user?.id) { newParameters.append("owner_id", user.id); }
+      const response = await fetch(`/api/lunch/events?${newParameters.toString()}`);
       if (response.ok) {
         const data = await response.json();
         setEvents(data.events || []);
@@ -131,7 +130,7 @@ export default function EventsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   // 載入活動資料
   useEffect(() => {
@@ -400,7 +399,7 @@ export default function EventsPage() {
           onChange={setSearchTerm}
           allowClear={true}
         />
-        
+
         <Select
           label="狀態篩選"
           options={[
@@ -484,7 +483,7 @@ export default function EventsPage() {
       {filteredEvents.length === 0 && (
         <div className="text-center py-12">
           <FaCalendarAlt className="w-16 h-16 mx-auto text-base-content/30 mb-4" />
-          <h3 className="text-lg font-semibold mb-2">沒有找到活動</h3>         
+          <h3 className="text-lg font-semibold mb-2">沒有找到活動</h3>
         </div>
       )}
     </PageContainer>

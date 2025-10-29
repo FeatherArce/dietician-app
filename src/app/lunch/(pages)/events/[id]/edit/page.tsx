@@ -427,7 +427,7 @@ export default function EditEventPage() {
                   </label>
                   <label className="label">
                     <span className="label-text-alt">
-                      允許參與者新增商店菜單以外的餐點
+                      允許參與者新增菜單以外的餐點
                     </span>
                   </label>
                 </div>

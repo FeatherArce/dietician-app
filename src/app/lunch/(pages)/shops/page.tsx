@@ -1,13 +1,13 @@
 "use client";
-import { useState, useEffect, useMemo, useCallback } from "react";
-import Link from "next/link";
-import { FaSearch, FaPlus, FaEdit, FaEye, FaStore, FaToggleOn, FaToggleOff, FaThLarge, FaTable, FaUtensils } from "react-icons/fa";
-import { Shop } from "@/prisma-generated/postgres-client";
 import Breadcrumb from "@/components/Breadcrumb";
 import DataTable, { Column } from "@/components/DataTable";
 import SearchContainer from "@/components/SearchContainer";
 import { SearchInput, Select } from "@/components/SearchContainer/SearchFields";
 import PageContainer from "@/components/page/PageContainer";
+import { Shop } from "@/prisma-generated/postgres-client";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { FaEdit, FaEye, FaPlus, FaStore, FaUtensils } from "react-icons/fa";
 
 interface ShopWithStats extends Shop {
   menuCount?: number;
@@ -219,7 +219,7 @@ export default function ShopsPage() {
         <div>
           <h1 className="text-3xl font-bold">商店管理</h1>
           <p className="text-base-content/70 mt-1">
-            管理餐廳商店，查看菜單和訂單統計
+            管理商店，查看菜單和訂單統計
           </p>
         </div>
         <div className="self-end flex items-center space-x-3">

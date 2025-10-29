@@ -1,16 +1,16 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useAuthStore } from "@/stores/auth-store";
-import { 
-  FaArrowLeft, 
-  FaStore, 
-  FaSpinner,
-  FaSave,
-  FaPlus
-} from "react-icons/fa";
 import Breadcrumb from "@/components/Breadcrumb";
+import { useAuthStore } from "@/stores/auth-store";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import {
+  FaArrowLeft,
+  FaPlus,
+  FaSave,
+  FaSpinner,
+  FaStore
+} from "react-icons/fa";
 
 export default function NewShopPage() {
   const router = useRouter();
@@ -156,7 +156,7 @@ export default function NewShopPage() {
             <span>建立新商店</span>
           </h1>
           <p className="text-base-content/70 mt-1">
-            新增餐廳商店資訊
+            新增商店資訊
           </p>
         </div>
       </div>

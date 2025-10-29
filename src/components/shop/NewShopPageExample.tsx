@@ -124,7 +124,7 @@ export default function NewShopPageExample() {
             <span>建立新商店</span>
           </h1>
           <p className="text-base-content/70 mt-1">
-            新增餐廳商店資訊
+            新增商店資訊
           </p>
         </div>
       </div>
