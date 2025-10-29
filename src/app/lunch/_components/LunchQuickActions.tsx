@@ -1,21 +1,15 @@
 "use client";
-
-import React from 'react';
-import Link from 'next/link';
-import { useAuthStore } from '@/stores/auth-store';
-import {
-    FaUsers,
-    FaStore,
-    FaCalendarAlt
-} from 'react-icons/fa';
 import { UserRole } from '@/prisma-generated/postgres-client';
+import { useAuthStore } from '@/stores/auth-store';
+import Link from 'next/link';
+import {
+    FaCalendarAlt,
+    FaStore,
+    FaUsers
+} from 'react-icons/fa';
 
-export default function AdminQuickActions() {
+export default function LunchQuickActions() {
     const { user } = useAuthStore();
-
-    if (user?.role !== UserRole.ADMIN && user?.role !== UserRole.MODERATOR) {
-        return null;
-    }
 
     return (
         <div className="dropdown dropdown-end">
@@ -26,6 +20,12 @@ export default function AdminQuickActions() {
                 </svg>
             </div>
             <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow-lg border border-base-200">
+                <li>
+                    <Link href="/lunch/events" className="flex items-center space-x-2">
+                        <FaCalendarAlt className="w-4 h-4" />
+                        <span>活動管理</span>
+                    </Link>
+                </li>
                 {user?.role === UserRole.ADMIN && (<>
                     <li>
                         <Link href="/lunch/users" className="flex items-center space-x-2">
@@ -33,20 +33,16 @@ export default function AdminQuickActions() {
                             <span>用戶管理</span>
                         </Link>
                     </li>
-                    <li>
-                        <Link href="/lunch/events" className="flex items-center space-x-2">
-                            <FaCalendarAlt className="w-4 h-4" />
-                            <span>活動管理</span>
-                        </Link>
-                    </li>
                 </>)}
-                {user?.role === UserRole.MODERATOR && (
-                    <li>
-                        <Link href="/lunch/shops" className="flex items-center space-x-2">
-                            <FaStore className="w-4 h-4" />
-                            <span>商店管理</span>
-                        </Link>
-                    </li>
+                {(user?.role === UserRole.ADMIN || user?.role === UserRole.MODERATOR) && (
+                    <>
+                        <li>
+                            <Link href="/lunch/shops" className="flex items-center space-x-2">
+                                <FaStore className="w-4 h-4" />
+                                <span>商店管理</span>
+                            </Link>
+                        </li>
+                    </>
                 )}
             </ul>
         </div>
