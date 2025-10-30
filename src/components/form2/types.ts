@@ -48,7 +48,7 @@ export interface FormContextType {
 }
 
 // 表單屬性接口
-export interface Form2Props {
+export interface Form2Props extends React.FormHTMLAttributes<HTMLFormElement> {
   children: ReactNode;
   initialValues?: FormValues;
   onFinish?: (values: FormValues) => void | Promise<void>;
@@ -77,4 +77,5 @@ export interface FormItemProps {
   help?: string;
   validateTrigger?: 'onChange' | 'onBlur';
   valuePropName?: string;
+  hidden?: boolean;
 }
