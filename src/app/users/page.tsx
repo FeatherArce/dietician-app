@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
-import { FaPlus, FaEdit, FaEye, FaUserCheck, FaUserSlash } from "react-icons/fa";
+import { FaPlus, FaEdit, FaEye, FaUserCheck, FaUserSlash, FaTrash } from "react-icons/fa";
 import { User, UserRole } from "@/prisma-generated/postgres-client";
 import Breadcrumb from "@/components/Breadcrumb";
 import DataTable, { Column } from "@/components/DataTable";
@@ -9,6 +9,10 @@ import PageContainer from "@/components/page/PageContainer";
 import SearchContainer from "@/components/SearchContainer";
 import { SearchInput, Select } from "@/components/SearchContainer/SearchFields";
 import { getUserRoleLabel } from "@/types/User";
+import Modal, { ModalRef } from "@/components/Modal";
+import { deleteUser } from "@/services/client/admin/admin-user";
+import { toast } from "@/components/Toast";
+import { logicalDeleteUser } from "@/services/client/user";
 
 interface UserWithStats extends User {
   orderCount?: number;
@@ -18,14 +22,22 @@ interface UserWithStats extends User {
 
 export default function UsersPage() {
   const [users, setUsers] = useState<UserWithStats[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [roleFilter, setRoleFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [deleteModalSettings, setDeleteModalSettings] = useState<{ user: UserWithStats | null }>({ user: null });
+  const [showDeleted, setShowDeleted] = useState<boolean>(false);
+  const modalRef = useRef<ModalRef>(null);
 
   // 統一的篩選邏輯
   const filteredUsers: UserWithStats[] = useMemo(() => {
-    return users.filter(user => {
+    return users?.filter(user => {
+      // 已刪除篩選
+      if (!showDeleted && user.is_deleted) {
+        return false;
+      }
+
       // 角色篩選
       if (roleFilter && user.role !== roleFilter) {
         return false;
@@ -44,15 +56,15 @@ export default function UsersPage() {
         const searchLower = searchTerm.toLowerCase();
         const matchName = user.name?.toLowerCase().includes(searchLower);
         const matchEmail = user.email?.toLowerCase().includes(searchLower);
-        
+
         if (!matchName && !matchEmail) {
           return false;
         }
       }
-      
+
       return true;
     });
-  }, [users, roleFilter, statusFilter, searchTerm]);
+  }, [users, roleFilter, statusFilter, searchTerm, showDeleted]);
 
   // 重置所有篩選條件
   const handleReset = useCallback(() => {
@@ -62,6 +74,7 @@ export default function UsersPage() {
   }, []);
 
   const fetchUsers = useCallback(async () => {
+    setLoading(true);
     try {
       const response = await fetch("/api/users");
       if (response.ok) {
@@ -81,6 +94,7 @@ export default function UsersPage() {
   }, [fetchUsers]);
 
   const toggleUserStatus = useCallback(async (userId: string, isActive: boolean) => {
+    setLoading(true);
     try {
       const response = await fetch(`/api/users/${userId}`, {
         method: "PATCH",
@@ -93,6 +107,8 @@ export default function UsersPage() {
       }
     } catch (error) {
       console.error("Failed to update user status:", error);
+    } finally {
+      setLoading(false);
     }
   }, [fetchUsers]);
 
@@ -117,6 +133,22 @@ export default function UsersPage() {
       </span>
     );
   };
+
+  const handleOpenDeleteUserConfirm = useCallback(async (user: UserWithStats) => {
+    try {
+      setLoading(true);
+      await logicalDeleteUser(user.id);
+      toast.success(`使用者 ${user.name} 已成功刪除`);
+      modalRef.current?.close();
+      // 重新載入使用者列表
+      fetchUsers();
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      toast.error(`刪除使用者 ${user.name} 失敗`);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchUsers]);
 
   // DataTable 欄位定義
   const columns: Column<UserWithStats>[] = [
@@ -199,6 +231,26 @@ export default function UsersPage() {
       )
     },
     {
+      key: 'is_active',
+      title: '是否啟用',
+      width: 120,
+      render: (value) => (
+        <span className={`${value ? "text-success" : "text-error"}`}>
+          {value ? "是" : "否"}
+        </span>
+      )
+    },
+    {
+      key: 'is_deleted',
+      title: '已刪除',
+      width: 120,
+      render: (value) => (
+        <span className={`${value ? "text-error" : "text-base"}`}>
+          {value ? "是" : "否"}
+        </span>
+      )
+    },
+    {
       key: 'actions',
       title: '操作',
       align: 'center',
@@ -218,10 +270,12 @@ export default function UsersPage() {
           >
             <FaEdit className="w-3 h-3" />
           </Link>
+          {/* 軟刪除 */}
           <button
             className="btn btn-ghost btn-xs"
             title={record.is_active ? "停用使用者" : "啟用使用者"}
             onClick={() => toggleUserStatus(record.id, record.is_active)}
+            disabled={loading}
           >
             {record.is_active ? (
               <FaUserSlash className="w-3 h-3 text-error" />
@@ -229,20 +283,33 @@ export default function UsersPage() {
               <FaUserCheck className="w-3 h-3 text-success" />
             )}
           </button>
+          {/* 真刪除 */}
+          <button
+            className="btn btn-ghost btn-xs"
+            title="刪除使用者（不可復原）"
+            onClick={() => {
+              // if (confirm(`確定要刪除使用者 ${record.name} 嗎？此操作不可復原。`)) { }
+              setDeleteModalSettings({ user: record });
+              modalRef.current?.open();
+            }}
+            disabled={loading}
+          >
+            <FaTrash className="w-3 h-3 text-error" />
+          </button>
         </div>
       )
     }
   ];
 
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center h-64">
-          <span className="loading loading-spinner loading-lg"></span>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="container mx-auto px-4 py-8">
+  //       <div className="flex justify-center items-center h-64">
+  //         <span className="loading loading-spinner loading-lg"></span>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <PageContainer>
@@ -280,7 +347,7 @@ export default function UsersPage() {
           onChange={setSearchTerm}
           allowClear={true}
         />
-        
+
         <Select
           label="角色篩選"
           options={[
@@ -305,6 +372,20 @@ export default function UsersPage() {
         />
       </SearchContainer>
 
+      <div className="flex flex-end">
+        <fieldset className="fieldset w-64 p-4">
+          <label className="label">
+            <input
+              type="checkbox"
+              className="toggle"
+              checked={showDeleted}
+              onChange={() => setShowDeleted((prev) => !prev)}
+            />
+            顯示已刪除
+          </label>
+        </fieldset>
+      </div>
+
       {/* 使用者列表 */}
       <DataTable<UserWithStats>
         columns={columns}
@@ -324,6 +405,29 @@ export default function UsersPage() {
         bordered={true}
         emptyText="沒有找到符合條件的使用者"
       />
+
+      <Modal
+        ref={modalRef}
+        id="delete-user-confirm-modal"
+        title="刪除使用者"
+        okText="確定"
+        onOk={() => { handleOpenDeleteUserConfirm(deleteModalSettings.user!); }}
+        closeText="取消"
+        onClose={() => {
+          modalRef.current?.close();
+        }}
+      >
+        <div className="relative">
+          <p>確定要刪除使用者 {deleteModalSettings.user?.name}({deleteModalSettings.user?.email}) 嗎？此操作不可復原。</p>
+          {loading && (
+            <div className="container mx-auto px-4 py-8 z-50 absolute">
+              <div className="flex justify-center items-center h-64">
+                <span className="loading loading-spinner loading-lg"></span>
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
     </PageContainer>
   );
 }
