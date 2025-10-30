@@ -44,7 +44,6 @@ async function validateSession(request: NextRequest) {
 
     try {
         const session = EdgeSessionService.verifyAccessToken(token);
-        console.log('Validated session:', session);
         return session;
     } catch (error) {
         console.error('Token validation error:', error);
