@@ -1,9 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormCard, FormField, FormErrors } from "@/components/form";
 import { useAuth } from "@/hooks/useAuth";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,7 +12,17 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const redirectToPage = useCallback(() => {
+    // 登入成功，重定向到主頁或指定頁面
+    const redirectTo = new URLSearchParams(window.location.search).get("redirect");
+    if (redirectTo === ROUTE_CONSTANTS.LOGIN || !redirectTo) {
+      router.push("/lunch");
+      return;
+    }
+    router.push(redirectTo);
+  }, [router]);
+
+  const handleSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
     setErrors([]);
@@ -25,7 +36,7 @@ export default function LoginPage() {
 
     // 前端基本驗證
     const validationErrors: string[] = [];
-    
+
     if (!data.email || !/\S+@\S+\.\S+/.test(data.email)) {
       validationErrors.push("請輸入有效的 Email 格式");
     }
@@ -56,10 +67,9 @@ export default function LoginPage() {
         if (result.user && result.token) {
           login(result.user, result.token);
         }
-        
-        // 登入成功，重定向到主頁或指定頁面
-        const redirectTo = new URLSearchParams(window.location.search).get("redirect") || "/lunch";
-        router.push(redirectTo);
+
+        // 登入成功後的導向
+        redirectToPage();
       } else {
         setErrors([result.error || result.message || "登入失敗"]);
       }
@@ -68,7 +78,7 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [login, redirectToPage]);
 
   return (
     <FormCard

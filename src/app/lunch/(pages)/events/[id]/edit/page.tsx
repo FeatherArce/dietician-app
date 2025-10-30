@@ -14,6 +14,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import { authFetch } from "@/libs/auth-fetch";
 import { UserRole } from "@/prisma-generated/postgres-client";
 import UnauthorizedView from "@/components/UnauthorizedView";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 interface Shop {
   id: string;
@@ -226,7 +227,7 @@ export default function EditEventPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">請先登入</h2>
           <p className="mb-4">您需要登入才能編輯訂餐活動</p>
-          <Link href="/auth/login" className="btn btn-primary">
+          <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary">
             前往登入
           </Link>
         </div>

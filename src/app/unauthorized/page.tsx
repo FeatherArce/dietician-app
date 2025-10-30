@@ -1,3 +1,4 @@
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 import Link from "next/link";
 
 export default function UnauthorizedPage() {
@@ -16,7 +17,7 @@ export default function UnauthorizedPage() {
             <Link href="/" className="btn btn-primary">
               回到首頁
             </Link>
-            <Link href="/auth/login" className="btn btn-outline">
+            <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-outline">
               重新登入
             </Link>
           </div>

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { PublicUser } from '@/services/server/auth';
-import { AUTH_CONSTANTS } from '@/constants/app-constants';
+import { AUTH_CONSTANTS, ROUTE_CONSTANTS } from '@/constants/app-constants';
 
 interface AuthState {
   user: PublicUser | null;
@@ -69,7 +69,7 @@ export const useAuthStore = create<AuthState>()(
           });
           
           // 重導向到登入頁
-          window.location.href = '/auth/login';
+          window.location.href = ROUTE_CONSTANTS.LOGIN;
         }
       },
 

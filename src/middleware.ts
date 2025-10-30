@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { EdgeSessionService } from '@/services/server/auth/edge-session-service';
 import { SessionService } from '@/services/server/auth/session-service';
-import { AUTH_CONSTANTS } from './constants/app-constants';
+import { AUTH_CONSTANTS, ROUTE_CONSTANTS } from './constants/app-constants';
 
 // 需要認證的路由模式
 const protectedRoutes = [
@@ -17,8 +17,8 @@ const homepage = '/';
 
 // 認證相關路由（已登入時重定向）
 const authRoutes = [
-    '/auth/login',
-    '/auth/register'
+    ROUTE_CONSTANTS.LOGIN,
+    ROUTE_CONSTANTS.REGISTER,
 ];
 
 // 公開路由（不需要認證）
@@ -132,7 +132,7 @@ export async function middleware(request: NextRequest) {
             }
 
             // 頁面路由重定向到登入頁面
-            const loginUrl = `/auth/login?redirect=${encodeURIComponent(pathname)}`;
+            const loginUrl = `${ROUTE_CONSTANTS.LOGIN}?redirect=${encodeURIComponent(pathname)}`;
             return createRedirect(loginUrl, request);
         }
 

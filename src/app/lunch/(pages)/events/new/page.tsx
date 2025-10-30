@@ -13,6 +13,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import { Checkbox, Form2, Input, Select } from "@/components/form2";
 import { createLunchEvent } from "@/services/client/lunch/lunch-event";
 import { Notification } from "@/components/Notification";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 interface Shop {
   id: string;
@@ -122,7 +123,7 @@ export default function NewEventPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">請先登入</h2>
           <p className="mb-4">您需要登入才能建立訂餐活動</p>
-          <Link href="/auth/login" className="btn btn-primary">
+          <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary">
             前往登入
           </Link>
         </div>

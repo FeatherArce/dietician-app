@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import RegisterForm from "./RegisterForm";
 import { toast } from "@/components/Toast";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +68,7 @@ export default function RegisterPage() {
         <div className="text-center space-y-2">
           <p className="text-sm">
             已經有帳號了？
-            <Link href="/auth/login" className="link link-primary ml-1">
+            <Link href={ROUTE_CONSTANTS.LOGIN} className="link link-primary ml-1">
               立即登入
             </Link>
           </p>

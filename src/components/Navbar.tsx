@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 export default function Navbar() {
   const { user, isLoading, logout } = useAuth();
@@ -43,7 +44,7 @@ export default function Navbar() {
           </div>
         ) : (
           <div className="flex gap-2">
-            <Link href="/auth/login" className="btn btn-sm btn-ghost">
+            <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-sm btn-ghost">
               登入
             </Link>
             {/* <Link href="/auth/register" className="btn btn-sm btn-primary">

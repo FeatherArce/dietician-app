@@ -12,6 +12,7 @@ import {
 import Breadcrumb from "@/components/Breadcrumb";
 import MenuCategoryManager, { MenuCategory } from "@/components/menu/MenuCategoryManager";
 import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 interface MenuData {
   id: string;
@@ -194,7 +195,7 @@ export default function EditMenuPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">請先登入</h2>
           <p className="mb-4">您需要登入才能編輯菜單</p>
-          <Link href="/auth/login" className="btn btn-primary">
+          <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary">
             前往登入
           </Link>
         </div>

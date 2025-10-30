@@ -1,5 +1,6 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumb";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 import { useAuthStore } from "@/stores/auth-store";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -124,7 +125,7 @@ export default function NewShopPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">請先登入</h2>
           <p className="mb-4">您需要登入才能建立商店</p>
-          <Link href="/auth/login" className="btn btn-primary">
+          <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary">
             前往登入
           </Link>
         </div>

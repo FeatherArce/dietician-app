@@ -15,7 +15,7 @@ import EventCard from './_components/EventCard';
 import EventStatistics from './_components/EventStatistics';
 import OrderDetailModal from './_components/OrderDetailModal';
 import type { EventStatistics as EventStatisticsType, EventWithDetails, MyOrder } from './types';
-import { AUTH_CONSTANTS } from '@/constants/app-constants';
+import { AUTH_CONSTANTS, ROUTE_CONSTANTS } from '@/constants/app-constants';
 import { authFetch } from '@/libs/auth-fetch';
 
 enum EventActiveType {
@@ -240,7 +240,7 @@ export default function LunchPage() {
                 <div className="text-center">
                     <h2 className="text-2xl font-bold mb-4">請先登入</h2>
                     <p className="mb-4">您需要登入才能使用訂餐功能</p>
-                    <Link href="/auth/login" className="btn btn-primary">
+                    <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary">
                         前往登入
                     </Link>
                 </div>

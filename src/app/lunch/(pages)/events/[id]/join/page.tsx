@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { FaCalendarAlt, FaStore, FaUsers } from 'react-icons/fa';
 import Link from 'next/link';
 import { authFetch } from '@/libs/auth-fetch';
+import { ROUTE_CONSTANTS } from '@/constants/app-constants';
 
 interface EventWithDetails {
     id: string;
@@ -207,10 +208,10 @@ export default function JoinEventPage() {
                     <div className="alert alert-info">
                         <span>請先登入以參與此訂餐活動</span>
                         <div className="flex space-x-2">
-                            <Link href="/auth/login" className="btn btn-primary btn-sm">
+                            <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary btn-sm">
                                 登入
                             </Link>
-                            <Link href="/auth/register" className="btn btn-ghost btn-sm">
+                            <Link href={ROUTE_CONSTANTS.REGISTER} className="btn btn-ghost btn-sm">
                                 註冊
                             </Link>
                         </div>

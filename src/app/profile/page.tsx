@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import UserForm from "./_components/UserForm";
 import UserThemeForm from "./_components/UserThemeForm";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 type TabType = 'info' | 'profile' | 'password' | 'settings' | 'security';
 
@@ -182,7 +183,7 @@ export default function ProfilePage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">請先登入</h2>
           <p className="mb-4">您需要登入才能查看個人資料</p>
-          <Link href="/auth/login" className="btn btn-primary">
+          <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary">
             前往登入
           </Link>
         </div>

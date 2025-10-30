@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -100,7 +101,7 @@ export default function ForgotPasswordPage() {
 
           <div className="text-center space-y-2">
             <p className="text-sm">
-              <Link href="/auth/login" className="link link-primary">
+              <Link href={ROUTE_CONSTANTS.LOGIN} className="link link-primary">
                 返回登入
               </Link>
             </p>

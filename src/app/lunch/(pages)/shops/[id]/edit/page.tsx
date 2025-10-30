@@ -23,6 +23,7 @@ import { authFetch } from "@/libs/auth-fetch";
 import MenuCategoryManager, { MenuCategory } from "@/components/menu/MenuCategoryManager";
 import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
 import { Select } from "@/components/SearchContainer/SearchFields";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 interface ShopData extends ShopFormData {
   id: string;
@@ -65,7 +66,7 @@ export default function EditShopPage() {
   // 認證檢查
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      router.push('/auth/login');
+      router.push(ROUTE_CONSTANTS.LOGIN);
       return;
     }
   }, [isAuthenticated, authLoading, router]);
@@ -196,7 +197,7 @@ export default function EditShopPage() {
           <FaExclamationCircle className="w-16 h-16 mx-auto text-warning mb-4" />
           <h2 className="text-2xl font-bold mb-2">需要登入</h2>
           <p className="text-base-content/70 mb-6">請先登入以存取此頁面</p>
-          <Link href="/auth/login" className="btn btn-primary">
+          <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary">
             前往登入
           </Link>
         </div>
