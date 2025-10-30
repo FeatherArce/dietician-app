@@ -11,6 +11,7 @@ interface AuthState {
   // Actions
   setUser: (user: PublicUser | null) => void;
   setLoading: (loading: boolean) => void;
+  setTheme: (theme: string) => void;
   login: (user: PublicUser, token: string) => void;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -31,10 +32,15 @@ export const useAuthStore = create<AuthState>()(
 
       setLoading: (isLoading) => set({ isLoading }),
 
+      setTheme: (theme: string) => {
+        localStorage.setItem(AUTH_CONSTANTS.PREFERENCE_THEME_KEY, theme);
+      },
+
       login: (user, token) => {
         // 儲存 token 到 localStorage
         localStorage.setItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY, token);
-        
+        localStorage.setItem(AUTH_CONSTANTS.PREFERENCE_THEME_KEY, user.preferred_theme || 'light');
+
         set({ 
           user, 
           isAuthenticated: true,

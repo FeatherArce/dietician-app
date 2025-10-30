@@ -6,6 +6,7 @@
 export const AUTH_CONSTANTS = {
   // LocalStorage Keys
   ACCESS_TOKEN_KEY: 'auth-token',
+  PREFERENCE_THEME_KEY: 'preference-theme',
   
   // Cookie Keys  
   REFRESH_TOKEN_KEY: 'refresh-token',

@@ -27,7 +27,6 @@ const defaultThemes = [
 ];
 
 export default function ThemeSwitcher() {
-  const [themes, setThemes] = useState<string[]>(defaultThemes);
   const [current, setCurrent] = useState<string>(() => {
   // 讀取 DOM 中當前的 data-theme 作為元件的預設主題
     return document.documentElement.getAttribute("data-theme") || "light";
@@ -53,7 +52,7 @@ export default function ThemeSwitcher() {
         onChange={handleChange}
         value={current}
       >
-        {themes?.map((theme) => (
+        {defaultThemes?.map((theme) => (
           <option key={theme} value={theme}>
             {theme?.charAt(0).toUpperCase() + theme?.slice(1)}
           </option>

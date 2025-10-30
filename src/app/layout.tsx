@@ -7,6 +7,7 @@ import { NotificationProvider, NotificationContainer } from "@/components/Notifi
 import { ToastProvider, ToastContainer } from "@/components/Toast";
 import "@/components/Notification/notification.css";
 import "@/components/Toast/toast.css";
+import ThemeProvider from "@/components/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,16 +34,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen grid grid-rows-[auto_1fr] min-w-xs`}
       >
-        <NotificationProvider>
-          <ToastProvider>
-            <AuthProvider>
-              <Navbar />
-              {children}
-            </AuthProvider>
-            <NotificationContainer />
-            <ToastContainer />
-          </ToastProvider>
-        </NotificationProvider>
+        <ThemeProvider>
+          <NotificationProvider>
+            <ToastProvider>
+              <AuthProvider>
+                <Navbar />
+                {children}
+              </AuthProvider>
+              <NotificationContainer />
+              <ToastContainer />
+            </ToastProvider>
+          </NotificationProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
