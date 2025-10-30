@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { EdgeSessionService } from '@/services/server/auth/edge-session-service';
+import { SessionService } from '@/services/server/auth/session-service';
 import { AUTH_CONSTANTS } from './constants/app-constants';
 
 // 需要認證的路由模式
@@ -69,6 +70,16 @@ function createUnauthorizedResponse() {
     );
 }
 
+/**
+ * 清除用戶端 Cookie
+ */
+function clearCookies(): NextResponse {
+    const response = NextResponse.next();
+    response.cookies.set(AUTH_CONSTANTS.ACCESS_TOKEN_KEY, '', { maxAge: -1 });
+    response.cookies.set(AUTH_CONSTANTS.REFRESH_TOKEN_KEY, '', { maxAge: -1 });
+    return response;
+}
+
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
@@ -109,6 +120,12 @@ export async function middleware(request: NextRequest) {
     // 處理受保護的路由
     if (matchesPattern(pathname, protectedRoutes)) {
         if (!isAuthenticated) {
+            // 執行登出邏輯
+            await SessionService.logout(request.cookies.get(AUTH_CONSTANTS.ACCESS_TOKEN_KEY)?.value || '');
+
+            // 清除 Cookie
+            const response = clearCookies();
+
             // API 路由返回 401
             if (pathname.startsWith('/api/')) {
                 return createUnauthorizedResponse();
