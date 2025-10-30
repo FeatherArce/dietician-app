@@ -13,6 +13,7 @@ export default function RegisterForm({
 }: Partial<RegisterFormProps>) {
     return (
         <Form2
+            autoComplete="off"
             {...props}
         >
             <FormItem
@@ -33,7 +34,7 @@ export default function RegisterForm({
                     }
                 ]}
             >
-                <Input type='email' placeholder='請輸入電子信箱' />
+                <Input type='email' placeholder='請輸入電子信箱' autoComplete='email' />
             </FormItem>
             <FormItem
                 name='name'
@@ -44,7 +45,7 @@ export default function RegisterForm({
                     { max: 30, message: '使用者名稱最多 30 個字符' }
                 ]}
             >
-                <Input type='text' placeholder='請輸入使用者名稱' />
+                <Input type='text' placeholder='請輸入使用者名稱' autoComplete='new-user-name' />
             </FormItem>
             <FormItem
                 name='password'
@@ -64,7 +65,7 @@ export default function RegisterForm({
                     }
                 ]}
             >
-                <Input type='password' placeholder='請輸入密碼' />
+                <Input type='password' placeholder='請輸入密碼' autoComplete='new-password' />
             </FormItem>
             <FormItem
                 name='confirmPassword'
@@ -84,7 +85,7 @@ export default function RegisterForm({
                     }
                 ]}
             >
-                <Input type='password' placeholder='請再次輸入密碼' />
+                <Input type='password' placeholder='請再次輸入密碼' autoComplete='user-password' />
             </FormItem>
             <div className="form-control mt-6">
                 <button
