@@ -1,12 +1,14 @@
 "use client";
 import DataTable, { type Column } from '@/components/DataTable';
 import { Form2, FormItem, Input } from '@/components/form2';
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { read, utils } from "xlsx";
+import wordlist from '../../../../public/en-word-list.json';
 
 interface SheetData {
     name: string;
     data: any[];
+    tableData?: any[];
     gibberishData?: any[];
     columns?: Column[];
 }
@@ -23,38 +25,43 @@ export default function ExcelParser() {
     // 有一些看起來像是假的 email，嘗試查出
     // ex: xkgfykq3jav@hotmail.com, whyrujgsm@hotmail.com, qtfcege@hotmail.com, fcefvbnkhj@hotmail.com, yrgux7us6@hotmail.com, tcxjdtb@hotmail.com....    
     const checkGibberishEmail = useCallback((email: string) => {
-        const match = email.match(/^(.+)@/);
-        const accountName = match ? match[1].toLowerCase().replace(/[^a-z0-9]/g, '') : null;
+        const emailMatch = email.match(/^(.+)@/);
+        const accountName = emailMatch ? emailMatch[1].toLowerCase().replace(/[^a-z0-9]/g, '') : null;
 
         if (!accountName) {
             return { isGibberish: false, reason: "格式不完整" };
         }
 
-        // 模式一: 連續 3 個或更多子音（排除 a, e, i, o, u）
-        // 這是捕捉 'xkgf', 'tcxj', 'jgsm', 'qtf' 這種亂碼的關鍵。
-        const CONSONANT_CLUSTER_REGEX = /[b-df-hj-np-tv-z]{3,}/i;
-
-        // 模式二: 連續 6 個或更多數字
-        const LONG_NUMBER_REGEX = /\d{6,}/;
-
-        // 模式三: 用戶名過長 (例如超過 15 個字元)
-        const MAX_USERNAME_LENGTH = 15;
-
-        // --- 檢查 ---
-
-        if (CONSONANT_CLUSTER_REGEX.test(accountName)) {
-            return { isGibberish: true, reason: "連續子音過長 (3+)" };
-        }
-
-        if (LONG_NUMBER_REGEX.test(accountName)) {
-            return { isGibberish: true, reason: "連續數字過長 (6+)" };
-        }
-
-        // if (accountName.length > MAX_USERNAME_LENGTH) {
-        //     return { isGibberish: true, reason: "用戶名長度過長" };
+        // const CONSONANT_CLUSTER_REGEX = /[b-df-hj-np-tv-z]{3,}/i;
+        // if (CONSONANT_CLUSTER_REGEX.test(accountName)) {
+        //     return { isGibberish: true, reason: "連續子音過長 (3+)" };
         // }
 
-        return { isGibberish: false, reason: "正常" };
+        const LONG_NUMBER_REGEX = /\d{6,}/;
+        const CELL_PHONE_PARTIAL = /(?:09\d{8}|8869\d{8}|\+8869\d{8})/;
+        if (LONG_NUMBER_REGEX.test(accountName)) {
+            const isContainsCellPhone = CELL_PHONE_PARTIAL.test(accountName);
+            if (isContainsCellPhone) {
+                return { isGibberish: false, reason: "包含手機號碼" };
+            } else {
+                return { isGibberish: true, reason: "連續數字過長 (6+)" };
+            }
+        }
+
+        // 簡化邏輯：直接遍歷 wordlist 檢查包含的單字
+        let validWordCount = 0;
+
+        wordlist.forEach((word) => {
+            if (accountName.includes(word)) {
+                validWordCount++;
+            }
+        });
+
+        if (validWordCount > 0) {
+            return { isGibberish: false, reason: `包含有效英文單字 (${validWordCount} 次)` };
+        }
+
+        return { isGibberish: true, reason: "非有效英文單字" };
     }, []);
 
     const handleFileChange = useCallback((file: File) => {
@@ -76,6 +83,7 @@ export default function ExcelParser() {
                         dataIndex: key
                     }));
 
+                    const newTableData: any[] = [];
                     const newGibberishData: any[] = [];
                     json?.forEach((row: any) => {
                         const email = row['信箱'] as string;
@@ -84,11 +92,19 @@ export default function ExcelParser() {
                             newGibberishData.push(row);
                             newGibberishEmails.set(`${email} (${checkResult.reason})`, row);
                         }
+                        const newRow = {
+                            ...row,
+                            is_abnormal_email: checkResult.isGibberish,
+                            abnormal_email_reason: checkResult.reason
+                        };
+
+                        newTableData.push(newRow);
                     });
 
                     newSheetData.push({
                         name: sheetName,
                         data: json,
+                        tableData: newTableData,
                         gibberishData: newGibberishData,
                         columns
                     });
@@ -117,15 +133,20 @@ export default function ExcelParser() {
                     <Input type="file" accept=".xlsx, .xls" />
                 </FormItem>
             </Form2>
-            <div>
+            <div className='space-y-2'>
                 <h2 className="text-lg font-bold">偵測到的疑似亂碼信箱列表：</h2>
-                <ul className="list-disc list-inside">
+                <p>
+                    目前的檢查規則包括：<br />
+                    1. 連續數字過長 (6 個以上)，且不為手機號碼。<br />
+                    2. 不包含任何有效英文單字。
+                </p>
+                <ul className="list-disc list-inside ml-2">
                     {[...gibberishEmails.keys()].map((email) => (
                         <li key={email}>{email}</li>
                     ))}
                 </ul>
             </div>
-            <div>
+            <div className='w-screen overflow-auto'>
                 <h2 className="text-lg font-bold mt-4">檔案內容預覽：</h2>
                 {fileData.sheets.map((sheet) => (
                     <div key={sheet.name}>

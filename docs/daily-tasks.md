@@ -8,6 +8,6 @@
 - [x] 新增的餐點如果跟既有餐點一致，則應直接整併數量
 - [ ] 新增 guest 訂餐
 - [ ] 新增餐點選項 (Sizes、rice...)
-- [ ] Fixed profile page
+- [x] Fixed profile page
 - [ ] Fixed lunch event disable ui & loading
 - [ ] 進展 email 篩選規則: 排除生日、電話的數值組合
