@@ -3,6 +3,7 @@ import { AuthService } from '@/services/server/auth';
 import { AUTH_CONSTANTS } from '@/constants/app-constants';
 
 export async function POST(request: NextRequest) {
+    console.log("Request method:", request.method, request.url);
     try {
         const body = await request.json();
         
@@ -54,8 +55,7 @@ export async function POST(request: NextRequest) {
             });
         }
         
-        return response;
-        
+        return response;        
     } catch (error) {
         console.error('Login error:', error);
         return NextResponse.json(
