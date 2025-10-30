@@ -51,7 +51,7 @@ export default function ExcelParser() {
         // 簡化邏輯：直接遍歷 wordlist 檢查包含的單字
         let validWordCount = 0;
 
-        wordlist.forEach((word) => {
+        Object.values(wordlist).forEach((word: string) => {
             if (accountName.includes(word)) {
                 validWordCount++;
             }
@@ -82,6 +82,14 @@ export default function ExcelParser() {
                         title: key,
                         dataIndex: key
                     }));
+                    columns.push({
+                        key: 'is_abnormal_email',
+                        title: '是否疑似亂碼信箱',
+                    });
+                    columns.push({
+                        key: 'abnormal_email_reason',
+                        title: '疑似原因',
+                    });
 
                     const newTableData: any[] = [];
                     const newGibberishData: any[] = [];
@@ -117,7 +125,7 @@ export default function ExcelParser() {
     }, [checkGibberishEmail]);
 
     return (
-        <div className='container grid gap-4 p-4'>
+        <div className='grid gap-4 p-4'>
             <Form2
                 onValuesChange={(changedValues, allValues) => {
                     console.log('Changed values:', changedValues);
@@ -146,7 +154,7 @@ export default function ExcelParser() {
                     ))}
                 </ul>
             </div>
-            <div className='w-screen overflow-auto'>
+            <div className='w-full overflow-x-auto'>
                 <h2 className="text-lg font-bold mt-4">檔案內容預覽：</h2>
                 {fileData.sheets.map((sheet) => (
                     <div key={sheet.name}>
