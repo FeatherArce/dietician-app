@@ -120,6 +120,7 @@ export async function middleware(request: NextRequest) {
     // 處理受保護的路由
     if (matchesPattern(pathname, protectedRoutes)) {
         if (!isAuthenticated) {
+            console.log('Unauthorized access attempt to:', pathname);
             // 執行登出邏輯
             await SessionService.logout(request.cookies.get(AUTH_CONSTANTS.ACCESS_TOKEN_KEY)?.value || '');
 
