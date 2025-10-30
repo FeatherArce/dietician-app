@@ -17,6 +17,7 @@ export interface PublicUser {
     email: string;
     role: UserRole;
     is_active: boolean;
+    is_deleted: boolean;
     preferred_theme: string;
     created_at: Date;
     last_login?: Date;

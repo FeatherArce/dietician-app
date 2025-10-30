@@ -591,6 +591,7 @@ export class AuthService {
             email: user.email,
             role: user.role,
             is_active: user.is_active,
+            is_deleted: user.is_deleted,
             preferred_theme: user.preferred_theme,
             created_at: user.created_at,
             last_login: user.last_login || undefined,
