@@ -1,4 +1,5 @@
 import { forwardRef } from "react";
+import { RxCross1, RxCross2 } from "react-icons/rx";
 
 // 基礎輸入框組件
 export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size' | 'value'> {
@@ -35,6 +36,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
 
     const errorClass = error ? 'input-error' : '';
 
+    const handleClear = () => {
+        onChange?.('');
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (type === 'file') {
             // 對於檔案輸入，傳遞 FileList 物件
@@ -48,15 +53,25 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
     const inputValue = type === 'file' ? undefined : (value as string);
 
     return (
-        <input
-            ref={ref}
-            type={type}
-            value={inputValue}
-            onChange={handleChange}
-            onBlur={onBlur}
-            className={`input w-full ${sizeClass} ${variantClass} ${errorClass} ${className}`.trim()}
-            {...props}
-        />
+        <div className="relative w-full">
+            <input
+                ref={ref}
+                type={type}
+                value={inputValue}
+                onChange={handleChange}
+                onBlur={onBlur}
+                className={`input w-full ${sizeClass} ${variantClass} ${errorClass} ${className}`.trim()}
+                {...props}
+            />
+            {/* Clear button */}
+            {inputValue && (
+                <div className="absolute z-50 right-0 top-1/2 transform -translate-y-1/2 pr-2 flex justify-end items-center">
+                    <div className="btn btn-circle btn-xs" onClick={handleClear}>
+                        <RxCross2 className="w-3 h-3" />
+                    </div>
+                </div>
+            )}
+        </div>
     );
 });
 
