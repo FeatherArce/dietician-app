@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import type { FormItemProps, FormItemInstance, ValidationRule } from './types';
 import { useFormContext } from './context';
 import { pathToString, getNestedValue } from './utils';
-import { unknown } from 'zod';
+import { cn } from '@/libs/utils';
 
 // 表單項目組件
 export default function FormItem({
@@ -16,6 +16,7 @@ export default function FormItem({
     help,
     validateTrigger = 'onChange',
     valuePropName = 'value',
+    hidden = false,
 }: FormItemProps) {
     const {
         registerField,
@@ -226,11 +227,18 @@ export default function FormItem({
     const errorMessage = localError || fieldError;
 
     return (
-        <div className={`form-item ${className} ${showError ? 'form-item-error' : ''}`}>
+        <div
+            className={cn(
+                'form-item',
+                className,
+                showError ? 'form-item-error' : '',
+                hidden ? 'hidden' : ''
+            )}
+        >
             {label && (
                 <label className="form-item-label">
-                    {label}
-                    {isRequired && <span className="form-item-required text-red-500"> *</span>}
+                    <span className="form-item-label-text text-base">{label}</span>
+                    {isRequired && <span className="text-red-500"> *</span>}
                 </label>
             )}
 
