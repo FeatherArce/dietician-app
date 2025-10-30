@@ -5,6 +5,7 @@ interface ModalProps {
     title?: string;
     action?: React.ReactNode;
     children?: React.ReactNode;
+    loading?: boolean;
     onOk?: () => void;
     okText?: string;
     onClose?: () => void;
@@ -22,6 +23,7 @@ function Modal({
     title,
     action,
     children,
+    loading = false,
     onOk,
     okText = '確定',
     onClose,
@@ -67,8 +69,8 @@ function Modal({
                 {children}
                 {showAction && <div className='modal-action'>
                     {!!action && action}
-                    {!!onOk && <button className="btn" onClick={onOk}>{okText}</button>}
-                    {!!onClose && <button className="btn" onClick={onClose}>{closeText}</button>}
+                    {!!onOk && <button className="btn btn-primary" onClick={onOk} disabled={loading}>{okText}</button>}
+                    {!!onClose && <button className="btn" onClick={onClose} disabled={loading}>{closeText}</button>}
                 </div>}
             </div>
             {/* Modal backdrop */}
