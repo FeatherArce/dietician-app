@@ -5,7 +5,7 @@ import { Form2Ref, FormValues } from '@/components/form2/types';
 import PageTitle from '@/components/page/PageTitle';
 import { toast } from '@/components/Toast';
 import { UserRole } from '@/prisma-generated/postgres-client';
-import { UpdateUser } from '@/services/client/user';
+import { updateUser } from '@/services/client/user';
 import { getUserRoleLabel } from '@/types/User';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -102,7 +102,7 @@ export default function EditUserPage() {
 
     try {
       const uid = userId as string;
-      const res = await UpdateUser(uid, values);
+      const res = await updateUser(uid, values);
       const { response, result } = res;
       if (response.ok && result.success) {
         console.log('User updated successfully');
