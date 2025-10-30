@@ -9,6 +9,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
     error?: string | string[];
     size?: 'sm' | 'md' | 'lg';
     variant?: 'bordered' | 'ghost' | 'primary';
+    allowClear?: boolean;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(({
@@ -20,6 +21,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
     variant = 'bordered',
     className = '',
     type = 'text',
+    allowClear = false,
     ...props
 }, ref) => {
     const sizeClass = {
@@ -64,7 +66,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
                 {...props}
             />
             {/* Clear button */}
-            {inputValue && (
+            {inputValue && allowClear && (
                 <div className="absolute z-50 right-0 top-1/2 transform -translate-y-1/2 pr-2 flex justify-end items-center">
                     <div className="btn btn-circle btn-xs" onClick={handleClear}>
                         <RxCross2 className="w-3 h-3" />
