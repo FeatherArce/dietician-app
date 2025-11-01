@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormCard, FormField, FormErrors } from "@/components/form";
 import { useAuth } from "@/hooks/useAuth";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import { toast } from "@/components/Toast";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -67,13 +68,16 @@ export default function LoginPage() {
         if (result.user && result.token) {
           login(result.user, result.token);
         }
-
+        toast.success("登入成功，即將跳轉頁面");
         // 登入成功後的導向
         redirectToPage();
       } else {
+        toast.error(result.error || result.message || "登入失敗");
         setErrors([result.error || result.message || "登入失敗"]);
       }
-    } catch {
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("網路錯誤，請稍後再試");
       setErrors(["網路錯誤，請稍後再試"]);
     } finally {
       setIsLoading(false);

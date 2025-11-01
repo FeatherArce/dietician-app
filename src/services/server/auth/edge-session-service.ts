@@ -41,7 +41,7 @@ export class EdgeSessionService {
         return secret;
     }
 
-    private static base64UrlDecode(input: string): ArrayBuffer {
+    private static base64UrlDecode(input: string): Uint8Array {
         const base64 = input.replace(/-/g, '+').replace(/_/g, '/');
         const binaryString = atob(base64);
         const len = binaryString.length;
@@ -49,7 +49,7 @@ export class EdgeSessionService {
         for (let i = 0; i < len; i++) {
             bytes[i] = binaryString.charCodeAt(i);
         }
-        return bytes.buffer; // 返回 ArrayBuffer
+        return bytes; // 返回 Uint8Array，SubtleCrypto.verify() 接受此類型
     }
 
     /**
@@ -58,24 +58,14 @@ export class EdgeSessionService {
      * @returns UserSession | null
      */
     static async verifyAccessToken(token: string): Promise<UserSession | null> {
-        // This code block is commented out because 'crypto' module is not supported in Edge Runtime
-        // try {
-        //     const decoded = jwt.verify(token, this.getSecretKey()) as UserSession;
-        //     console.log('Decoded token:', decoded);
-
-        //     // 基本驗證
-        //     if (!decoded.userId || !decoded.username || !decoded.role) {
-        //         return null;
-        //     }
-
-        //     return decoded;
-        // } catch (error) {
-        //     // Token 無效、過期或格式錯誤
-        //     console.error('Token verification error:', error);
-        //     return null;
-        // }
         try {
             const [header, payload, signature] = token.split('.');
+            
+            if (!header || !payload || !signature) {
+                console.error('[TOKEN VERIFY] Invalid token format - missing parts');
+                return null;
+            }
+            
             const secretKey = new TextEncoder().encode(this.getSecretKey());
             const key = await crypto.subtle.importKey(
                 'raw',
@@ -85,22 +75,60 @@ export class EdgeSessionService {
                 ['verify']
             );
 
+            // 確保 signature 是正確的 Uint8Array 格式
+            const signatureBytes = this.base64UrlDecode(signature) as unknown as BufferSource;
+            const messageBytes = new TextEncoder().encode(`${header}.${payload}`);
+
             const isValid = await crypto.subtle.verify(
                 'HMAC',
                 key,
-                this.base64UrlDecode(signature),
-                new TextEncoder().encode(`${header}.${payload}`)
+                signatureBytes,
+                messageBytes
             );
 
             if (!isValid) {
+                console.error('[TOKEN VERIFY] Signature verification failed');
                 return null;
             }
 
-            const decodedPayload = JSON.parse(atob(payload));
-            return decodedPayload as UserSession;
+            let decodedPayload: UserSession;
+            try {
+                decodedPayload = JSON.parse(atob(payload));
+            } catch (e) {
+                console.error('[TOKEN VERIFY] Failed to parse payload:', e);
+                return null;
+            }
+
+            // 檢查 Token 過期時間
+            const now = Math.floor(Date.now() / 1000);
+            if (decodedPayload.exp && decodedPayload.exp < now) {
+                console.warn('[TOKEN VERIFY] Token expired:', {
+                    exp: decodedPayload.exp,
+                    now,
+                    diff: now - decodedPayload.exp
+                });
+                return null;
+            }
+
+            // 檢查必要欄位
+            if (!decodedPayload.userId || !decodedPayload.role) {
+                console.error('[TOKEN VERIFY] Missing required fields:', {
+                    userId: !!decodedPayload.userId,
+                    role: !!decodedPayload.role
+                });
+                return null;
+            }
+
+            console.log('[TOKEN VERIFY] Token verified successfully:', {
+                userId: decodedPayload.userId,
+                role: decodedPayload.role,
+                exp: decodedPayload.exp,
+                now
+            });
+            
+            return decodedPayload;
         } catch (error) {
-            // Token 無效、過期或格式錯誤
-            console.error('Token verification error:', error);
+            console.error('[TOKEN VERIFY] Verification error:', error);
             return null;
         }
     }

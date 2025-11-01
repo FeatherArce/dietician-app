@@ -39,15 +39,36 @@ function matchesPattern(pathname: string, patterns: string[]): boolean {
  */
 async function validateSession(request: NextRequest) {
     const token = request.cookies.get(AUTH_CONSTANTS.ACCESS_TOKEN_KEY)?.value;
+    
+    // 調試：記錄 Cookie 狀態
+    console.log('[MIDDLEWARE DEBUG] All cookies:', request.cookies.getAll());
+    console.log('[MIDDLEWARE DEBUG] Token exists:', !!token);
+    
     if (!token) {
+        console.log('[MIDDLEWARE DEBUG] No token found in cookies');
         return null;
     }
 
     try {
-        const session = EdgeSessionService.verifyAccessToken(token);
+        console.log('[MIDDLEWARE DEBUG] Verifying token...');
+        const session = await EdgeSessionService.verifyAccessToken(token);
+        
+        if (!session) {
+            console.log('[MIDDLEWARE DEBUG] Token verification returned null/falsy');
+            return null;
+        }
+        
+        console.log('[MIDDLEWARE DEBUG] Token verified successfully:', {
+            userId: session.userId,
+            role: session.role,
+            exp: session.exp,
+            iat: session.iat,
+            now: Math.floor(Date.now() / 1000)
+        });
+        
         return session;
     } catch (error) {
-        console.error('Token validation error:', error);
+        console.error('[MIDDLEWARE DEBUG] Token validation error:', error);
         return null;
     }
 }
@@ -133,8 +154,10 @@ export async function middleware(request: NextRequest) {
             }
 
             // 頁面路由重定向到登入頁面
-            const loginUrl = `${ROUTE_CONSTANTS.LOGIN}?redirect=${encodeURIComponent(pathname)}`;
-            return createRedirect(loginUrl, request);
+            const newRedirectUrl = new URL(ROUTE_CONSTANTS.LOGIN, request.url);
+            newRedirectUrl.searchParams.set('redirect', pathname);
+            newRedirectUrl.searchParams.set('from', 'protected');
+            return createRedirect(newRedirectUrl.toString(), request);
         }
 
         // 檢查特定角色權限（可選）
