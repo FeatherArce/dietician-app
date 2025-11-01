@@ -224,16 +224,6 @@ export default function LunchPage() {
         setShowOrderModal(true);
     };
 
-    if (isLoading) {
-        return (
-            <div className="container mx-auto px-4 py-8">
-                <div className="flex justify-center items-center h-64">
-                    <span className="loading loading-spinner loading-lg"></span>
-                </div>
-            </div>
-        );
-    }
-
     if (!isAuthenticated) {
         return (
             <div className="container mx-auto px-4 py-8">
