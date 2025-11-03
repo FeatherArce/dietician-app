@@ -11,6 +11,7 @@ export interface EventOrderItem extends LunchOrderItem{
 export interface EventOrder extends LunchOrder {
     user?: Partial<User>;
     items: LunchOrderItem[];
+    [key: string]: unknown;
 }
 
 /**
