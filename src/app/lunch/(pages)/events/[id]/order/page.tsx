@@ -220,14 +220,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       from: 'custom',
       open: false
     });
-    const appendedItem: EventOrderItem = {
-      name: values.name,
-      price: values.price,
-      quantity: values.quantity,
-      note: values.note,
-      description: values.description,
-      menu_item_id: values.menu_item_id,
-    };
+    const appendedItem: EventOrderItem = values as EventOrderItem;
 
     if (settings.mode === MealFormMode.ADD) {
       appendOrderItem(appendedItem);
