@@ -52,7 +52,7 @@ function MealForm({
     return !!initialValues?.menu_item_id;
   }, [initialValues]);
 
-  
+
   // TODO: 待優化，目前已知會引發錯誤: 
   // const [currentQuantity, setCurrentQuantity] = useState(1);
   // const [currentPrice, setCurrentPrice] = useState(0);
@@ -73,6 +73,10 @@ function MealForm({
     onSubmit(values as MenuFormValues);
   }, [onSubmit]);
 
+  const setNote = useCallback((note: string) => {
+    formRef.current?.setFieldsValue({ note });
+  }, []);
+
   return (
     <Form2
       ref={formRef}
@@ -89,7 +93,7 @@ function MealForm({
         required
         rules={[
           { required: true, message: '請輸入餐點名稱' },
-        ]}        
+        ]}
         help={initialValues?.description}
       >
         <Input placeholder="例：牛肉麵" disabled={isFromMenu} />
@@ -139,12 +143,19 @@ function MealForm({
         <NumberInput
           min={1}
           precision={0}
-          placeholder="請輸入數量"          
+          placeholder="請輸入數量"
         />
       </Form2.Item>
 
       {/* 餐點備註 */}
-      <Form2.Item name="note" label="餐點備註">
+      <Form2.Item
+        name="note"
+        label="餐點備註"
+        help={<div className='flex'>
+          <button type='button' className='btn btn-xs btn-ghost' onClick={() => { setNote('半飯') }}>半飯</button>
+          <button type='button' className='btn btn-xs btn-ghost' onClick={() => { setNote('飯換菜') }}>飯換菜</button>
+        </div>}
+      >
         <Input placeholder="例：不要辣、加蛋、去冰..." />
       </Form2.Item>
 
