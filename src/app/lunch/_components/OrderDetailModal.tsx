@@ -3,6 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import type { MyOrder } from '../types';
+import DataTable from '@/components/DataTable';
+import { formatCurrency } from '@/libs/formatter';
+import { EventOrderItem } from '../types';
 
 interface OrderDetailModalProps {
     selectedOrder: MyOrder | null;
@@ -20,73 +23,32 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
     return (
         <div className={`modal ${isOpen ? 'modal-open' : ''}`}>
             <div className="modal-box max-w-md">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">訂單詳情</h3>
-                    <button
-                        onClick={onClose}
-                        className="btn btn-ghost btn-sm btn-circle"
-                    >
-                        ✕
-                    </button>
+                <div className='grid space-y-2 mb-4'>
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold">{selectedOrder.event.title} 訂單詳情</h3>
+                        <button
+                            onClick={onClose}
+                            className="btn btn-ghost btn-sm btn-circle"
+                        >
+                            ✕
+                        </button>
+                    </div>
+
+                    {/* 訂單狀態提示 */}
+                    {new Date(selectedOrder.event.order_deadline) > new Date() ? (
+                        <span className="badge badge-success badge-sm">
+                            🟢 可編輯
+                        </span>
+                    ) : (
+                        <span className="badge badge-neutral badge-sm">
+                            🔒 已截止
+                        </span>
+                    )}
                 </div>
 
                 <div className="space-y-4">
-                    {/* 活動資訊 */}
-                    <div className="bg-base-200 p-4 rounded-lg">
-                        <h4 className="font-medium mb-2">活動資訊</h4>
-                        <p className="text-sm text-base-content/70">
-                            <span className="font-medium">活動名稱：</span>
-                            {selectedOrder.event.title}
-                        </p>
-                        <p className="text-sm text-base-content/70">
-                            <span className="font-medium">截止時間：</span>
-                            {new Date(selectedOrder.event.order_deadline).toLocaleString('zh-TW')}
-                        </p>
-                        <p className="text-sm text-base-content/70">
-                            <span className="font-medium">用餐日期：</span>
-                            {new Date(selectedOrder.event.event_date).toLocaleString('zh-TW')}
-                        </p>
-                        
-                        {/* 訂單狀態提示 */}
-                        <div className="mt-2">
-                            {new Date(selectedOrder.event.order_deadline) > new Date() ? (
-                                <span className="badge badge-success badge-sm">
-                                    🟢 可編輯
-                                </span>
-                            ) : (
-                                <span className="badge badge-neutral badge-sm">
-                                    🔒 已截止
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
                     {/* 訂購項目 */}
-                    <div>
-                        <h4 className="font-medium mb-2">訂購項目</h4>
-                        <div className="space-y-2">
-                            {selectedOrder.items?.map((item, index) => (
-                                <div key={index} className="flex justify-between items-center bg-base-200 p-2 rounded">
-                                    <div>
-                                        <p className="font-medium">{item.name}</p>
-                                        <p className="text-sm text-base-content/70">類型：{item.type}</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-sm">數量：{item.quantity}</p>
-                                        <p className="font-medium">NT$ {item.price}</p>
-                                    </div>
-                                </div>
-                            )) || <p className="text-base-content/70">無訂購項目</p>}
-                        </div>
-                    </div>
-
-                    {/* 總金額 */}
-                    <div className="bg-primary/10 p-4 rounded-lg">
-                        <div className="flex justify-between items-center font-semibold text-lg">
-                            <span>總金額</span>
-                            <span className="text-primary">NT$ {selectedOrder.total}</span>
-                        </div>
-                    </div>
+                    <OrderTable order={selectedOrder} />
 
                     {/* 訂單備註 */}
                     {selectedOrder.note && (
@@ -99,9 +61,13 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                     )}
 
                     {/* 訂購時間 */}
-                    <div className="text-xs text-base-content/50">
+                    <div className="text-xs text-base-content/70">
                         訂購時間：{new Date(selectedOrder.created_at).toLocaleString('zh-TW')}
                     </div>
+                    <div className='text-xs text-base-content/70'>
+                        截止時間：{new Date(selectedOrder.event.order_deadline).toLocaleString('zh-TW')}
+                    </div>
+
 
                     {/* 操作按鈕 */}
                     <div className="flex justify-end space-x-2 pt-4 border-t border-base-200">
@@ -109,7 +75,7 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                         {new Date(selectedOrder.event.order_deadline) > new Date() && (
                             <Link
                                 href={`/lunch/events/${selectedOrder.event.id}/order`}
-                                className="btn btn-primary btn-sm"
+                                className="btn btn-link btn-sm"
                                 onClick={onClose}
                             >
                                 編輯訂單
@@ -124,7 +90,7 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                     </div>
                 </div>
             </div>
-            
+
             {/* Modal backdrop - 點擊背景關閉 */}
             <div className="modal-backdrop" onClick={onClose}></div>
         </div>
@@ -132,3 +98,59 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 };
 
 export default OrderDetailModal;
+
+function OrderTable({ order }: { order: MyOrder }) {
+    return (
+        <DataTable<EventOrderItem>
+            dataSource={order.items}
+            pagination={false}
+            columns={[
+                {
+                    title: '名稱',
+                    key: 'name',
+                },
+                {
+                    title: '單價',
+                    align: 'right',
+                    key: 'price',
+                },
+                {
+                    title: '數量',
+                    align: 'right',
+                    key: 'quantity',
+                },
+                {
+                    title: '小計',
+                    key: 'subtotal',
+                    align: 'right',
+                    render: (_, item) => formatCurrency(item.price * item.quantity),
+                },
+                {
+                    title: '備註',
+                    key: 'note',
+                },
+            ]}
+            summary={{
+                show: true,
+                columns: [
+                    {
+                        key: 'name',
+                        render: () => <span className="font-semibold">總計</span>,
+                    },
+                    {
+                        key: 'quantity',
+                        type: 'sum',
+
+                    },
+                    {
+                        key: 'subtotal',
+                        render: (data, allData) => {
+                            const total = allData.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                            return formatCurrency(total);
+                        }
+                    },
+                ]
+            }}
+        />
+    );
+}

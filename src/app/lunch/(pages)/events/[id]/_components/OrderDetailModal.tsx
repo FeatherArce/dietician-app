@@ -10,29 +10,32 @@ import {
     FaStickyNote
 } from 'react-icons/fa';
 import DataTable, { Column, SummaryConfig } from '@/components/DataTable';
+import { LunchOrder, LunchOrderItem, User } from '@/prisma-generated/postgres-client';
+import { EventOrder } from '@/app/lunch/types';
 
-interface OrderItem extends Record<string, unknown> {
-    id: string;
-    name: string;
-    quantity: number;
-    price: number;
-    note?: string;
-}
+// interface OrderItem extends Record<string, unknown> {
+//     id: string;
+//     name: string;
+//     quantity: number;
+//     price: number;
+//     note?: string;
+// }
 
 interface OrderDetailModalProps {
     isOpen: boolean;
     onClose: () => void;
-    order: {
-        id: string;
-        total: number;
-        note?: string;
-        created_at: Date;
-        user: {
-            id: string;
-            name: string;
-        };
-        items: OrderItem[];
-    } | null;
+    order: EventOrder | null;
+    // order: {
+    //     id: string;
+    //     total: number;
+    //     note?: string;
+    //     created_at: Date;
+    //     user: {
+    //         id: string;
+    //         name: string;
+    //     };
+    //     items: OrderItem[];
+    // } | null;
 }
 
 export default function OrderDetailModal({ isOpen, onClose, order }: OrderDetailModalProps) {
@@ -48,7 +51,7 @@ export default function OrderDetailModal({ isOpen, onClose, order }: OrderDetail
     };
 
     // 定義 DataTable 的欄位
-    const columns: Column<OrderItem>[] = [
+    const columns: Column<LunchOrderItem>[] = [
         {
             key: 'name',
             title: '餐點名稱',
@@ -104,7 +107,7 @@ export default function OrderDetailModal({ isOpen, onClose, order }: OrderDetail
     ];
 
     // 定義總結欄配置
-    const summaryConfig: SummaryConfig<OrderItem> = {
+    const summaryConfig: SummaryConfig<LunchOrderItem> = {
         show: true,
         fixed: true,
         columns: [
@@ -150,7 +153,7 @@ export default function OrderDetailModal({ isOpen, onClose, order }: OrderDetail
                         <FaClipboardList className="text-primary" />
                         訂單詳細內容
                     </h3>
-                    <button 
+                    <button
                         className="btn btn-sm btn-circle btn-ghost"
                         onClick={onClose}
                     >
@@ -195,7 +198,7 @@ export default function OrderDetailModal({ isOpen, onClose, order }: OrderDetail
                         <FaClipboardList className="text-info" />
                         訂購餐點
                     </h4>
-                    <DataTable<OrderItem>
+                    <DataTable<LunchOrderItem>
                         columns={columns}
                         dataSource={order.items}
                         pagination={false}
