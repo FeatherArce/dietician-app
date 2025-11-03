@@ -17,12 +17,14 @@ import {
     FaInfo,
     FaEdit
 } from 'react-icons/fa';
-import type { EventWithDetails, MyOrder, User } from '../types';
+import type { EventWithDetails, MyOrder } from '../types';
+import type { User } from '@/prisma-generated/postgres-client';
 import LoadingIndicator from '@/components/LoadingIndicator';
+import { PublicUser } from '@/services/server/auth';
 
 interface EventCardProps {
     event: EventWithDetails;
-    user: User | null;
+    user: PublicUser | null;
     getUserOrderForEvent: (eventId: string) => MyOrder | null;
     onShowOrderDetail: (order: MyOrder) => void;
     onShowEventStats?: (eventId: string) => void; // 新增統計按鈕回調
@@ -157,7 +159,7 @@ export default function EventCard({
                                 <div>
                                     <span className="text-sm font-medium">我的訂單</span>
                                     <div className="text-xs text-base-content/70">
-                                        {userOrder.items.length} 項餐點，總計 ${userOrder.total}
+                                        {userOrder?.items?.length || 0} 項餐點，總計 ${userOrder.total}
                                     </div>
                                 </div>
                                 <button
