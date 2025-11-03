@@ -74,7 +74,7 @@ export interface FormItemProps {
   children: ReactNode;
   className?: string;
   required?: boolean;
-  help?: string;
+  help?: ReactNode;
   validateTrigger?: 'onChange' | 'onBlur';
   valuePropName?: string;
   hidden?: boolean;
