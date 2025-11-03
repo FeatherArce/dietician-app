@@ -42,8 +42,7 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<EventWithSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<EventOrder | null>(null);
-  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [isPaymentPending, startPaymentTransition] = useState(false);
 
   const eventTableRef = useRef<EventOrderSummaryTableRef>(null);
 
@@ -94,6 +93,7 @@ export default function EventDetailPage() {
   // 處理收款狀態變更
   const handlePaymentStatusChange = async (orderId: string, isPaid: boolean) => {
     try {
+      startPaymentTransition(true);
       const response = await authFetch(`/api/lunch/orders/${orderId}/payment`, {
         method: "PATCH",
         headers: {
@@ -115,6 +115,8 @@ export default function EventDetailPage() {
       }
     } catch (error) {
       console.error("Error updating payment status:", error);
+    } finally {
+      startPaymentTransition(false);
     }
   };
 
@@ -182,18 +184,6 @@ export default function EventDetailPage() {
       orders: (event.orders || []),
       itemSummary
     };
-  };
-
-  // 打開訂單詳細 modal
-  const openOrderModal = (order: EventOrder) => {
-    setSelectedOrder(order);
-    setShowOrderModal(true);
-  };
-
-  // 關閉訂單詳細 modal
-  const closeOrderModal = () => {
-    setSelectedOrder(null);
-    setShowOrderModal(false);
   };
 
   const getStatusBadge = () => {
@@ -416,7 +406,6 @@ export default function EventDetailPage() {
         </div>
       </div>
 
-
       {/* 商店資訊 */}
       {event.shop && (
         <>
@@ -452,6 +441,7 @@ export default function EventDetailPage() {
       {/* divider */}
       <hr className=" border-gray-500" />
 
+      {/* 訂單 */}
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h3 className="text-xl font-bold">訂單</h3>
@@ -461,104 +451,84 @@ export default function EventDetailPage() {
           </button>
         </div>
 
-        {event.orders && event.orders.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="table table-zebra">
-              <thead>
-                <tr>
-                  <th>訂單編號</th>
-                  <th>使用者</th>
-                  <th>餐點內容</th>
-                  <th>項目數</th>
-                  <th>金額</th>
-                  <th>收款狀態</th>
-                  <th>下單時間</th>
-                  <th>備註</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {event.orders.map((order) => (
-                  <tr key={order.id}>
-                    <td>
-                      {order.id.slice(-8)}
-                    </td>
-                    <td>
-                      {order.user?.name}
-                    </td>
-                    <td>
-                      <div className="max-w-xs">
-                        {order.items.length > 0 ? (
-                          <div className="space-y-1">
-                            {order.items.slice(0, 2).map((item, idx) => (
-                              <div key={idx} className="text-xs">
-                                {item.name} x{item.quantity}
-                              </div>
-                            ))}
-                            {order.items.length > 2 && (
-                              <div className="text-xs text-gray-500">
-                                等 {order.items.length} 項餐點
-                              </div>
-                            )}
+        <div className="overflow-x-auto">
+          <DataTable<EventOrder>
+            dataSource={event.orders || []}
+            columns={[
+              { key: 'id', title: '訂單編號', render: (value, order) => String(value).slice(-8) },
+              { key: 'user', title: '使用者', render: (value, order) => order.user?.name || '未知' },
+              {
+                key: 'items',
+                title: '餐點內容',
+                render: (value, order) => (
+                  <div className="max-w-xs">
+                    {order.items.length > 0 ? (
+                      <div className="space-y-1">
+                        {order.items.slice(0, 2).map((item, idx) => (
+                          <div key={idx} className="text-xs">
+                            {item.name} x{item.quantity}
                           </div>
-                        ) : (
-                          <span className="text-gray-500">無餐點</span>
+                        ))}
+                        {order.items.length > 2 && (
+                          <div className="text-xs text-gray-500">
+                            等 {order.items.length} 項餐點
+                          </div>
                         )}
                       </div>
-                    </td>
-                    <td>{order.items.length} 項</td>
-                    <td>${order.total}</td>
-                    <td>
-                      {/* 只有活動擁有者才能修改收款狀態 */}
-                      {event.owner_id === user?.id ? (
-                        <div className="flex items-center space-x-2">
+                    ) : (
+                      <span className="text-gray-500">無餐點</span>
+                    )}
+                  </div>
+                )
+              },
+              { key: 'totalItems', title: '項目數', render: (value, order) => order.items.length + ' 項' },
+              { key: 'total', title: '金額', render: (value) => `$${value}` },
+              {
+                key: 'is_paid', title: '收款狀態', render: (value, order) => (
+                  <>
+                    {/* 只有活動擁有者才能修改收款狀態 */}
+                    {event.owner_id === user?.id ? (
+                      <div className="flex items-center space-x-2">
+                        {isPaymentPending ? (
+                          <span className="loading loading-spinner loading-sm"></span>
+                        ) : (
                           <input
                             type="checkbox"
                             className="checkbox checkbox-success checkbox-sm"
                             checked={(order as any).is_paid || false}
+                            disabled={isPaymentPending}
                             onChange={(e) => handlePaymentStatusChange(order.id, e.target.checked)}
                           />
-                          <span className={`badge badge-sm ${(order as any).is_paid ? 'badge-success' : 'badge-warning'}`}>
-                            {(order as any).is_paid ? '已收款' : '未收款'}
-                          </span>
-                        </div>
-                      ) : (
+                        )}
                         <span className={`badge badge-sm ${(order as any).is_paid ? 'badge-success' : 'badge-warning'}`}>
                           {(order as any).is_paid ? '已收款' : '未收款'}
                         </span>
-                      )}
-                    </td>
-                    <td>
-                      {new Date(order.created_at).toLocaleString("zh-TW")}
-                    </td>
-                    <td>{order.note || "-"}</td>
-                    <td>
-                      <button
-                        onClick={() => openOrderModal(order)}
-                        className="btn btn-primary btn-sm"
-                        title="查看餐點詳細"
-                      >
-                        <FaEye className="w-3 h-3" />
-                        查看詳細
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <DataTable<LunchOrder>
-              dataSource={event.orders}
-              columns={[]}
-            />
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <FaShoppingCart className="w-16 h-16 mx-auto text-base-content/30 mb-4" />
-            <h4 className="text-lg font-semibold mb-2">尚無訂單</h4>
-            <p className="text-base-content/70">等待使用者下單</p>
-          </div>
-        )}
+                      </div>
+                    ) : (
+                      <span className={`badge badge-sm ${(order as any).is_paid ? 'badge-success' : 'badge-warning'}`}>
+                        {(order as any).is_paid ? '已收款' : '未收款'}
+                      </span>
+                    )}
+                  </>
+                )
+              },
+              { key: 'created_at', title: '下單時間', render: (value) => new Date(String(value)).toLocaleString("zh-TW") },
+              { key: 'note', title: '備註', render: (value, record) => String(value) || "-" },
+              {
+                key: 'actions', title: '操作', render: (value, order) => (
+                  <>
+
+                  </>
+                )
+              },
+            ]}
+          />
+        </div>
       </div>
+
+      {/* divider */}
+      <hr className=" border-gray-500" />
+
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h3 className="text-xl font-bold">訂單明細</h3>
@@ -566,7 +536,7 @@ export default function EventDetailPage() {
           <button
             title="下載統計報告"
             className="btn btn-sm btn-outline btn-primary"
-            onClick={()=>{
+            onClick={() => {
               eventTableRef.current?.download();
             }}
           >
@@ -581,13 +551,6 @@ export default function EventDetailPage() {
           className="w-full"
         />
       </div>
-
-      {/* 訂單詳細 Modal */}
-      <OrderDetailModal
-        isOpen={showOrderModal}
-        onClose={closeOrderModal}
-        order={selectedOrder}
-      />
     </div>
   );
 }
