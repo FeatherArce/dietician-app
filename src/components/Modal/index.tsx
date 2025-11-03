@@ -54,7 +54,7 @@ function Modal({
 
     return (
         <dialog id={id} className={`modal`}>
-            <div className="modal-box">
+            <div className="modal-box space-y-2">
                 <div className=''>
                     {/* if there is a button in form, it will close the modal */}
                     <button
