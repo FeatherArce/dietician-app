@@ -41,8 +41,8 @@ async function validateSession(request: NextRequest) {
     const token = request.cookies.get(AUTH_CONSTANTS.ACCESS_TOKEN_KEY)?.value;
     
     // 調試：記錄 Cookie 狀態
-    console.log('[MIDDLEWARE DEBUG] All cookies:', request.cookies.getAll());
-    console.log('[MIDDLEWARE DEBUG] Token exists:', !!token);
+    // console.log('[MIDDLEWARE DEBUG] All cookies:', request.cookies.getAll());
+    // console.log('[MIDDLEWARE DEBUG] Token exists:', !!token);
     
     if (!token) {
         console.log('[MIDDLEWARE DEBUG] No token found in cookies');
@@ -58,13 +58,13 @@ async function validateSession(request: NextRequest) {
             return null;
         }
         
-        console.log('[MIDDLEWARE DEBUG] Token verified successfully:', {
-            userId: session.userId,
-            role: session.role,
-            exp: session.exp,
-            iat: session.iat,
-            now: Math.floor(Date.now() / 1000)
-        });
+        // console.log('[MIDDLEWARE DEBUG] Token verified successfully:', {
+        //     userId: session.userId,
+        //     role: session.role,
+        //     exp: session.exp,
+        //     iat: session.iat,
+        //     now: Math.floor(Date.now() / 1000)
+        // });
         
         return session;
     } catch (error) {
