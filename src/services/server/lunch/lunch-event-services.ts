@@ -1,5 +1,6 @@
 import prisma from '@/services/prisma';
 import { LunchEvent, Prisma } from '@/prisma-generated/postgres-client';
+import { EventWithOrders } from '@/app/lunch/types';
 
 // 類型定義
 export type CreateLunchEventData = {
@@ -72,26 +73,26 @@ export interface LunchEventFilters {
 // Lunch Event Service
 export const lunchEventService = {
     // 獲取事件列表（支援過濾）
-    async getEvents(filters: LunchEventFilters = {}): Promise<LunchEvent[]> {
+    async getEvents(filters: LunchEventFilters = {}): Promise<Array<EventWithOrders>> {
         try {
             const where: Prisma.LunchEventWhereInput = {};
-            
+
             if (filters.isActive !== undefined) {
                 where.is_active = filters.isActive;
             }
-            
+
             if (filters.ownerId) {
                 where.owner_id = filters.ownerId;
             }
-            
+
             if (filters.shopId) {
                 where.shop_id = filters.shopId;
             }
-            
+
             if (filters.allowCustomItems !== undefined) {
                 where.allow_custom_items = filters.allowCustomItems;
             }
-            
+
             // 事件日期範圍
             if (filters.eventDateFrom || filters.eventDateTo) {
                 where.event_date = {};
@@ -102,7 +103,7 @@ export const lunchEventService = {
                     where.event_date.lte = filters.eventDateTo;
                 }
             }
-            
+
             // 訂餐截止時間範圍
             if (filters.orderDeadlineFrom || filters.orderDeadlineTo) {
                 where.order_deadline = {};
@@ -118,23 +119,29 @@ export const lunchEventService = {
                 where,
                 include: {
                     owner: {
-                        select: { id: true, name: true, role: true }
+                        select: { id: true, name: true, role: true, email: true }
                     },
-                    shop: {
-                        select: { id: true, name: true, is_active: true }
+                    shop: true,
+                    orders: {                        
+                        include: {
+                            items: true,
+                            user: {
+                                select: { id: true, name: true, email: true, }
+                            }
+                        }
                     },
                     _count: {
                         select: {
                             orders: true,
-                            attendees: true
+                            attendees: true,
                         }
-                    }
+                    },
                 },
                 orderBy: {
                     created_at: 'desc'
                 }
             });
-            
+
             return events;
         } catch (error) {
             console.error('Error fetching lunch events:', error);
@@ -262,11 +269,11 @@ export const lunchEventService = {
             const orderCount = await prisma.lunchOrder.count({
                 where: { event_id: id }
             });
-            
+
             if (orderCount > 0) {
                 throw new Error('無法刪除已有訂單的事件');
             }
-            
+
             const event = await prisma.lunchEvent.delete({
                 where: { id }
             });
@@ -284,7 +291,7 @@ export const lunchEventService = {
             if (!currentEvent) {
                 throw new Error('Event not found');
             }
-            
+
             const event = await prisma.lunchEvent.update({
                 where: { id },
                 data: { is_active: !currentEvent.is_active }
@@ -303,11 +310,11 @@ export const lunchEventService = {
                 where: { id: eventId },
                 select: { order_deadline: true, is_active: true }
             });
-            
+
             if (!event || !event.is_active) {
                 return false;
             }
-            
+
             return new Date() < event.order_deadline;
         } catch (error) {
             console.error('Error checking ordering availability:', error);
@@ -353,7 +360,7 @@ export const lunchEventService = {
                     orderBy: { created_at: 'desc' }
                 })
             ]);
-            
+
             return { owned, joined };
         } catch (error) {
             console.error('Error fetching user events:', error);
