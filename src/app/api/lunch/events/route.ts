@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { lunchEventService, type CreateLunchEventData, type LunchEventFilters } from '@/services/server/lunch/lunch-event-services';
 import { checkRequiredFields } from '@/libs/utils';
+import { lunchEventService, type CreateLunchEventData, type LunchEventFilters } from '@/services/server/lunch/lunch-event-services';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
     try {
@@ -30,8 +30,23 @@ export async function GET(request: NextRequest) {
         }
 
         const events = await lunchEventService.getEvents(filters);
-        return NextResponse.json({ events, success: true });
+        const newEvents = [];
+        for (const event of events) {
+            const newAttendees = new Map<string, { id: string; name: string, email: string }>();
+            for (const order of event?.orders || []) {
+                if (!newAttendees.has(order.id)) {
+                    newAttendees.set(order.id, {
+                        id: order.id,
+                        name: order.user?.name || '',
+                        email: order.user?.email || '',
+                    });
+                }
+            }
+            const ne = { ...event, attendees: Array.from(newAttendees.values()) };
+            newEvents.push(ne);
+        }
 
+        return NextResponse.json({ events: newEvents, success: true });
     } catch (error) {
         console.error('GET /api/lunch/events error:', error);
         return NextResponse.json(
@@ -68,12 +83,10 @@ export async function POST(request: NextRequest) {
             is_active: data.is_active ?? true,
             owner_id: data.owner_id,
             shop_id: data.shop_id && data.shop_id.trim() !== '' ? data.shop_id : undefined,
-            allow_custom_items: data.allow_custom_items ?? false
+            allow_custom_items: data.allow_custom_items ?? false,
         };
 
-        console.log('Creating event with data:', eventData);
         const event = await lunchEventService.createEvent(eventData);
-        console.log('Event created successfully:', event);
 
         return NextResponse.json({
             event,
