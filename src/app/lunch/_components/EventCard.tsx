@@ -21,12 +21,13 @@ import type { EventWithDetails, MyOrder } from '../types';
 import type { User } from '@/prisma-generated/postgres-client';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import { PublicUser } from '@/services/server/auth';
+import { toast } from '@/components/Toast';
 
 interface EventCardProps {
     event: EventWithDetails;
     user: PublicUser | null;
-    getUserOrderForEvent: (eventId: string) => MyOrder | null;
-    onShowOrderDetail: (order: MyOrder) => void;
+    getUserOrderForEvent?: (eventId: string) => MyOrder | null;
+    onShowOrderDetail?: (order: MyOrder) => void;
     onShowEventStats?: (eventId: string) => void; // 新增統計按鈕回調
 }
 
@@ -35,11 +36,11 @@ const getEventStatusBadge = (event: LunchEvent) => {
     const orderDeadline = new Date(event.order_deadline);
 
     if (!event.is_active) {
-        return <span className="badge badge-error badge-sm">已關閉</span>;
+        return <span className="badge badge-error badge-sm">已結束</span>;
     }
 
     if (orderDeadline < now) {
-        return <span className="badge badge-warning badge-sm">訂餐結束</span>;
+        return <span className="badge badge-warning badge-sm">訂餐截止</span>;
     }
 
     return <span className="badge badge-success badge-sm">進行中</span>;
@@ -57,14 +58,17 @@ export default function EventCard({
     const hasManagePermission = isOwner || user?.role === UserRole.ADMIN || user?.role === UserRole.MODERATOR;
 
     // 檢查用戶是否有此活動的訂單
-    const userOrder = getUserOrderForEvent(event.id);
+    const userOrder = getUserOrderForEvent?.(event.id);
     const hasOrder = !!userOrder;
 
     return (
         <div key={event.id} className="card bg-base-100 shadow-sm border border-base-200">
             <div className="card-body p-4 grid grid-rows-[auto_auto_1fr_auto] gap-4">
                 <div className="flex justify-between items-start">
-                    <h3 className="card-title text-lg">{event.title}</h3>
+                    <h3 className="card-title text-lg">
+                        {event.title}
+                        <span className="badge badge-sm">{getEventStatusBadge(event)}</span>
+                    </h3>
                     <div className="flex items-center gap-2">
                         {/* 管理功能按鈕 - 只有管理者能看到 */}
                         {hasManagePermission && (
@@ -87,11 +91,16 @@ export default function EventCard({
                         )}
 
                         <button
-                            onClick={() => {
+                            onClick={async () => {
                                 const shareUrl = `${window.location.origin}/lunch/events/${event.id}/join`;
-                                navigator.clipboard.writeText(shareUrl);
+                                await navigator.clipboard.writeText(shareUrl);
                                 // 可以加入 toast 通知
-                                alert('分享連結已複製到剪貼簿！');
+                                toast.success(<>
+                                    分享連結已複製到剪貼簿！<br />
+                                    <a href={shareUrl} target="_blank" rel="noreferrer" className="underline">
+                                        {shareUrl} <FaExternalLinkAlt className="inline w-3 h-3" />
+                                    </a>
+                                </>);
                             }}
                             className="btn btn-ghost btn-sm"
                         >
@@ -163,8 +172,9 @@ export default function EventCard({
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => onShowOrderDetail(userOrder)}
+                                    onClick={() => onShowOrderDetail?.(userOrder)}
                                     className="btn btn-ghost btn-xs"
+                                    disabled={!onShowOrderDetail}
                                 >
                                     查看詳情
                                 </button>

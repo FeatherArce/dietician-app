@@ -6,31 +6,9 @@ import { FaCalendarAlt, FaStore, FaUsers } from 'react-icons/fa';
 import Link from 'next/link';
 import { authFetch } from '@/libs/auth-fetch';
 import { ROUTE_CONSTANTS } from '@/constants/app-constants';
+import EventCard from '@/app/lunch/_components/EventCard';
+import { EventWithDetails } from '@/app/lunch/types';
 
-interface EventWithDetails {
-    id: string;
-    title: string;
-    description?: string;
-    event_date: string;
-    order_deadline: string;
-    is_active: boolean;
-    owner?: {
-        id: string;
-        name: string;
-        role: string;
-    };
-    shop?: {
-        id: string;
-        name: string;
-        is_active: boolean;
-    };
-    orders?: Array<{ id: string; user_id: string; [key: string]: unknown }>; // 實際的訂單陣列
-    attendees?: Array<{ id: string; name: string; [key: string]: unknown }>; // 實際的參與者陣列
-    _count?: {
-        orders: number;
-        attendees: number;
-    };
-}
 
 export default function JoinEventPage() {
     const params = useParams();
@@ -51,7 +29,7 @@ export default function JoinEventPage() {
 
                 if (data.success && data.event) {
                     setEvent(data.event);
-                    
+
                     // 如果用戶已登入，檢查是否已有訂單
                     if (user?.id) {
                         const orderResponse = await authFetch(`/api/lunch/orders?userId=${user.id}&eventId=${eventId}`);
@@ -76,7 +54,7 @@ export default function JoinEventPage() {
 
     const getEventStatus = () => {
         if (!event) return null;
-        
+
         const now = new Date();
         const orderDeadline = new Date(event.order_deadline);
 
@@ -201,6 +179,11 @@ export default function JoinEventPage() {
                     </div>
                 </div>
             </div>
+
+            <EventCard
+                event={event}
+                user={user}
+            />
 
             {/* 操作區域 */}
             <div className="space-y-4">

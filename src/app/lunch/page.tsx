@@ -19,7 +19,7 @@ import { AUTH_CONSTANTS, ROUTE_CONSTANTS } from '@/constants/app-constants';
 import { authFetch } from '@/libs/auth-fetch';
 
 enum EventActiveType {
-    ACTIVE = 'active',
+    ACTIVE = 'active',      
     INACTIVE = 'inactive'
 }
 

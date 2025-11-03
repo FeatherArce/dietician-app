@@ -68,6 +68,7 @@ export interface LunchEventFilters {
     orderDeadlineFrom?: Date;
     orderDeadlineTo?: Date;
     allowCustomItems?: boolean;
+    include?: 'statistics';
 }
 
 // Lunch Event Service
@@ -121,12 +122,40 @@ export const lunchEventService = {
                     owner: {
                         select: { id: true, name: true, role: true, email: true }
                     },
-                    shop: true,
-                    orders: {                        
+                    shop: {
                         include: {
-                            items: true,
+                            menus: {
+                                where: { is_available: true },
+                                include: {
+                                    categories: {
+                                        where: { is_active: true },
+                                        include: {
+                                            items: {
+                                                where: { is_available: true },
+                                                orderBy: { sort_order: 'asc' }
+                                            }
+                                        },
+                                        orderBy: { sort_order: 'asc' }
+                                    },
+                                    items: {
+                                        where: { is_available: true },
+                                        orderBy: { sort_order: 'asc' }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    orders: {
+                        include: {
                             user: {
-                                select: { id: true, name: true, email: true, }
+                                select: { id: true, name: true, email: true }
+                            },
+                            items: {
+                                include: {
+                                    menu_item: {
+                                        select: { id: true, name: true, description: true }
+                                    }
+                                }
                             }
                         }
                     },
@@ -150,13 +179,53 @@ export const lunchEventService = {
     },
 
     // 獲取單一事件（包含詳細資訊）
-    async getEventById(id: string): Promise<any> {
+    async getEventById(id: string, filters: LunchEventFilters = {}): Promise<EventWithOrders | null> {
         try {
+            const where: Prisma.LunchEventWhereInput = {};
+
+            if (filters.isActive !== undefined) {
+                where.is_active = filters.isActive;
+            }
+
+            if (filters.ownerId) {
+                where.owner_id = filters.ownerId;
+            }
+
+            if (filters.shopId) {
+                where.shop_id = filters.shopId;
+            }
+
+            if (filters.allowCustomItems !== undefined) {
+                where.allow_custom_items = filters.allowCustomItems;
+            }
+
+            // 事件日期範圍
+            if (filters.eventDateFrom || filters.eventDateTo) {
+                where.event_date = {};
+                if (filters.eventDateFrom) {
+                    where.event_date.gte = filters.eventDateFrom;
+                }
+                if (filters.eventDateTo) {
+                    where.event_date.lte = filters.eventDateTo;
+                }
+            }
+
+            // 訂餐截止時間範圍
+            if (filters.orderDeadlineFrom || filters.orderDeadlineTo) {
+                where.order_deadline = {};
+                if (filters.orderDeadlineFrom) {
+                    where.order_deadline.gte = filters.orderDeadlineFrom;
+                }
+                if (filters.orderDeadlineTo) {
+                    where.order_deadline.lte = filters.orderDeadlineTo;
+                }
+            }
+
             const event = await prisma.lunchEvent.findUnique({
-                where: { id },
+                where: { ...where, id },
                 include: {
                     owner: {
-                        select: { id: true, name: true, role: true }
+                        select: { id: true, name: true, role: true, email: true }
                     },
                     shop: {
                         include: {
@@ -184,7 +253,7 @@ export const lunchEventService = {
                     orders: {
                         include: {
                             user: {
-                                select: { id: true, name: true }
+                                select: { id: true, name: true, email: true }
                             },
                             items: {
                                 include: {
@@ -195,8 +264,11 @@ export const lunchEventService = {
                             }
                         }
                     },
-                    attendees: {
-                        select: { id: true, name: true }
+                    _count: {
+                        select: {
+                            orders: true,
+                            attendees: true
+                        }
                     }
                 }
             });

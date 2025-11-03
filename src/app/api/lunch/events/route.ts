@@ -1,49 +1,68 @@
+import { EventWithOrders } from '@/app/lunch/types';
 import { checkRequiredFields } from '@/libs/utils';
 import { lunchEventService, type CreateLunchEventData, type LunchEventFilters } from '@/services/server/lunch/lunch-event-services';
 import { NextRequest, NextResponse } from 'next/server';
 
+export function getAttendeesFromEventOrders(event: EventWithOrders) {
+    const newAttendees = new Map<string, { id: string; name: string, email: string }>();
+    for (const order of event?.orders || []) {
+        if (!newAttendees.has(order.id)) {
+            newAttendees.set(order.id, {
+                id: order.id,
+                name: order.user?.name || '',
+                email: order.user?.email || '',
+            });
+        }
+    }
+    const newEvent = {
+        ...event,
+        attendees: Array.from(newAttendees.values())
+    };
+    return newEvent;
+}
+
+export function getEventRequestFilters(request: NextRequest): LunchEventFilters {
+    const searchParams = request.nextUrl.searchParams;
+    const filters: LunchEventFilters = {};
+
+    const isActiveParam = searchParams.get('is_active');
+    if (isActiveParam !== null) {
+        filters.isActive = isActiveParam === 'true';
+    }
+
+    const ownerIdParam = searchParams.get('owner_id');
+    if (ownerIdParam) {
+        filters.ownerId = ownerIdParam;
+    }
+
+    const dateFromParam = searchParams.get('date_from');
+    if (dateFromParam) {
+        filters.eventDateFrom = new Date(dateFromParam);
+    }
+
+    const dateToParam = searchParams.get('date_to');
+    if (dateToParam) {
+        filters.eventDateTo = new Date(dateToParam);
+    }
+
+    const includeToParam = searchParams.get('include');
+    if (includeToParam === 'statistics') {
+        filters.include = 'statistics';
+    }
+
+    return filters;
+}
+
 export async function GET(request: NextRequest) {
     try {
-        const searchParams = request.nextUrl.searchParams;
-
         // 解析查詢參數
-        const filters: LunchEventFilters = {};
-
-        const isActiveParam = searchParams.get('is_active');
-        if (isActiveParam !== null) {
-            filters.isActive = isActiveParam === 'true';
-        }
-
-        const ownerIdParam = searchParams.get('owner_id');
-        if (ownerIdParam) {
-            filters.ownerId = ownerIdParam;
-        }
-
-        const dateFromParam = searchParams.get('date_from');
-        if (dateFromParam) {
-            filters.eventDateFrom = new Date(dateFromParam);
-        }
-
-        const dateToParam = searchParams.get('date_to');
-        if (dateToParam) {
-            filters.eventDateTo = new Date(dateToParam);
-        }
+        const filters: LunchEventFilters = getEventRequestFilters(request);
 
         const events = await lunchEventService.getEvents(filters);
         const newEvents = [];
         for (const event of events) {
-            const newAttendees = new Map<string, { id: string; name: string, email: string }>();
-            for (const order of event?.orders || []) {
-                if (!newAttendees.has(order.id)) {
-                    newAttendees.set(order.id, {
-                        id: order.id,
-                        name: order.user?.name || '',
-                        email: order.user?.email || '',
-                    });
-                }
-            }
-            const ne = { ...event, attendees: Array.from(newAttendees.values()) };
-            newEvents.push(ne);
+            const newEvent = getAttendeesFromEventOrders(event);
+            newEvents.push(newEvent);
         }
 
         return NextResponse.json({ events: newEvents, success: true });

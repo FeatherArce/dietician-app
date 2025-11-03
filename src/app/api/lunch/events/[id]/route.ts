@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { lunchEventService } from '@/services/server/lunch/lunch-event-services';
+import { LunchEventFilters, lunchEventService } from '@/services/server/lunch/lunch-event-services';
 import { getSessionFromRequest } from '@/services/server/auth/request-utils';
 import { UserRole } from '@/prisma-generated/postgres-client';
+import { getAttendeesFromEventOrders, getEventRequestFilters } from '../route';
 
 export async function GET(
     request: NextRequest,
@@ -9,46 +10,48 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
-        const { searchParams } = new URL(request.url);
-        const includeDetails = searchParams.get('include') === 'details';
-        
-        const event = await lunchEventService.getEventById(id);
-        
+        const filters: LunchEventFilters = getEventRequestFilters(request);
+        const event = await lunchEventService.getEventById(id, filters);
+
         if (!event) {
             return NextResponse.json(
-                { error: '事件不存在', success: false }, 
+                { error: '事件不存在', success: false },
                 { status: 404 }
             );
         }
 
+        const newEvent = getAttendeesFromEventOrders(event);
+        console.log('Fetched event:', event);
+        console.log('Transformed event:', newEvent);
+
         // 如果需要詳細統計，計算額外的統計資料
-        if (includeDetails && event.orders) {
+        if (filters.include === 'statistics') {
             const participantSet = new Set();
             let totalAmount = 0;
-            
-            for (const order of event.orders) {
-                participantSet.add(order.user.id);
+
+            for (const order of (newEvent.orders || [])) {
+                if (order.user?.id) participantSet.add(order.user?.id);
                 totalAmount += order.total;
             }
-            
+
             // 添加統計資料到事件物件
             const eventWithStats = {
-                ...event,
-                orderCount: event.orders.length,
+                ...newEvent,
+                orderCount: newEvent.orders.length,
                 totalAmount,
                 participantCount: participantSet.size
             };
-            
+
             return NextResponse.json({ event: eventWithStats, success: true });
         }
 
         return NextResponse.json({ event, success: true });
-        
+
     } catch (error) {
         const resolvedParams = await params;
         console.error(`GET /api/lunch/events/${resolvedParams.id} error:`, error);
         return NextResponse.json(
-            { error: 'Failed to fetch event', success: false }, 
+            { error: 'Failed to fetch event', success: false },
             { status: 500 }
         );
     }
@@ -60,12 +63,12 @@ export async function PUT(
 ) {
     try {
         const { id } = await params;
-        
+
         // 驗證用戶身份
         const session = getSessionFromRequest(request);
         if (!session) {
             return NextResponse.json(
-                { error: '未授權訪問', success: false }, 
+                { error: '未授權訪問', success: false },
                 { status: 401 }
             );
         }
@@ -74,7 +77,7 @@ export async function PUT(
         const existingEvent = await lunchEventService.getEventById(id);
         if (!existingEvent) {
             return NextResponse.json(
-                { error: '找不到該事件', success: false }, 
+                { error: '找不到該事件', success: false },
                 { status: 404 }
             );
         }
@@ -82,16 +85,16 @@ export async function PUT(
         const isOwner = existingEvent.owner_id === session.userId;
         const isAdmin = session.role === UserRole.ADMIN;
         const isModerator = session.role === UserRole.MODERATOR;
-        
+
         if (!isOwner && !isAdmin && !isModerator) {
             return NextResponse.json(
-                { error: '權限不足，只有事件擁有者或管理者可以編輯此事件', success: false }, 
+                { error: '權限不足，只有事件擁有者或管理者可以編輯此事件', success: false },
                 { status: 403 }
             );
         }
 
         const data = await request.json();
-        
+
         // 轉換日期欄位
         if (data.event_date) {
             data.event_date = new Date(data.event_date);
@@ -112,17 +115,17 @@ export async function PUT(
         }
 
         const event = await lunchEventService.updateEvent(id, data);
-        return NextResponse.json({ 
-            event, 
-            message: '事件已更新', 
-            success: true 
+        return NextResponse.json({
+            event,
+            message: '事件已更新',
+            success: true
         });
-        
+
     } catch (error) {
         const resolvedParams = await params;
         console.error(`PUT /api/lunch/events/${resolvedParams.id} error:`, error);
         return NextResponse.json(
-            { error: 'Failed to update event', success: false }, 
+            { error: 'Failed to update event', success: false },
             { status: 500 }
         );
     }
@@ -134,12 +137,12 @@ export async function PATCH(
 ) {
     try {
         const { id } = await params;
-        
+
         // 驗證用戶身份
         const session = getSessionFromRequest(request);
         if (!session) {
             return NextResponse.json(
-                { error: '未授權訪問', success: false }, 
+                { error: '未授權訪問', success: false },
                 { status: 401 }
             );
         }
@@ -148,7 +151,7 @@ export async function PATCH(
         const existingEvent = await lunchEventService.getEventById(id);
         if (!existingEvent) {
             return NextResponse.json(
-                { error: '找不到該事件', success: false }, 
+                { error: '找不到該事件', success: false },
                 { status: 404 }
             );
         }
@@ -157,16 +160,16 @@ export async function PATCH(
         const isOwner = existingEvent.owner_id === session.userId;
         const isAdmin = session.role === UserRole.ADMIN;
         const isModerator = session.role === UserRole.MODERATOR;
-        
+
         if (!isOwner && !isAdmin && !isModerator) {
             return NextResponse.json(
-                { error: '權限不足，只有事件擁有者或管理員可以修改此事件', success: false }, 
+                { error: '權限不足，只有事件擁有者或管理員可以修改此事件', success: false },
                 { status: 403 }
             );
         }
 
         const data = await request.json();
-        
+
         // 轉換日期欄位
         if (data.event_date) {
             data.event_date = new Date(data.event_date);
@@ -187,17 +190,17 @@ export async function PATCH(
         }
 
         const event = await lunchEventService.updateEvent(id, data);
-        return NextResponse.json({ 
-            event, 
-            message: '事件已更新', 
-            success: true 
+        return NextResponse.json({
+            event,
+            message: '事件已更新',
+            success: true
         });
-        
+
     } catch (error) {
         const resolvedParams = await params;
         console.error(`PUT /api/lunch/events/${resolvedParams.id} error:`, error);
         return NextResponse.json(
-            { error: 'Failed to update event', success: false }, 
+            { error: 'Failed to update event', success: false },
             { status: 500 }
         );
     }
@@ -209,12 +212,12 @@ export async function DELETE(
 ) {
     try {
         const { id } = await params;
-        
+
         // 驗證用戶身份
         const session = getSessionFromRequest(request);
         if (!session) {
             return NextResponse.json(
-                { error: '未授權訪問', success: false }, 
+                { error: '未授權訪問', success: false },
                 { status: 401 }
             );
         }
@@ -223,7 +226,7 @@ export async function DELETE(
         const existingEvent = await lunchEventService.getEventById(id);
         if (!existingEvent) {
             return NextResponse.json(
-                { error: '找不到該事件', success: false }, 
+                { error: '找不到該事件', success: false },
                 { status: 404 }
             );
         }
@@ -232,27 +235,27 @@ export async function DELETE(
         const isOwner = existingEvent.owner_id === session.userId;
         const isAdmin = session.role === UserRole.ADMIN;
         const isModerator = session.role === UserRole.MODERATOR;
-        
+
         if (!isOwner && !isAdmin && !isModerator) {
             return NextResponse.json(
-                { error: '權限不足，只有事件擁有者或管理者可以刪除此事件', success: false }, 
+                { error: '權限不足，只有事件擁有者或管理者可以刪除此事件', success: false },
                 { status: 403 }
             );
         }
 
         const event = await lunchEventService.deleteEvent(id);
-        
-        return NextResponse.json({ 
-            event, 
-            message: '事件已刪除', 
-            success: true 
+
+        return NextResponse.json({
+            event,
+            message: '事件已刪除',
+            success: true
         });
-        
+
     } catch (error) {
         const resolvedParams = await params;
         console.error(`DELETE /api/lunch/events/${resolvedParams.id} error:`, error);
         return NextResponse.json(
-            { error: 'Failed to delete event', success: false }, 
+            { error: 'Failed to delete event', success: false },
             { status: 500 }
         );
     }
