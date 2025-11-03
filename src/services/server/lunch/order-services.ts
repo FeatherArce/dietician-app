@@ -538,16 +538,10 @@ export const orderService = {
         paid_note?: string | null;
     }) {
         try {
-            // TODO: 等資料庫遷移完成後取消註解
-            /*
+           
             const order = await prisma.lunchOrder.update({
                 where: { id: orderId },
-                data: {
-                    is_paid: paymentData.is_paid,
-                    paid_at: paymentData.paid_at,
-                    paid_method: paymentData.paid_method,
-                    paid_note: paymentData.paid_note,
-                },
+                data: paymentData,
                 include: {
                     items: {
                         include: {
@@ -574,10 +568,6 @@ export const orderService = {
             });
 
             return order;
-            */
-            
-            // 暫時返回現有訂單資料
-            return await this.getOrderById(orderId);
         } catch (error) {
             console.error('Error updating payment status:', error);
             throw error instanceof Error ? error : new Error('Failed to update payment status');
