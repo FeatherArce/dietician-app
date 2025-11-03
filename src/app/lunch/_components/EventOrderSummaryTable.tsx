@@ -67,7 +67,7 @@ const generateReportText = (statistics: EventStatistics) => {
     if (orders.length > 0) {
         report += `使用者訂單：\n`;
         orders.forEach(order => {
-            report += `　${order.user.name}：${formatCurrency(order.total)}\n`;
+            report += `　${order.user?.name}：${formatCurrency(order.total)}\n`;
             order.items.forEach(item => {
                 report += `　　- ${item.name} x${item.quantity}\n`;
             });
