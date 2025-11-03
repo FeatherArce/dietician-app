@@ -1,96 +1,42 @@
-import { LunchEvent } from '@/prisma-generated/postgres-client';
+import { LunchEvent, LunchOrder, LunchOrderItem, Menu, Shop, User } from '@/prisma-generated/postgres-client';
 
-/**
- * 擴展的午餐活動介面，包含額外的關聯資料
- */
-export interface EventWithDetails extends LunchEvent {
-    owner?: {
-        id: string;
-        name: string;
-        role: string;
-    };
-    shop?: {
-        id: string;
-        name: string;
-        is_active: boolean;
-    };
-    _count?: {
-        orders: number;
-        attendees: number;
-    };
-    orders?: Array<unknown>;  // 訂單陣列
-    attendees?: Array<unknown>;  // 參與者陣列
+export interface EventShop extends Shop{
+    menus: Array<Menu>;    
 }
 
-/**
- * 訂單項目介面
- */
-export interface MyOrderItem {
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    type: string;
+export interface EventOrderItem extends LunchOrderItem{
+  [key: string]: unknown; // 添加索引簽章以符合 Record<string, unknown>
+}
+
+export interface EventOrder extends LunchOrder {
+    user: User;
+    items: LunchOrderItem[];
 }
 
 /**
  * 我的訂單介面
  */
-export interface MyOrder {
-    id: string;
-    total: number;
-    note?: string;
-    created_at: string;
-    updated_at: string;
-    // 收款相關欄位
-    is_paid: boolean;
-    paid_at?: string;
-    paid_method?: string;
-    paid_note?: string;
-    items: MyOrderItem[];
-    event: {
-        id: string;
-        title: string;
-        event_date: string;
-        order_deadline: string;
-        is_active: boolean;
-    };
+export interface MyOrder extends EventOrder {
+    event: LunchEvent;
+
+    [x: string]: unknown;
 }
 
 /**
- * 使用者介面 (用於元件 props)
+ * 擴展的午餐活動介面，包含額外的關聯資料
  */
-export interface User {
-    id: string;
-    name: string;
-    role: string;
+export interface EventWithDetails extends LunchEvent {
+    owner?: User;
+    shop?: EventShop;
+    orders?: Array<EventOrder>;
+    attendees?: Array<User>;
+    // 額外的計數欄位
+    _count?: {
+        orders: number;
+        attendees: number;
+    };
 }
 
-/**
- * 訂單詳細資料介面 (用於統計)
- */
-export interface OrderDetail {
-    id: string;
-    total: number;
-    note?: string;
-    created_at: Date;
-    // 收款相關欄位
-    is_paid?: boolean;
-    paid_at?: Date;
-    paid_method?: string;
-    paid_note?: string;
-    user: {
-        id: string;
-        name: string;
-    };
-    items: Array<{
-        id: string;
-        name: string;
-        quantity: number;
-        price: number;
-        note?: string;
-    }>;
-}
 
 /**
  * 餐點統計介面 (依餐點分組)
@@ -124,6 +70,6 @@ export interface EventStatistics {
     totalOrders: number;
     totalAmount: number;
     participantCount: number;
-    orders: OrderDetail[];
+    orders: EventOrder[];
     itemSummary: ItemSummary[];
 }
