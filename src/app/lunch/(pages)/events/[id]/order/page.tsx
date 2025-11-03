@@ -28,34 +28,22 @@ import { toast } from "@/components/Toast";
 import { authFetch } from "@/libs/auth-fetch";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
+import { EventOrderItem } from "@/app/lunch/types";
 
-export interface OrderItem {
-  id?: string;
-  name: string;
-  price: number;
-  quantity: number;
-  note?: string;
-  description?: string;
-  category_name?: string;
-  menu_item_id?: string;
-
-  [key: string]: unknown; // 添加索引簽章以符合 Record<string, unknown>
-}
 
 interface ExistingOrder {
   id: string;
   total: number;
   note?: string;
-  items: OrderItem[];
+  items: EventOrderItem[];
 }
-
 
 export default function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuthStore();
   const [event, setEvent] = useState<EventData | null>(null);
   const [existingOrder, setExistingOrder] = useState<ExistingOrder | null>(null);
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [orderItems, setOrderItems] = useState<EventOrderItem[]>([]);
   const [orderNote, setOrderNote] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -157,7 +145,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     });
   };
 
-  const openEditMealModal = (item: OrderItem, index: number) => {
+  const openEditMealModal = (item: EventOrderItem, index: number) => {
     if (!item) return;
 
     let foundedMenuItem = null;
@@ -184,7 +172,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
 
   // 新增或更新訂單項目，為了避免有重複項目，需要先檢查新增項目是否已存在
   // 如果備註有差異，則合併備註，否則只更新數量
-  const appendOrderItem = useCallback((newItem: OrderItem) => {
+  const appendOrderItem = useCallback((newItem: EventOrderItem) => {
     console.log("Appending order item", newItem);
     setOrderItems((prevItems) => {
       const existingItemIndex = prevItems?.findIndex(item =>
@@ -217,7 +205,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     });
   }, []);
 
-  const updateOrderItem = useCallback((index: number, updatedItem: OrderItem) => {
+  const updateOrderItem = useCallback((index: number, updatedItem: EventOrderItem) => {
     console.log("Updating order item", index, updatedItem);
     setOrderItems((prevItems) => {
       const updatedItems = [...prevItems];
@@ -232,7 +220,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       from: 'custom',
       open: false
     });
-    const appendedItem: OrderItem = {
+    const appendedItem: EventOrderItem = {
       name: values.name,
       price: values.price,
       quantity: values.quantity,
@@ -264,7 +252,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
         return newQuantity === 0 ? null : { ...item, quantity: newQuantity };
       }
       return item;
-    }).filter(Boolean) as OrderItem[]);
+    }).filter(Boolean) as EventOrderItem[]);
   };
 
   // 移除項目
@@ -573,7 +561,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
                 </label>
               </div>
               <div>
-                <DataTable<OrderItem>
+                <DataTable<EventOrderItem>
                   dataSource={orderItems}
                   pagination={false}
                   columns={[
@@ -658,7 +646,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
             <button
               className="btn btn-primary w-full"
               onClick={submitOrder}
-              disabled={submitting || orderItems.length === 0}
+              disabled={submitting}
             >
               {submitting ? (
                 <span className="loading loading-spinner loading-sm"></span>
