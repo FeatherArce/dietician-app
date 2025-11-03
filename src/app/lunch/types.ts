@@ -9,7 +9,7 @@ export interface EventOrderItem extends LunchOrderItem{
 }
 
 export interface EventOrder extends LunchOrder {
-    user: User;
+    user?: Partial<User>;
     items: LunchOrderItem[];
 }
 
@@ -20,6 +20,10 @@ export interface MyOrder extends EventOrder {
     event: LunchEvent;
 
     [x: string]: unknown;
+}
+
+export interface EventWithOrders extends LunchEvent {
+    orders: Array<EventOrder>;
 }
 
 /**
@@ -61,12 +65,7 @@ export interface ItemSummary {
  */
 export interface EventStatistics {
     id: string;
-    shop?: {
-        id: string;
-        name: string;
-        address?: string;
-        phone?: string;
-    };
+    shop?: EventShop;
     totalOrders: number;
     totalAmount: number;
     participantCount: number;
