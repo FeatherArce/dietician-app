@@ -6,7 +6,7 @@ import SearchContainer from "@/components/SearchContainer";
 import { SearchInput, Select } from "@/components/SearchContainer/SearchFields";
 import { toast, useToastAPI } from "@/components/Toast";
 import PageContainer from "@/components/page/PageContainer";
-import { LunchEvent } from "@/prisma-generated/postgres-client";
+import { LunchEvent, UserRole } from "@/prisma-generated/postgres-client";
 import { useAuthStore } from "@/stores/auth-store";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -119,7 +119,12 @@ export default function EventsPage() {
     try {
       const newParameters = new URLSearchParams();
       newParameters.append("include", "stats");
-      if (user?.id) { newParameters.append("owner_id", user.id); }
+      if (user?.role === UserRole.ADMIN || user?.role === UserRole.MODERATOR) {
+        // 管理員和版主可以查看所有活動
+      } else {
+        if (user?.id) { newParameters.append("owner_id", user.id); }
+      }
+
       const response = await fetch(`/api/lunch/events?${newParameters.toString()}`);
       if (response.ok) {
         const data = await response.json();
