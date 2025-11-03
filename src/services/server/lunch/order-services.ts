@@ -110,7 +110,7 @@ export const orderService = {
                                     description: true,
                                     image_url: true
                                 }
-                            }
+                            },                            
                         },
                         orderBy: { id: 'asc' }
                     }

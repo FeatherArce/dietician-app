@@ -12,7 +12,7 @@ import {
     FaSpinner
 } from 'react-icons/fa';
 import EventCard from './_components/EventCard';
-import EventStatistics from './_components/EventStatistics';
+import EventOrderSummaryTable from './_components/EventOrderSummaryTable';
 import OrderDetailModal from './_components/OrderDetailModal';
 import type { EventStatistics as EventStatisticsType, EventWithDetails, MyOrder } from './types';
 import { AUTH_CONSTANTS, ROUTE_CONSTANTS } from '@/constants/app-constants';
@@ -377,7 +377,7 @@ export default function LunchPage() {
                                     <span className="loading loading-spinner loading-lg"></span>
                                 </div>
                             ) : eventStats ? (
-                                <EventStatistics
+                                <EventOrderSummaryTable
                                     statistics={eventStats}
                                     className="w-full"
                                 />

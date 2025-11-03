@@ -57,7 +57,7 @@ function UserForm({ user }: UserFormProps, ref: React.Ref<Form2Ref>) {
         setFieldsValue: (values: FormValues) => {
             formRef.current?.setFieldsValue(values);
         },
-    }));
+    }), []);
 
     return (
         <Form2
