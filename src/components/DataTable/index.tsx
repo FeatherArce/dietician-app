@@ -55,6 +55,7 @@ export interface Column<T = Record<string, unknown>> {
 // 總結欄配置
 export interface SummaryConfig<T = Record<string, unknown>> {
   show?: boolean;
+  showDivider?: boolean;
   fixed?: boolean; // 是否固定在底部（不受分頁影響）
   columns: Array<{
     key: string; // 對應到 Column 的 key
@@ -110,7 +111,7 @@ function DataTable<T extends Record<string, unknown>>({
     current: 1,
     pageSize: 10,
     showSizeChanger: true,
-    showQuickJumper: true,
+    showQuickJumper: false,
     showTotal: true,
   },
   summary,
@@ -421,14 +422,32 @@ function DataTable<T extends Record<string, unknown>>({
 
   // 渲染總結欄
   const renderSummary = () => {
-    if (!summary?.show || summary.columns.length === 0) return null;
+    if (!summary) {
+      return null;
+    }
+    if (!!summary && summary?.show === undefined) {
+      // 默認顯示總結欄
+    }
+    if (!summary?.show || summary.columns.length === 0) {
+      return null;
+    }
 
     // 決定使用哪個數據集進行計算
     const summaryData = summary.fixed ? sortedData : paginatedData;
     const allData = sortedData;
 
     return (
-      <tfoot className="bg-base-200">
+      <tfoot
+        className={cn(
+          'bg-base-200',
+          (summary.showDivider || summary.showDivider === undefined) ? 'border-t border-base-content/50' : ''
+        )}
+      >
+        {/* <tr>
+          <td colSpan={columns.length} className="text-left font-semibold">
+            總計
+          </td>
+        </tr> */}
         <tr className="font-semibold">
           {columns.map((column) => {
             const summaryColumn = summary.columns.find(sc => sc.key === column.key);
