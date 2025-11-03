@@ -3,7 +3,7 @@ import Modal, { ModalRef } from '@/components/Modal';
 import { EventMenuItem } from '@/types/LunchEvent';
 import { useEffect, useMemo, useRef } from 'react';
 import MealForm, { MealFormMode, MenuFormValues } from './MealForm';
-import { OrderItem } from '../page';
+import { EventOrderItem } from '@/app/lunch/types';
 
 export interface MealModalSettings {
   mode: MealFormMode;
@@ -12,7 +12,7 @@ export interface MealModalSettings {
   open: boolean;
   // Edit mode only  
   index?: number; // 編輯模式下的項目索引
-  values?: OrderItem;
+  values?: EventOrderItem;
 }
 
 interface AddMealModalProps {
