@@ -22,35 +22,15 @@ import { LunchEvent, LunchOrder, LunchOrderItem, User } from "@/prisma-generated
 import Breadcrumb from "@/components/Breadcrumb";
 import EventOrderSummaryTable, { EventOrderSummaryTableRef } from "../../../_components/EventOrderSummaryTable";
 import OrderDetailModal from "./_components/OrderDetailModal";
-import type { EventStatistics as EventStatisticsType } from "../../../types";
+import type { EventOrder, EventStatistics as EventStatisticsType, EventWithDetails, ItemSummary } from "../../../types";
 import { authFetch } from "@/libs/auth-fetch";
 import DataTable from "@/components/DataTable";
 
-interface EventOrder extends LunchOrder {
-  user: User;
-  items: LunchOrderItem[];
-}
-interface EventWithDetails extends LunchEvent {
+interface EventWithSummary extends EventWithDetails {
   orderCount: number;
   totalAmount: number;
   participantCount: number;
-  shop?: {
-    id: string;
-    name: string;
-    address?: string;
-    phone?: string;
-  };
-  owner?: {
-    id: string;
-    name: string;
-  };
-  orders: Array<EventOrder>;
-  itemSummary: Array<{
-    name: string;
-    quantity: number;
-    totalPrice: number;
-    orders: number;
-  }>;
+  itemSummary: Array<ItemSummary>;
 }
 
 export default function EventDetailPage() {
@@ -59,7 +39,7 @@ export default function EventDetailPage() {
   const eventId = params.id as string;
   const { user } = useAuthStore();
 
-  const [event, setEvent] = useState<EventWithDetails | null>(null);
+  const [event, setEvent] = useState<EventWithSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<EventOrder | null>(null);
@@ -156,9 +136,9 @@ export default function EventDetailPage() {
           existing.quantity += item.quantity;
           existing.totalPrice += item.price * item.quantity;
           existing.orders += 1;
-          existing.orderUsers.add(order.user.name);
+          existing.orderUsers.add(order.user?.name);
           existing.orderDetails.push({
-            userName: order.user.name,
+            userName: order.user?.name,
             quantity: item.quantity,
             orderNote: order.note || undefined,
             itemNote: item.note || undefined,
@@ -170,9 +150,9 @@ export default function EventDetailPage() {
             quantity: item.quantity,
             totalPrice: item.price * item.quantity,
             orders: 1,
-            orderUsers: new Set([order.user.name]),
+            orderUsers: new Set([order.user?.name]),
             orderDetails: [{
-              userName: order.user.name,
+              userName: order.user?.name,
               quantity: item.quantity,
               orderNote: order.note || undefined,
               itemNote: item.note || undefined,
@@ -184,7 +164,7 @@ export default function EventDetailPage() {
     }
 
     // 轉換餐點統計格式
-    const itemSummary = Array.from(itemMap.values()).map(item => ({
+    const itemSummary: ItemSummary[] = Array.from(itemMap.values()).map(item => ({
       name: item.name,
       quantity: item.quantity,
       totalPrice: item.totalPrice,
@@ -234,8 +214,8 @@ export default function EventDetailPage() {
   };
 
   const paidState = useMemo(() => {
-    const totalOrders = event?.orderCount || event?.orders.length || 0;
-    const paidOrders = event?.orders.filter(order => (order as any).is_paid).length || 0;
+    const totalOrders = event?.orderCount || event?.orders?.length || 0;
+    const paidOrders = event?.orders?.filter(order => (order as any).is_paid).length || 0;
     const unpaidOrders = totalOrders - paidOrders;
 
     return { totalOrders, paidOrders, unpaidOrders }
@@ -504,7 +484,7 @@ export default function EventDetailPage() {
                       {order.id.slice(-8)}
                     </td>
                     <td>
-                      {order.user.name}
+                      {order.user?.name}
                     </td>
                     <td>
                       <div className="max-w-xs">
