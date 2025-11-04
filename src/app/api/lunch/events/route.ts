@@ -45,11 +45,6 @@ export function getEventRequestFilters(request: NextRequest): LunchEventFilters 
         filters.eventDateTo = new Date(dateToParam);
     }
 
-    const includeToParam = searchParams.get('include');
-    if (includeToParam === 'statistics') {
-        filters.include = 'statistics';
-    }
-
     return filters;
 }
 

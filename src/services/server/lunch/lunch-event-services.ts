@@ -68,7 +68,6 @@ export interface LunchEventFilters {
     orderDeadlineFrom?: Date;
     orderDeadlineTo?: Date;
     allowCustomItems?: boolean;
-    include?: 'statistics';
 }
 
 // Lunch Event Service
