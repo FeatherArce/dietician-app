@@ -33,7 +33,7 @@ export default function RegisterPage() {
         router.push("/lunch");
       } else {
         console.log("Register failed:", { result });
-        toast.error("註冊失敗，請檢查輸入資料");
+        toast.error(`註冊失敗: ${result.error || result.message || "請檢查輸入資料是否正確"}`);
         if (result.errors && Array.isArray(result.errors)) {
           setErrors(result.errors);
         } else {
@@ -57,7 +57,11 @@ export default function RegisterPage() {
         <p className="text-center text-base-content/70 mb-6">
           建立您的新帳號
         </p>
-
+        {/* {errors.length > 0 && (
+          <div className="alert alert-error mb-4">
+            <div>{errors.join(", ")}</div>
+          </div>
+        )} */}
         <RegisterForm
           isLoading={isLoading}
           onFinish={handleFinish}
