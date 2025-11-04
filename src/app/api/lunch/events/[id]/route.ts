@@ -3,6 +3,21 @@ import { LunchEventFilters, lunchEventService } from '@/services/server/lunch/lu
 import { getSessionFromRequest } from '@/services/server/auth/request-utils';
 import { UserRole } from '@/prisma-generated/postgres-client';
 import { getAttendeesFromEventOrders, getEventRequestFilters } from '../route';
+import { EventOrder, EventOrderItem, EventWithOrders } from '@/app/lunch/types';
+
+interface UserOrderStatistic {
+    total: number;
+    order?: EventOrder;
+
+}
+
+interface LunchOrderItemStatistic {
+    name: string;
+    quantity: number;
+    price: number;
+    total: number;
+    items: EventOrderItem[];
+}
 
 export async function GET(
     request: NextRequest,
@@ -21,31 +36,49 @@ export async function GET(
         }
 
         const newEvent = getAttendeesFromEventOrders(event);
-        console.log('Fetched event:', event);
-        console.log('Transformed event:', newEvent);
-
-        // 如果需要詳細統計，計算額外的統計資料
-        if (filters.include === 'statistics') {
-            const participantSet = new Set();
-            let totalAmount = 0;
-
-            for (const order of (newEvent.orders || [])) {
-                if (order.user?.id) participantSet.add(order.user?.id);
-                totalAmount += order.total;
+        const totalAmount = (newEvent.orders || []).reduce((sum, order) => sum + order.total, 0);
+        
+        // 統計餐點的總數量 (不重複計算相同餐點)
+        const lunchOrderItemMap = new Map<string, LunchOrderItemStatistic>();
+        let paidOrdersCount = 0;
+        let unpaidOrdersCount = 0;
+        for (const order of newEvent.orders || []) {
+            if(order.is_paid) {
+                paidOrdersCount += 1;
+            } else {
+                unpaidOrdersCount += 1;
             }
-
-            // 添加統計資料到事件物件
-            const eventWithStats = {
-                ...newEvent,
-                orderCount: newEvent.orders.length,
-                totalAmount,
-                participantCount: participantSet.size
-            };
-
-            return NextResponse.json({ event: eventWithStats, success: true });
+            for (const item of order.items || []) {
+                const itemKey = `${item.name}-${item.price}`;
+                if (lunchOrderItemMap.has(itemKey)) {
+                    const existingItem = lunchOrderItemMap.get(itemKey)!;
+                    existingItem.quantity += item.quantity;
+                    existingItem.total += item.quantity * item.price;
+                    existingItem.items.push(item);
+                } else {
+                    lunchOrderItemMap.set(itemKey, {
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price,
+                        total: item.quantity * item.price,
+                        items: [item],
+                    });
+                }
+            }
         }
 
-        return NextResponse.json({ event, success: true });
+        // 添加統計資料到事件物件
+        const newEventWithOrders: EventWithOrders = {
+            ...newEvent,
+            _count: {
+                ...newEvent._count,
+                total_amount: totalAmount,
+                paid_orders: paidOrdersCount,
+                unpaid_orders: unpaidOrdersCount,
+            },
+        };
+
+        return NextResponse.json({ event: newEventWithOrders, success: true });
 
     } catch (error) {
         const resolvedParams = await params;
