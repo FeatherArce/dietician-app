@@ -1,37 +1,34 @@
 "use client";
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import Breadcrumb from "@/components/Breadcrumb";
+import DataTable from "@/components/DataTable";
+import { authFetch } from "@/libs/auth-fetch";
 import { useAuthStore } from "@/stores/auth-store";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FaArrowLeft,
-  FaEdit,
   FaCalendarAlt,
-  FaToggleOn,
-  FaToggleOff,
   FaClock,
-  FaMapMarkerAlt,
-  FaStore,
-  FaUsers,
-  FaShoppingCart,
   FaDollarSign,
-  FaEye,
-  FaDownload
+  FaDownload,
+  FaEdit,
+  FaMapMarkerAlt,
+  FaShoppingCart,
+  FaStore,
+  FaToggleOff,
+  FaToggleOn,
+  FaUsers
 } from "react-icons/fa";
-import { LunchEvent, LunchOrder, LunchOrderItem, User } from "@/prisma-generated/postgres-client";
-import Breadcrumb from "@/components/Breadcrumb";
 import EventOrderSummaryTable, { EventOrderSummaryTableRef } from "../../../_components/EventOrderSummaryTable";
-import OrderDetailModal from "./_components/OrderDetailModal";
-import type { EventOrder, EventStatistics as EventStatisticsType, EventWithDetails, ItemSummary } from "../../../types";
-import { authFetch } from "@/libs/auth-fetch";
-import DataTable from "@/components/DataTable";
+import type { EventOrder, EventWithDetails } from "../../../types";
 
-interface EventWithSummary extends EventWithDetails {
-  orderCount: number;
-  totalAmount: number;
-  participantCount: number;
-  itemSummary: Array<ItemSummary>;
-}
+// interface EventWithSummary extends EventWithDetails {
+//   orderCount: number;
+//   totalAmount: number;
+//   participantCount: number;
+//   itemSummary: Array<ItemSummary>;
+// }
 
 export default function EventDetailPage() {
   const params = useParams();
@@ -39,7 +36,7 @@ export default function EventDetailPage() {
   const eventId = params.id as string;
   const { user } = useAuthStore();
 
-  const [event, setEvent] = useState<EventWithSummary | null>(null);
+  const [event, setEvent] = useState<EventWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [isPaymentPending, startPaymentTransition] = useState(false);
@@ -48,7 +45,7 @@ export default function EventDetailPage() {
 
   const fetchEvent = useCallback(async () => {
     try {
-      const response = await fetch(`/api/lunch/events/${eventId}?include=details`);
+      const response = await fetch(`/api/lunch/events/${eventId}`);
       if (response.ok) {
         const data = await response.json();
         setEvent(data.event);
@@ -120,72 +117,6 @@ export default function EventDetailPage() {
     }
   };
 
-  // 轉換事件資料為統計格式
-  const getEventStatistics = (): EventStatisticsType | null => {
-    if (!event) return null;
-
-    // 從訂單資料中生成餐點統計
-    const itemMap = new Map();
-    const participantSet = new Set();
-
-    for (const order of event.orders || []) {
-      participantSet.add(order?.user?.id);
-
-      for (const item of order.items || []) {
-        const key = item.name;
-        if (itemMap.has(key)) {
-          const existing = itemMap.get(key);
-          existing.quantity += item.quantity;
-          existing.totalPrice += item.price * item.quantity;
-          existing.orders += 1;
-          existing.orderUsers.add(order.user?.name);
-          existing.orderDetails.push({
-            userName: order.user?.name,
-            quantity: item.quantity,
-            orderNote: order.note || undefined,
-            itemNote: item.note || undefined,
-            price: item.price
-          });
-        } else {
-          itemMap.set(key, {
-            name: item.name,
-            quantity: item.quantity,
-            totalPrice: item.price * item.quantity,
-            orders: 1,
-            orderUsers: new Set([order.user?.name]),
-            orderDetails: [{
-              userName: order.user?.name,
-              quantity: item.quantity,
-              orderNote: order.note || undefined,
-              itemNote: item.note || undefined,
-              price: item.price
-            }]
-          });
-        }
-      }
-    }
-
-    // 轉換餐點統計格式
-    const itemSummary: ItemSummary[] = Array.from(itemMap.values()).map(item => ({
-      name: item.name,
-      quantity: item.quantity,
-      totalPrice: item.totalPrice,
-      orders: item.orders,
-      orderUsers: Array.from(item.orderUsers) as string[],
-      orderDetails: item.orderDetails
-    }));
-
-    return {
-      id: event.id, // 加入必要的 id 字段
-      shop: event.shop,
-      totalOrders: event.orderCount || event.orders?.length || 0,
-      totalAmount: event.totalAmount || (event.orders?.reduce((sum, order) => sum + order.total, 0) || 0),
-      participantCount: event.participantCount || participantSet.size,
-      orders: (event.orders || []),
-      itemSummary
-    };
-  };
-
   const getStatusBadge = () => {
     if (!event) return null;
 
@@ -204,8 +135,8 @@ export default function EventDetailPage() {
   };
 
   const paidState = useMemo(() => {
-    const totalOrders = event?.orderCount || event?.orders?.length || 0;
-    const paidOrders = event?.orders?.filter(order => (order as any).is_paid).length || 0;
+    const totalOrders = event?._count?.orders || event?.orders?.length || 0;
+    const paidOrders = event?.orders?.filter(order => order.is_paid).length || 0;
     const unpaidOrders = totalOrders - paidOrders;
 
     return { totalOrders, paidOrders, unpaidOrders }
@@ -310,7 +241,7 @@ export default function EventDetailPage() {
             <FaShoppingCart className="w-8 h-8" />
           </div>
           <div className="stat-title">訂單數量</div>
-          <div className="stat-value text-primary">{event.orderCount}</div>
+          <div className="stat-value text-primary">{event._count?.orders}</div>
           <div className="stat-desc">總訂單數</div>
         </div>
 
@@ -319,7 +250,7 @@ export default function EventDetailPage() {
             <FaUsers className="w-8 h-8" />
           </div>
           <div className="stat-title">參與人數</div>
-          <div className="stat-value text-secondary">{event.participantCount}</div>
+          <div className="stat-value text-secondary">{event._count?.attendees}</div>
           <div className="stat-desc">下單人數</div>
         </div>
 
@@ -328,23 +259,31 @@ export default function EventDetailPage() {
             <FaDollarSign className="w-8 h-8" />
           </div>
           <div className="stat-title">總金額</div>
-          <div className="stat-value text-accent">${event.totalAmount}</div>
+          <div className="stat-value text-accent">${event._count?.total_amount}</div>
           <div className="stat-desc">累計消費</div>
         </div>
 
         <div className="stat bg-base-100 rounded-lg shadow-sm">
           <div className="stat-title">收款狀態</div>
           <div className="stat-value">
-            <span className="text-red-500">
-              {paidState.unpaidOrders}
-            </span>
-            <span> / </span>
-            <span>{paidState.totalOrders}</span>
+            {paidState.unpaidOrders > 0 ? (<>
+              <span className="text-red-500">
+                {paidState.unpaidOrders}
+              </span>
+              <span> / </span>
+              <span>{paidState.totalOrders}</span>
+            </>) : (<>
+              <span className="text-green-500">全部已收款</span>
+            </>)}
           </div>
           <div className="stat-desc">
-            <span className="text-red-500">未收款</span>
-            <span> / </span>
-            <span>已收款</span>
+            {paidState.unpaidOrders > 0 ? (<>
+              <span className="text-red-500">未收款</span>
+              <span> / </span>
+              <span>已收款</span>
+            </>) : (<>
+
+            </>)}
           </div>
         </div>
       </div>
@@ -547,7 +486,7 @@ export default function EventDetailPage() {
         <EventOrderSummaryTable
           ref={eventTableRef}
           showStatistics={false}
-          statistics={getEventStatistics()!}
+          event={event}
           className="w-full"
         />
       </div>
