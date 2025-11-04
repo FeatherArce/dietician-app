@@ -35,7 +35,7 @@ export default function MealModal({
   const initialValues: MenuFormValues = useMemo(() => {
     if (settings.mode === MealFormMode.EDIT && settings.values) {
       return {
-        menu_item_id: settings.values.menu_item_id,
+        menu_item_id: settings.values.menu_item_id || undefined,
         name: settings.values.name,
         // description: settings.values.description || '',
         price: settings.values.price,
