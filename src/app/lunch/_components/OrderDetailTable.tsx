@@ -1,48 +1,29 @@
 "use client";
 import DataTable from '@/components/DataTable';
 import { formatCurrency } from '@/libs/formatter';
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react';
 import { FaClipboardList, FaUserFriends } from 'react-icons/fa';
-import { EventStatistics } from '../types';
+import { EventWithDetails } from '../types';
 
 enum DisplayMode {
     ByUser = 'by-user',
     ByItem = 'by-item'
 }
 
-interface OrderDetailTableProps {
-    statistics: EventStatistics;
-    className?: string;
+interface OrderDetailTableProps extends React.HTMLAttributes<HTMLDivElement> {
+    event?: EventWithDetails;
 }
 
 // 把點餐明細改寫成表格形式顯示，並支援依使用者或依餐點兩種模式切換
-export default function OrderDetailTable({ statistics }: OrderDetailTableProps) {
+export default function OrderDetailTable({ event, ...props }: OrderDetailTableProps) {
     const [displayMode, setDisplayMode] = useState<DisplayMode>(DisplayMode.ByUser);
-
-
-    // 複製聯絡資訊到剪貼簿
-    const copyContactInfo = useCallback(async () => {
-        if (!statistics.shop) return;
-
-        const contactText = `
-店家：${statistics.shop.name}
-電話：${statistics.shop.phone || '未提供'}
-地址：${statistics.shop.address || '未提供'}
-        `.trim();
-
-        try {
-            await navigator.clipboard.writeText(contactText);
-            // 可以加入成功提示
-        } catch (err) {
-            console.error('複製失敗:', err);
-        }
-    }, [statistics.shop]);
 
     // #region Download Report
 
     // 生成統計報告文字
     const generateReportText = useCallback(() => {
-        const { shop, totalOrders, totalAmount, participantCount, orders, itemSummary } = statistics;
+        if (!event) return '';
+        const { shop, orders, _count, _statistics } = event;
 
         let report = `【訂餐統計報告】\n\n`;
 
@@ -57,39 +38,16 @@ export default function OrderDetailTable({ statistics }: OrderDetailTableProps) 
 
         // 統計摘要
         report += `統計摘要：\n`;
-        report += `　訂單數量：${totalOrders} 筆\n`;
-        report += `　參與人數：${participantCount} 人\n`;
-        report += `　總金額：${formatCurrency(totalAmount)}\n\n`;
-
-        // 依餐點統計
-        if (itemSummary.length > 0) {
-            report += `餐點統計：\n`;
-            itemSummary.forEach(item => {
-                report += `　${item.name}：${item.quantity} 份，${formatCurrency(item.totalPrice)}\n`;
-
-                // 如果有詳細訂單資訊，顯示每個訂購者和備註
-                if (item.orderDetails && item.orderDetails.length > 0) {
-                    item.orderDetails.forEach(detail => {
-                        report += `　　- ${detail.userName}：${detail.quantity} 份`;
-                        const notes = [];
-                        if (detail.itemNote) notes.push(`餐點備註：${detail.itemNote}`);
-                        if (detail.orderNote) notes.push(`訂單備註：${detail.orderNote}`);
-                        if (notes.length > 0) {
-                            report += ` (${notes.join(', ')})`;
-                        }
-                        report += `\n`;
-                    });
-                }
-            });
-            report += `\n`;
-        }
+        report += `　訂單數量：${_count?.orders || 0} 筆\n`;
+        report += `　參與人數：${_count?.attendees || 0} 人\n`;
+        report += `　總金額：${formatCurrency(_count?.total_amount || 0)}\n\n`;
 
         // 依使用者統計
-        if (orders.length > 0) {
+        if ((orders || []).length > 0) {
             report += `使用者訂單：\n`;
-            orders.forEach(order => {
+            (orders || []).forEach(order => {
                 report += `　${order.user?.name}：${formatCurrency(order.total)}\n`;
-                order.items.forEach(item => {
+                (order.items || []).forEach(item => {
                     report += `　　- ${item.name} x${item.quantity}\n`;
                 });
                 if (order.note) {
@@ -99,8 +57,10 @@ export default function OrderDetailTable({ statistics }: OrderDetailTableProps) 
             });
         }
 
+        // TODO: 依餐點統計 
+
         return report;
-    }, [statistics]);
+    }, [event]);
 
     // 下載統計報告
     const downloadReport = useCallback(() => {
@@ -119,9 +79,9 @@ export default function OrderDetailTable({ statistics }: OrderDetailTableProps) 
     // #endregion
 
     return (
-        <div className='grid grid-rows-[auto_1fr]'>
+        <div className='grid grid-rows-[auto_1fr] w-full overflow-x-auto space-y-4' {...props}>
             {/* 明細顯示模式切換 */}
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center">
                 <div className="join">
                     <button
                         className={`join-item btn btn-sm ${displayMode === DisplayMode.ByUser ? 'btn-active' : 'btn-outline'}`}
@@ -141,31 +101,29 @@ export default function OrderDetailTable({ statistics }: OrderDetailTableProps) 
             </div>
 
             {/* 詳細明細 */}
-            <div className="space-y-4">
-                {displayMode === 'by-user' ? (
-                    // 依使用者顯示
-                    <div>
-                        <h4 className="font-semibold mb-3 flex items-center gap-2">
-                            <FaUserFriends className="text-info" />
-                            使用者訂單明細
-                        </h4>
-                        <div className="space-y-3">
-                            <UserOrderDetailTable statistics={statistics} />
-                        </div>
+            {displayMode === 'by-user' ? (
+                // 依使用者顯示
+                <div className='w-full max-w-full overflow-auto'>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                        <FaUserFriends className="text-info" />
+                        使用者訂單明細
+                    </h4>
+                    <div className="space-y-3">
+                        <UserOrderDetailTable event={event} />
                     </div>
-                ) : (
-                    // 依餐點顯示
-                    <div>
-                        <h4 className="font-semibold mb-3 flex items-center gap-2">
-                            <FaClipboardList className="text-info" />
-                            餐點統計明細
-                        </h4>
-                        <div className="space-y-3">
-                            <MenuOrderDetailTable statistics={statistics} />
-                        </div>
+                </div>
+            ) : (
+                // 依餐點顯示
+                <div className='w-full max-w-full overflow-auto'>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                        <FaClipboardList className="text-info" />
+                        餐點統計明細
+                    </h4>
+                    <div className="space-y-3">
+                        <MenuOrderDetailTable event={event} />
                     </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     )
 }
@@ -179,10 +137,10 @@ interface OrderDetailTableSource extends Record<string, unknown> {
     note?: string;
 }
 
-function UserOrderDetailTable({ statistics }: { statistics: EventStatistics }) {
+function UserOrderDetailTable({ event }: { event?: EventWithDetails }) {
     const orderDetails = useMemo(() => {
         const newDetails: Array<OrderDetailTableSource> = [];
-        (statistics.orders || []).forEach(order => {
+        (event?.orders || []).forEach(order => {
             (order.items || []).forEach(item => {
                 newDetails.push({
                     is_paid: (order as any).is_paid,
@@ -195,7 +153,7 @@ function UserOrderDetailTable({ statistics }: { statistics: EventStatistics }) {
             });
         });
         return newDetails;
-    }, [statistics]);
+    }, [event]);
 
     return (
         <DataTable<OrderDetailTableSource>
@@ -245,7 +203,7 @@ function UserOrderDetailTable({ statistics }: { statistics: EventStatistics }) {
     );
 }
 
-function MenuOrderDetailTable({ statistics }: { statistics: EventStatistics }) {
+function MenuOrderDetailTable({ event }: { event?: EventWithDetails }) {
     const orderDetails = useMemo(() => {
         // 依餐點彙總訂單明細
         const detailsMap: Map<string, {
@@ -256,7 +214,7 @@ function MenuOrderDetailTable({ statistics }: { statistics: EventStatistics }) {
             items: Array<OrderDetailTableSource>;
         }> = new Map();
 
-        (statistics.orders || []).forEach(order => {
+        (event?.orders || []).forEach(order => {
             (order.items || []).forEach(item => {
                 const key = item.name;
                 const existing = detailsMap.get(key);
@@ -303,7 +261,7 @@ function MenuOrderDetailTable({ statistics }: { statistics: EventStatistics }) {
         });
 
         return Array.from(detailsMap.values());
-    }, [statistics]);
+    }, [event]);
 
     return (
         <DataTable
