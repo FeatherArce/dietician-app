@@ -88,7 +88,7 @@ export default function OrderDetailTable({ statistics }: OrderDetailTableProps) 
         if (orders.length > 0) {
             report += `使用者訂單：\n`;
             orders.forEach(order => {
-                report += `　${order.user.name}：${formatCurrency(order.total)}\n`;
+                report += `　${order.user?.name}：${formatCurrency(order.total)}\n`;
                 order.items.forEach(item => {
                     report += `　　- ${item.name} x${item.quantity}\n`;
                 });
@@ -186,11 +186,11 @@ function UserOrderDetailTable({ statistics }: { statistics: EventStatistics }) {
             (order.items || []).forEach(item => {
                 newDetails.push({
                     is_paid: (order as any).is_paid,
-                    username: order.user?.name,
+                    username: order.user?.name || '',
                     name: item.name,
                     price: item.price,
                     quantity: item.quantity,
-                    note: item.note
+                    note: item.note || undefined,
                 });
             });
         });
@@ -265,11 +265,11 @@ function MenuOrderDetailTable({ statistics }: { statistics: EventStatistics }) {
                     const newItems = existing.items;
                     newItems.push({
                         is_paid: (order as any).is_paid,
-                        username: order.user?.name,
+                        username: order.user?.name || '',
                         name: item.name,
                         price: item.price,
                         quantity: item.quantity,
-                        note: item.note
+                        note: item.note || undefined
                     });
                     existing.items = newItems;
                     const newNotes = existing.notes;
@@ -285,11 +285,11 @@ function MenuOrderDetailTable({ statistics }: { statistics: EventStatistics }) {
                     const newItems = [];
                     newItems.push({
                         is_paid: (order as any).is_paid,
-                        username: order.user?.name,
+                        username: order.user?.name || '',
                         name: item.name,
                         price: item.price,
                         quantity: item.quantity,
-                        note: item.note
+                        note: item.note || undefined
                     });
                     detailsMap.set(key, {
                         name: item.name,
