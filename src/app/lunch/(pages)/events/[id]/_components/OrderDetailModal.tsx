@@ -169,7 +169,7 @@ export default function OrderDetailModal({ isOpen, onClose, order }: OrderDetail
                                 <FaUser className="w-3 h-3" />
                                 訂購人
                             </label>
-                            <div className="font-semibold">{order.user.name}</div>
+                            <div className="font-semibold">{order.user?.name}</div>
                         </div>
                         <div>
                             <label className="text-sm text-base-content/70 flex items-center gap-1">
