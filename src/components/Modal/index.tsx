@@ -1,6 +1,7 @@
+import { cn } from '@/libs/utils';
 import React, { useCallback, useImperativeHandle, useMemo } from 'react'
 
-interface ModalProps {
+interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
     id: string;
     title?: string;
     action?: React.ReactNode;
@@ -27,8 +28,9 @@ function Modal({
     onOk,
     okText = '確定',
     onClose,
-    closeText = '取消'
-
+    closeText = '取消',
+    className,
+    ...props
 }: ModalProps, ref: React.Ref<ModalRef>) {
     const open = useCallback(() => {
         (document.getElementById(id) as HTMLDialogElement | null)?.showModal();
@@ -54,7 +56,7 @@ function Modal({
 
     return (
         <dialog id={id} className={`modal`}>
-            <div className="modal-box space-y-2">
+            <div className={cn('modal-box space-y-2', className)} {...props}>
                 <div className=''>
                     {/* if there is a button in form, it will close the modal */}
                     <button
@@ -74,7 +76,7 @@ function Modal({
                 </div>}
             </div>
             {/* Modal backdrop */}
-            <div className="modal-backdrop">
+            <div className="modal-backdrop w-full">
                 <button onClick={handleClose}>close</button>
             </div>
         </dialog >
