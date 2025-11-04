@@ -190,15 +190,10 @@ function Form2(
           await onFinish(latestValues);
         }
       } else {
-        if (onFinishFailed) {
-          onFinishFailed({ values, errors: validResult.errors });
-        }
+        onFinishFailed?.({ values, errors: validResult.errors });
       }
     } catch (error) {
-      console.error('Form submission error:', error);
-      if (onFinishFailed) {
-        onFinishFailed({ values, errors });
-      }
+      onFinishFailed?.({ values, errors });
     }
   }, [values, errors, onFinish, onFinishFailed, validateFields]);
 
@@ -233,7 +228,7 @@ function Form2(
 
   useImperativeHandle(ref, () => ({
     submit: () => {
-       formRef.current?.requestSubmit();       
+      formRef.current?.requestSubmit();
     },
     reset: () => {
       formRef.current?.reset();
@@ -246,7 +241,10 @@ function Form2(
     },
     setFieldValue,
     setFieldsValue,
-  }), [formRef, stableInitialValues, validateFields, setFieldValue, setFieldsValue]);
+    setErrors: (newErrors: FormErrors) => {
+      setErrors(newErrors);
+    },
+  }), [formRef, stableInitialValues, validateFields, setFieldValue, setFieldsValue, setErrors]);
 
   return (
     <FormContext.Provider value={contextValue}>

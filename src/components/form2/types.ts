@@ -64,6 +64,7 @@ export interface Form2Ref {
   validate?: () => Promise<FormValidateResult>;
   setFieldValue: (name: string | (string | number)[], value: unknown) => void;
   setFieldsValue: (newValues: FormValues) => void;
+  setErrors?: (newErrors: FormErrors) => void;
 }
 
 // 表單項目屬性接口
