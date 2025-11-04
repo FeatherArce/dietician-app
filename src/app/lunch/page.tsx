@@ -1,11 +1,14 @@
 "use client";
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import Modal, { ModalRef } from '@/components/Modal';
 import PageContainer from '@/components/page/PageContainer';
 import SearchContainer from '@/components/SearchContainer';
 import { Select } from '@/components/SearchContainer/SearchFields';
+import { ROUTE_CONSTANTS } from '@/constants/app-constants';
+import { authFetch } from '@/libs/auth-fetch';
 import { useAuthStore } from '@/stores/auth-store';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     FaCalendarAlt,
     FaPlus,
@@ -14,12 +17,10 @@ import {
 import EventCard from './_components/EventCard';
 import EventOrderSummaryTable from './_components/EventOrderSummaryTable';
 import OrderDetailModal from './_components/OrderDetailModal';
-import type { EventStatistics as EventStatisticsType, EventWithDetails, MyOrder } from './types';
-import { AUTH_CONSTANTS, ROUTE_CONSTANTS } from '@/constants/app-constants';
-import { authFetch } from '@/libs/auth-fetch';
+import type { EventWithDetails, MyOrder } from './types';
 
 enum EventActiveType {
-    ACTIVE = 'active',      
+    ACTIVE = 'active',
     INACTIVE = 'inactive'
 }
 
@@ -44,8 +45,8 @@ export default function LunchPage() {
     const [showOrderModal, setShowOrderModal] = useState(false);
 
     // 個別事件統計相關狀態
-    const [eventStats, setEventStats] = useState<EventStatisticsType | null>(null);
-    const [showEventStats, setShowEventStats] = useState(false);
+    const statisticModalRef = useRef<ModalRef>(null);
+    const [selectedEvent, setSelectedEvent] = useState<EventWithDetails | undefined>(undefined);
     const [loadingEventStats, setLoadingEventStats] = useState(false);
 
     const filteredEvents = useMemo(() => {
@@ -96,89 +97,19 @@ export default function LunchPage() {
     }, [user?.id]);
 
     // 獲取個別事件統計資料
-    const fetchEventStats = useCallback(async (eventId: string) => {
+    const fetchEventById = useCallback(async (eventId: string) => {
         if (!user?.id) return;
 
         setLoadingEventStats(true);
         try {
-            const response = await authFetch(`/api/lunch/events/${eventId}?include=details`);
+            const response = await authFetch(`/api/lunch/events/${eventId}`);
 
             if (response.ok) {
                 const data = await response.json();
                 if (data.success && data.event) {
                     // 轉換事件資料為統計格式 (複用事件詳細頁面的邏輯)
-                    const event = data.event;
-                    const itemMap = new Map();
-                    const participantSet = new Set();
-
-                    for (const order of event.orders || []) {
-                        participantSet.add(order.user.id);
-
-                        for (const item of order.items || []) {
-                            const key = item.name;
-                            if (itemMap.has(key)) {
-                                const existing = itemMap.get(key);
-                                existing.quantity += item.quantity;
-                                existing.totalPrice += item.price * item.quantity;
-                                existing.orders += 1;
-                                existing.orderUsers.add(order.user.name);
-                                existing.orderDetails.push({
-                                    userName: order.user.name,
-                                    quantity: item.quantity,
-                                    orderNote: order.note || undefined,
-                                    itemNote: item.note || undefined,
-                                    price: item.price
-                                });
-                            } else {
-                                itemMap.set(key, {
-                                    name: item.name,
-                                    quantity: item.quantity,
-                                    totalPrice: item.price * item.quantity,
-                                    orders: 1,
-                                    orderUsers: new Set([order.user.name]),
-                                    orderDetails: [{
-                                        userName: order.user.name,
-                                        quantity: item.quantity,
-                                        orderNote: order.note || undefined,
-                                        itemNote: item.note || undefined,
-                                        price: item.price
-                                    }]
-                                });
-                            }
-                        }
-                    }
-
-                    const eventStatistics = {
-                        id: event.id,
-                        shop: event.shop,
-                        totalOrders: event.orderCount || event.orders?.length || 0,
-                        totalAmount: event.totalAmount || (event.orders?.reduce((sum: number, order: any) => sum + order.total, 0) || 0),
-                        participantCount: event.participantCount || participantSet.size,
-                        orders: (event.orders || []).map((order: any) => ({
-                            id: order.id,
-                            total: order.total,
-                            note: order.note || undefined,
-                            created_at: order.created_at,
-                            user: order.user,
-                            items: (order.items || []).map((item: any) => ({
-                                id: item.id,
-                                name: item.name,
-                                quantity: item.quantity,
-                                price: item.price,
-                                note: item.note || undefined
-                            }))
-                        })),
-                        itemSummary: Array.from(itemMap.values()).map(item => ({
-                            name: item.name,
-                            quantity: item.quantity,
-                            totalPrice: item.totalPrice,
-                            orders: item.orders,
-                            orderUsers: Array.from(item.orderUsers) as string[],
-                            orderDetails: item.orderDetails
-                        }))
-                    };
-
-                    setEventStats(eventStatistics);
+                    const event = data.event as EventWithDetails;
+                    setSelectedEvent(event);
                 }
             }
         } catch (error) {
@@ -196,19 +127,18 @@ export default function LunchPage() {
     }, [isAuthenticated, isLoading, user?.id, fetchEvents, fetchMyOrders]);
 
     // 顯示事件統計
-    const showEventStatistics = (eventId: string) => {
-        setShowEventStats(true);
-        fetchEventStats(eventId);
+    const handleEventCardShowStats = (eventId: string) => {
+        statisticModalRef.current?.open();
+        fetchEventById(eventId);
     };
 
     // 關閉事件統計
-    const closeEventStatistics = () => {
-        setShowEventStats(false);
-        setEventStats(null);
+    const handleStatisticsModalClose = () => {
+        setSelectedEvent(undefined);
     };
 
     // 檢查用戶是否有特定活動的訂單
-    const getUserOrderForEvent = (eventId: string): MyOrder | null => {
+    const handleEventCardGetUserOrderForEvent = (eventId: string): MyOrder | null => {
         return myOrders.find(order => order.event.id === eventId) || null;
     };
 
@@ -219,7 +149,7 @@ export default function LunchPage() {
     };
 
     // 顯示訂單詳情
-    const showOrderDetail = (order: MyOrder) => {
+    const handleEventCardShowOrderDetail = (order: MyOrder) => {
         setSelectedOrder(order);
         setShowOrderModal(true);
     };
@@ -338,9 +268,9 @@ export default function LunchPage() {
                                 key={event.id}
                                 event={event}
                                 user={user}
-                                getUserOrderForEvent={getUserOrderForEvent}
-                                onShowOrderDetail={showOrderDetail}
-                                onShowEventStats={showEventStatistics}
+                                getUserOrderForEvent={handleEventCardGetUserOrderForEvent}
+                                onShowOrderDetail={handleEventCardShowOrderDetail}
+                                onShowEventStats={handleEventCardShowStats}
                             />
                         ))}
                     </div>
@@ -358,38 +288,27 @@ export default function LunchPage() {
                     onClose={closeOrderModal}
                 />
 
-                {/* 事件統計 Modal */}
-                {showEventStats && (
-                    <div className="modal modal-open">
-                        <div className="modal-box w-11/12 max-w-7xl">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="font-bold text-lg">事件統計</h3>
-                                <button
-                                    className="btn btn-sm btn-circle btn-ghost"
-                                    onClick={closeEventStatistics}
-                                >
-                                    ✕
-                                </button>
-                            </div>
-
-                            {loadingEventStats ? (
-                                <div className="flex justify-center py-8">
-                                    <span className="loading loading-spinner loading-lg"></span>
-                                </div>
-                            ) : eventStats ? (
-                                <EventOrderSummaryTable
-                                    statistics={eventStats}
-                                    className="w-full"
-                                />
-                            ) : (
-                                <div className="text-center py-8">
-                                    <p className="text-base-content/70">無法載入統計資料</p>
-                                </div>
-                            )}
-                        </div>
-                        <div className="modal-backdrop" onClick={closeEventStatistics}></div>
-                    </div>
-                )}
+                <Modal
+                    ref={statisticModalRef}
+                    id='event-statistics-modal'
+                    className='w-11/12 max-w-5xl'
+                    title='事件統計'
+                    closeText='關閉'
+                    onOk={() => {
+                        console.log('onOk');
+                        statisticModalRef.current?.open();
+                    }}
+                    onClose={() => {
+                        statisticModalRef.current?.close();
+                        handleStatisticsModalClose();
+                    }}
+                    loading={loadingEventStats}
+                >
+                    <EventOrderSummaryTable
+                        event={selectedEvent}
+                        className="w-full"
+                    />
+                </Modal>
             </PageContainer>
         </ErrorBoundary>
     );
