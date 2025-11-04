@@ -119,12 +119,12 @@ export class EdgeSessionService {
                 return null;
             }
 
-            console.log('[TOKEN VERIFY] Token verified successfully:', {
-                userId: decodedPayload.userId,
-                role: decodedPayload.role,
-                exp: decodedPayload.exp,
-                now
-            });
+            // console.log('[TOKEN VERIFY] Token verified successfully:', {
+            //     userId: decodedPayload.userId,
+            //     role: decodedPayload.role,
+            //     exp: decodedPayload.exp,
+            //     now
+            // });
             
             return decodedPayload;
         } catch (error) {

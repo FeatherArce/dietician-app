@@ -50,7 +50,7 @@ async function validateSession(request: NextRequest) {
     }
 
     try {
-        console.log('[MIDDLEWARE DEBUG] Verifying token...');
+        // console.log('[MIDDLEWARE DEBUG] Verifying token...');
         const session = await EdgeSessionService.verifyAccessToken(token);
         
         if (!session) {
