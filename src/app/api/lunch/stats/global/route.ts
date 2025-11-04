@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/services/prisma';
-import type { EventStatistics } from '@/app/lunch/types';
+import type { EventOrder, EventStatistics } from '@/app/lunch/types';
 
 export async function GET(request: NextRequest) {
     try {
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
             where: {
                 OR: [
                     { owner_id: userId }, // 使用者建立的活動
-                    { 
+                    {
                         orders: {
                             some: { user_id: userId } // 使用者有訂單的活動
                         }
@@ -38,18 +38,11 @@ export async function GET(request: NextRequest) {
                         user: {
                             select: {
                                 id: true,
-                                name: true
+                                name: true,
+                                email: true,
                             }
                         },
-                        items: {
-                            select: {
-                                id: true,
-                                name: true,
-                                quantity: true,
-                                price: true,
-                                note: true
-                            }
-                        }
+                        items: true
                     }
                 }
             }
@@ -69,7 +62,7 @@ export async function GET(request: NextRequest) {
         // 計算總統計
         let totalOrders = 0;
         let totalAmount = 0;
-        const allOrders = [];
+        const allOrders: Array<EventOrder> = [];
         const itemMap = new Map();
         const participantSet = new Set();
 
@@ -79,21 +72,8 @@ export async function GET(request: NextRequest) {
                 totalOrders++;
                 totalAmount += order.total;
                 participantSet.add(order.user_id);
-                
-                allOrders.push({
-                    id: order.id,
-                    total: order.total,
-                    note: order.note || undefined,
-                    created_at: order.created_at,
-                    user: order.user,
-                    items: order.items.map(item => ({
-                        id: item.id,
-                        name: item.name,
-                        quantity: item.quantity,
-                        price: item.price,
-                        note: item.note || undefined
-                    }))
-                });
+
+                allOrders.push(order);
 
                 // 計算餐點統計
                 for (const item of order.items) {
