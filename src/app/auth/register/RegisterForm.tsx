@@ -56,8 +56,8 @@ export default function RegisterForm({
                         message: '請輸入密碼'
                     },
                     {
-                        min: 6,
-                        message: '密碼至少需要 6 個字符'
+                        min: 8,
+                        message: '密碼至少需要 8 個字符'
                     },
                     {
                         max: 100,
