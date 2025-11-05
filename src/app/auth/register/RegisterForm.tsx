@@ -16,7 +16,7 @@ export default function RegisterForm({
             autoComplete="off"
             {...props}
         >
-            <FormItem
+            <Form2.Item
                 name='email'
                 label='電子信箱'
                 rules={[
@@ -35,8 +35,8 @@ export default function RegisterForm({
                 ]}
             >
                 <Input type='email' placeholder='請輸入電子信箱' autoComplete='email' />
-            </FormItem>
-            <FormItem
+            </Form2.Item>
+            <Form2.Item
                 name='name'
                 label='使用者名稱'
                 rules={[
@@ -46,8 +46,8 @@ export default function RegisterForm({
                 ]}
             >
                 <Input type='text' placeholder='請輸入使用者名稱' autoComplete='new-user-name' />
-            </FormItem>
-            <FormItem
+            </Form2.Item>
+            <Form2.Item
                 name='password'
                 label='密碼'
                 rules={[
@@ -66,8 +66,8 @@ export default function RegisterForm({
                 ]}
             >
                 <Input type='password' placeholder='請輸入密碼' autoComplete='new-password' />
-            </FormItem>
-            <FormItem
+            </Form2.Item>
+            <Form2.Item
                 name='confirmPassword'
                 label='確認密碼'
                 rules={[
@@ -86,7 +86,7 @@ export default function RegisterForm({
                 ]}
             >
                 <Input type='password' placeholder='請再次輸入密碼' autoComplete='user-password' />
-            </FormItem>
+            </Form2.Item>
             <div className="form-control mt-6">
                 <button
                     type="submit"
