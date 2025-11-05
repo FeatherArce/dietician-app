@@ -9,12 +9,19 @@
 - [x] Fixed Notification API: global api not regester
 - [x] Fixed Toast API: global api not regester
 - [x] 新增的餐點如果跟既有餐點一致，則應直接整併數量
-- [ ] 新增 guest 訂餐
-- [ ] 新增餐點選項 (Sizes、rice...)
 - [x] Fixed profile page
-- [ ] Fixed lunch event disable ui & loading
-- [ ] 進展 email 篩選規則: 排除生日、電話的數值組合
+- [x] Fixed lunch event disable ui & loading
+- [x] 進展 email 篩選規則: 排除生日、電話的數值組合
+
+不執行
+- 新增 guest 訂餐 => 後續實作通知、分析需要帳號
+- 新增餐點選項 (Sizes、rice...) => 以備註的 shortcut link 實現
 
 ### 2025-11-02
 
 - [x] Fixed vercel deploy middleware cann't recognize token correctly
+
+### 2025-12-05
+
+- [ ] Fixed new account login won't redirect to /lunch, only occurs on vercel deploy
+- [ ] Admin function to turn custom order item to shop menu item
