@@ -37,6 +37,17 @@ export const useAuthStore = create<AuthState>()(
       },
 
       login: (user, token) => {
+        console.log('[AUTH STORE] Login called with:', { 
+          userEmail: user?.email, 
+          hasToken: !!token 
+        });
+        
+        // 檢查 token 是否存在
+        if (!token) {
+          console.error('[AUTH STORE] Login called without token');
+          return;
+        }
+        
         // 儲存 token 到 localStorage
         localStorage.setItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY, token);
         localStorage.setItem(AUTH_CONSTANTS.PREFERENCE_THEME_KEY, user.preferred_theme || 'light');
@@ -46,6 +57,8 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
           isLoading: false 
         });
+        
+        console.log('[AUTH STORE] Login state updated successfully');
       },
 
       logout: async () => {
@@ -76,7 +89,10 @@ export const useAuthStore = create<AuthState>()(
       refreshUser: async () => {
         const token = localStorage.getItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY);
         
+        console.log('[AUTH STORE] Refreshing user, token exists:', !!token);
+        
         if (!token) {
+          console.log('[AUTH STORE] No token found, setting unauthenticated state');
           set({ 
             user: null, 
             isAuthenticated: false,
@@ -86,6 +102,7 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
+          console.log('[AUTH STORE] Calling /api/auth/me with token');
           const response = await fetch('/api/auth/me', {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -94,6 +111,7 @@ export const useAuthStore = create<AuthState>()(
           
           if (response.ok) {
             const data = await response.json();
+            console.log('[AUTH STORE] Successfully refreshed user:', data.user?.email);
             set({ 
               user: data.user, 
               isAuthenticated: true,
@@ -101,6 +119,7 @@ export const useAuthStore = create<AuthState>()(
             });
           } else {
             // Token 無效，清除本地狀態
+            console.log('[AUTH STORE] Token invalid, clearing local state');
             localStorage.removeItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY);
             set({ 
               user: null, 
@@ -109,7 +128,7 @@ export const useAuthStore = create<AuthState>()(
             });
           }
         } catch (error) {
-          console.error('Failed to refresh user:', error);
+          console.error('[AUTH STORE] Failed to refresh user:', error);
           set({ 
             user: null, 
             isAuthenticated: false,
@@ -119,8 +138,10 @@ export const useAuthStore = create<AuthState>()(
       },
 
       initializeAuth: async () => {
+        console.log('[AUTH STORE] Initializing auth...');
         set({ isLoading: true });
         await get().refreshUser();
+        console.log('[AUTH STORE] Auth initialization completed');
       },
     }),
     {
