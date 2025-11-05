@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { register } from "@/services/client/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import RegisterForm from "./RegisterForm";
 import { toast } from "@/components/Toast";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
@@ -13,7 +13,16 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+
+  // 檢查使用者是否已登入，如果是則重定向
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      console.log('[REGISTER PAGE] User is authenticated, redirecting...');
+      toast.info("您已登入，正在跳轉...");
+      router.push("/lunch");
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   const handleFinish = useCallback(async (values: any) => {
     setIsLoading(true);
@@ -27,10 +36,20 @@ export default function RegisterPage() {
         toast.success("註冊成功！正在為您登入...");
 
         // 註冊成功，使用 Zustand store 儲存登入狀態
-        login(result.user, result.token);
-
-        // 重定向到主頁
-        router.push("/lunch");
+        if (result.user && result.token) {
+          login(result.user, result.token);
+          console.log("Login state updated with:", { user: result.user.email, hasToken: !!result.token });
+          
+          // 重定向到主頁
+          router.push("/lunch");
+        } else {
+          console.error("Registration succeeded but missing user or token:", { 
+            hasUser: !!result.user, 
+            hasToken: !!result.token 
+          });
+          toast.error("註冊成功但登入失敗，請手動登入");
+          router.push("/auth/login");
+        }
       } else {
         console.log("Register failed:", { result });
         toast.error(`註冊失敗: ${result.error || result.message || "請檢查輸入資料是否正確"}`);
@@ -47,6 +66,16 @@ export default function RegisterPage() {
       setIsLoading(false);
     }
   }, [login, router]);
+
+  // 如果正在檢查認證狀態或已登入，顯示載入狀態
+  if (authLoading || isAuthenticated) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="loading loading-spinner loading-lg"></div>
+        <span className="ml-2">檢查登入狀態中...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-base-200 flex items-center justify-center">
