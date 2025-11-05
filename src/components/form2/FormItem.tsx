@@ -236,8 +236,8 @@ export default function FormItem({
             )}
         >
             {label && (
-                <label className="label">
-                    <span className="label-text">{label}</span>
+                <label className="form-item-label">
+                    <span className="form-item-label-text">{label}</span>
                     {isRequired && <span className="text-red-500"> *</span>}
                 </label>
             )}

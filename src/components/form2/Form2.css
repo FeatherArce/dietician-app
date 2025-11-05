@@ -1,7 +1,7 @@
 /* Form2 組件的基礎樣式 */
 
 :root {
-  --border-b3 : #cccccc;
+  --border-b3: #cccccc;
 }
 
 .form2 {
@@ -17,6 +17,10 @@
   font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: 0.25rem;
+}
+
+.form-item-label-text {
+  color: color-mix(in oklab, currentcolor 60%, transparent)
 }
 
 .form-item-required {
