@@ -13,7 +13,8 @@ const protectedRoutes = [
     '/api/erp'
 ];
 
-const homepage = '/';
+const rootPage = '/';
+const defaultAuthRedirectPage = '/lunch';
 
 // 認證相關路由（已登入時重定向）
 const authRoutes = [
@@ -39,11 +40,11 @@ function matchesPattern(pathname: string, patterns: string[]): boolean {
  */
 async function validateSession(request: NextRequest) {
     const token = request.cookies.get(AUTH_CONSTANTS.ACCESS_TOKEN_KEY)?.value;
-    
+
     // 調試：記錄 Cookie 狀態
     // console.log('[MIDDLEWARE DEBUG] All cookies:', request.cookies.getAll());
     // console.log('[MIDDLEWARE DEBUG] Token exists:', !!token);
-    
+
     if (!token) {
         console.log('[MIDDLEWARE DEBUG] No token found in cookies');
         return null;
@@ -52,12 +53,12 @@ async function validateSession(request: NextRequest) {
     try {
         // console.log('[MIDDLEWARE DEBUG] Verifying token...');
         const session = await EdgeSessionService.verifyAccessToken(token);
-        
+
         if (!session) {
             console.log('[MIDDLEWARE DEBUG] Token verification returned null/falsy');
             return null;
         }
-        
+
         // console.log('[MIDDLEWARE DEBUG] Token verified successfully:', {
         //     userId: session.userId,
         //     role: session.role,
@@ -65,7 +66,7 @@ async function validateSession(request: NextRequest) {
         //     iat: session.iat,
         //     now: Math.floor(Date.now() / 1000)
         // });
-        
+
         return session;
     } catch (error) {
         console.error('[MIDDLEWARE DEBUG] Token validation error:', error);
@@ -118,18 +119,30 @@ export async function middleware(request: NextRequest) {
     const session = await validateSession(request);
     const isAuthenticated = !!session;
 
-    if (pathname === homepage) {
+    // 處理根目錄路由
+    if (pathname === rootPage) {
         return NextResponse.next();
     }
 
-    // 處理認證路由（登入/註冊頁面）
+    // 處理認證路由（Root/登入/註冊頁面）
     if (matchesPattern(pathname, authRoutes)) {
+        console.log(`[MIDDLEWARE] Auth route accessed: ${pathname}, isAuthenticated: ${isAuthenticated}`);
+        
         if (isAuthenticated) {
             // 已登入使用者重定向到主頁或上次訪問頁面
-            const redirectTo = request.nextUrl.searchParams.get('redirect') || '/';
-            return createRedirect(redirectTo, request);
+            const redirectTo = request.nextUrl.searchParams.get('redirect');
+            const finalRedirect = redirectTo || defaultAuthRedirectPage;
+            
+            console.log(`[MIDDLEWARE] Redirecting authenticated user from ${pathname} to ${finalRedirect}`);
+            
+            if (redirectTo) {
+                return createRedirect(redirectTo, request);
+            } else {
+                return createRedirect(defaultAuthRedirectPage, request);
+            }
         }
         // 未登入使用者可以訪問認證頁面
+        console.log(`[MIDDLEWARE] Allowing unauthenticated access to ${pathname}`);
         return NextResponse.next();
     }
 
