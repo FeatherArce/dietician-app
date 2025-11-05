@@ -30,7 +30,9 @@ export async function POST(request: NextRequest) {
         
         // 設定 HTTP-only cookie
         const response = NextResponse.json({
+            success: true,
             user: user,
+            token: token,  // 也返回 token 給前端使用
             message: 'Registration successful'
         });
         
@@ -38,7 +40,7 @@ export async function POST(request: NextRequest) {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60 // 7 days
+            maxAge: 24 * 60 * 60 // 1 day
         });
         
         return response;
