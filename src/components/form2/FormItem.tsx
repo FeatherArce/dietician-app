@@ -229,15 +229,15 @@ export default function FormItem({
     return (
         <div
             className={cn(
-                'form-item',
+                'form-item space-y-1',
                 className,
                 showError ? 'form-item-error' : '',
                 hidden ? 'hidden' : ''
             )}
         >
             {label && (
-                <label className="form-item-label">
-                    <span className="form-item-label-text text-base">{label}</span>
+                <label className="label">
+                    <span className="label-text">{label}</span>
                     {isRequired && <span className="text-red-500"> *</span>}
                 </label>
             )}
