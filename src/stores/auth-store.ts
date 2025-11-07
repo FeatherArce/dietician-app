@@ -7,7 +7,7 @@ interface AuthState {
   user: PublicUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  
+
   // Actions
   setUser: (user: PublicUser | null) => void;
   setLoading: (loading: boolean) => void;
@@ -25,9 +25,9 @@ export const useAuthStore = create<AuthState>()(
       isLoading: true,
       isAuthenticated: false,
 
-      setUser: (user) => set({ 
-        user, 
-        isAuthenticated: !!user 
+      setUser: (user) => set({
+        user,
+        isAuthenticated: !!user
       }),
 
       setLoading: (isLoading) => set({ isLoading }),
@@ -37,102 +37,108 @@ export const useAuthStore = create<AuthState>()(
       },
 
       login: (user, token) => {
-        console.log('[AUTH STORE] Login called with:', { 
-          userEmail: user?.email, 
-          hasToken: !!token 
+        console.log('[AUTH STORE] Login called with:', {
+          userEmail: user?.email,
+          hasToken: !!token
         });
-        
+
         // 檢查 token 是否存在
         if (!token) {
           console.error('[AUTH STORE] Login called without token');
           return;
         }
-        
+
         // 儲存 token 到 localStorage
         localStorage.setItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY, token);
         localStorage.setItem(AUTH_CONSTANTS.PREFERENCE_THEME_KEY, user.preferred_theme || 'light');
 
-        set({ 
-          user, 
+        set({
+          user,
           isAuthenticated: true,
-          isLoading: false 
+          isLoading: false
         });
-        
+
         console.log('[AUTH STORE] Login state updated successfully');
       },
 
       logout: async () => {
+        console.log('[AUTH STORE] Logout initiated');
+
         try {
           // 呼叫 logout API
-          await fetch('/api/auth/logout', { 
+          await fetch('/api/auth/logout', {
             method: 'POST',
+            credentials: 'include', // 確保包含 cookies
             headers: {
               'Authorization': `Bearer ${localStorage.getItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY)}`,
             }
           });
+          console.log('[AUTH STORE] Logout API called successfully');
         } catch (error) {
-          console.error('Logout API error:', error);
+          console.error('[AUTH STORE] Logout API error:', error);
         } finally {
-          // 清除本地狀態
+          // 清除所有本地狀態
+          console.log('[AUTH STORE] Clearing local state');
           localStorage.removeItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY);
-          set({ 
-            user: null, 
+          localStorage.removeItem(AUTH_CONSTANTS.PREFERENCE_THEME_KEY);
+
+          set({
+            user: null,
             isAuthenticated: false,
-            isLoading: false 
+            isLoading: false
           });
-          
-          // 重導向到登入頁
-          window.location.href = ROUTE_CONSTANTS.LOGIN;
+
+          console.log('[AUTH STORE] Logout completed');
         }
       },
 
       refreshUser: async () => {
         const token = localStorage.getItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY);
-        
-        console.log('[AUTH STORE] Refreshing user, token exists:', !!token);
-        
-        if (!token) {
-          console.log('[AUTH STORE] No token found, setting unauthenticated state');
-          set({ 
-            user: null, 
-            isAuthenticated: false,
-            isLoading: false 
-          });
-          return;
-        }
+
+        console.log('[AUTH STORE] Refreshing user, localStorage token exists:', !!token);
 
         try {
-          console.log('[AUTH STORE] Calling /api/auth/me with token');
+          // 總是嘗試調用 /api/auth/me，即使 localStorage 中沒有 token
+          // 因為 httpOnly cookies 在伺服器端會自動發送，前端 JavaScript 無法存取
+          console.log('[AUTH STORE] Calling /api/auth/me to verify session...');
           const response = await fetch('/api/auth/me', {
+            credentials: 'include', // 確保 httpOnly cookies 被發送
             headers: {
-              'Authorization': `Bearer ${token}`,
+              ...(token && { 'Authorization': `Bearer ${token}` }),
             }
           });
-          
+
           if (response.ok) {
             const data = await response.json();
             console.log('[AUTH STORE] Successfully refreshed user:', data.user?.email);
-            set({ 
-              user: data.user, 
+            
+            // 確保 localStorage 有 token（如果 API 返回的話）
+            if (data.token) {
+              localStorage.setItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY, data.token);
+            }
+            
+            set({
+              user: data.user,
               isAuthenticated: true,
-              isLoading: false 
+              isLoading: false
             });
           } else {
-            // Token 無效，清除本地狀態
-            console.log('[AUTH STORE] Token invalid, clearing local state');
+            // API 驗證失敗，清除狀態
+            console.log('[AUTH STORE] API verification failed, clearing state');
             localStorage.removeItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY);
-            set({ 
-              user: null, 
+            set({
+              user: null,
               isAuthenticated: false,
-              isLoading: false 
+              isLoading: false
             });
           }
         } catch (error) {
           console.error('[AUTH STORE] Failed to refresh user:', error);
-          set({ 
-            user: null, 
+          localStorage.removeItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY);
+          set({
+            user: null,
             isAuthenticated: false,
-            isLoading: false 
+            isLoading: false
           });
         }
       },
@@ -148,9 +154,9 @@ export const useAuthStore = create<AuthState>()(
       name: 'auth-storage',
       storage: createJSONStorage(() => localStorage),
       // 只持久化用戶資料，不持久化 loading 狀態
-      partialize: (state) => ({ 
+      partialize: (state) => ({
         user: state.user,
-        isAuthenticated: state.isAuthenticated 
+        isAuthenticated: state.isAuthenticated
       }),
     }
   )
@@ -159,7 +165,7 @@ export const useAuthStore = create<AuthState>()(
 // 便利的 hook，提供常用的認證狀態
 export const useAuth = () => {
   const { user, isLoading, isAuthenticated, login, logout, refreshUser, initializeAuth } = useAuthStore();
-  
+
   return {
     user,
     isLoading,

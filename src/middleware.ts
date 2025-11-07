@@ -40,10 +40,13 @@ function matchesPattern(pathname: string, patterns: string[]): boolean {
  */
 async function validateSession(request: NextRequest) {
     const token = request.cookies.get(AUTH_CONSTANTS.ACCESS_TOKEN_KEY)?.value;
+    const allCookies = request.cookies.getAll();
 
-    // 調試：記錄 Cookie 狀態
-    // console.log('[MIDDLEWARE DEBUG] All cookies:', request.cookies.getAll());
-    // console.log('[MIDDLEWARE DEBUG] Token exists:', !!token);
+    console.log('[MIDDLEWARE DEBUG] Cookie validation:', {
+        hasToken: !!token,
+        allCookies: allCookies.map(c => ({ name: c.name, hasValue: !!c.value })),
+        tokenLength: token?.length || 0
+    });
 
     if (!token) {
         console.log('[MIDDLEWARE DEBUG] No token found in cookies');
@@ -51,7 +54,7 @@ async function validateSession(request: NextRequest) {
     }
 
     try {
-        // console.log('[MIDDLEWARE DEBUG] Verifying token...');
+        console.log('[MIDDLEWARE DEBUG] Verifying token...');
         const session = await EdgeSessionService.verifyAccessToken(token);
 
         if (!session) {
@@ -59,13 +62,13 @@ async function validateSession(request: NextRequest) {
             return null;
         }
 
-        // console.log('[MIDDLEWARE DEBUG] Token verified successfully:', {
-        //     userId: session.userId,
-        //     role: session.role,
-        //     exp: session.exp,
-        //     iat: session.iat,
-        //     now: Math.floor(Date.now() / 1000)
-        // });
+        console.log('[MIDDLEWARE DEBUG] Token verified successfully:', {
+            userId: session.userId,
+            role: session.role,
+            exp: session.exp,
+            iat: session.iat,
+            now: Math.floor(Date.now() / 1000)
+        });
 
         return session;
     } catch (error) {
@@ -95,11 +98,19 @@ function createUnauthorizedResponse() {
 /**
  * 清除用戶端 Cookie
  */
-function clearCookies(): NextResponse {
-    const response = NextResponse.next();
-    response.cookies.set(AUTH_CONSTANTS.ACCESS_TOKEN_KEY, '', { maxAge: -1 });
-    response.cookies.set(AUTH_CONSTANTS.REFRESH_TOKEN_KEY, '', { maxAge: -1 });
-    return response;
+function clearCookies(response?: NextResponse): NextResponse {
+    const res = response || NextResponse.next();
+    res.cookies.set(AUTH_CONSTANTS.ACCESS_TOKEN_KEY, '', { 
+        maxAge: -1,
+        path: '/',
+        httpOnly: true 
+    });
+    res.cookies.set(AUTH_CONSTANTS.REFRESH_TOKEN_KEY, '', { 
+        maxAge: -1,
+        path: '/',
+        httpOnly: true 
+    });
+    return res;
 }
 
 export async function middleware(request: NextRequest) {
@@ -117,6 +128,7 @@ export async function middleware(request: NextRequest) {
 
     // 驗證使用者會話
     const session = await validateSession(request);
+    console.log('[MIDDLEWARE] Session validation result:', session);
     const isAuthenticated = !!session;
 
     // 處理根目錄路由
@@ -140,10 +152,25 @@ export async function middleware(request: NextRequest) {
             } else {
                 return createRedirect(defaultAuthRedirectPage, request);
             }
+        } else {
+            // 未登入使用者訪問認證頁面時
+            console.log(`[MIDDLEWARE] Unauthenticated user accessing ${pathname}`);
+            
+            // 注意：不要在這裡清除 cookies！
+            // 因為用戶可能剛剛登入，cookies 已設置但 middleware 驗證時間點可能有差異
+            // 讓前端決定是否需要清除
+            
+            // 只有當有明確無效的 token 時才需要處理
+            const hasToken = request.cookies.get(AUTH_CONSTANTS.ACCESS_TOKEN_KEY)?.value;
+            if (hasToken) {
+                console.log('[MIDDLEWARE] Found token but authentication failed - token may be expired');
+                // 不在 middleware 清除，讓前端通過 /api/auth/me 的 401 來處理
+                // await SessionService.logout(hasToken);
+            }
+            
+            // 直接通過，讓前端和 API 層處理
+            return NextResponse.next();
         }
-        // 未登入使用者可以訪問認證頁面
-        console.log(`[MIDDLEWARE] Allowing unauthenticated access to ${pathname}`);
-        return NextResponse.next();
     }
 
     // 處理公開路由
@@ -158,19 +185,21 @@ export async function middleware(request: NextRequest) {
             // 執行登出邏輯
             await SessionService.logout(request.cookies.get(AUTH_CONSTANTS.ACCESS_TOKEN_KEY)?.value || '');
 
-            // 清除 Cookie
-            const response = clearCookies();
-
             // API 路由返回 401
             if (pathname.startsWith('/api/')) {
-                return createUnauthorizedResponse();
+                const unauthorizedResponse = NextResponse.json(
+                    { error: 'Unauthorized' },
+                    { status: 401 }
+                );
+                return clearCookies(unauthorizedResponse);
             }
 
             // 頁面路由重定向到登入頁面
             const newRedirectUrl = new URL(ROUTE_CONSTANTS.LOGIN, request.url);
             newRedirectUrl.searchParams.set('redirect', pathname);
             newRedirectUrl.searchParams.set('from', 'protected');
-            return createRedirect(newRedirectUrl.toString(), request);
+            const redirectResponse = NextResponse.redirect(newRedirectUrl);
+            return clearCookies(redirectResponse);
         }
 
         // 檢查特定角色權限（可選）

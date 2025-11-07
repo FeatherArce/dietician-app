@@ -37,6 +37,11 @@ enum EventActiveType {
  */
 export default function LunchPage() {
     const { user, isAuthenticated, isLoading } = useAuthStore();
+    console.log('[LUNCH PAGE] Auth state:', {
+        isLoading,
+        isAuthenticated,
+        userEmail: user?.email
+    });
     const [myEvents, setMyEvents] = useState<EventWithDetails[]>([]);
     const [myOrders, setMyOrders] = useState<MyOrder[]>([]);
     const [loading, setLoading] = useState(true);

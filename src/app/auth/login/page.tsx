@@ -10,32 +10,85 @@ import { Form2, Input } from "@/components/form2";
 import PasswordInput from "@/components/form2/controls/PasswordInput";
 import { Card } from "@/components/ui/Card";
 import { FcGoogle } from "react-icons/fc";
+import { FaDiscord } from "react-icons/fa";
+import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const router = useRouter();
-  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { login, logout, isAuthenticated, isLoading: authLoading } = useAuth();
 
   const redirectToPage = useCallback(() => {
     // 登入成功，重定向到主頁或指定頁面
     const redirectTo = new URLSearchParams(window.location.search).get("redirect");
     if (redirectTo === ROUTE_CONSTANTS.LOGIN || !redirectTo) {
       router.push("/lunch");
-      return;
+    } else {
+      router.push(redirectTo);
     }
-    router.push(redirectTo);
   }, [router]);
 
   // 檢查使用者是否已登入，如果是則重定向
   useEffect(() => {
-    // 確保認證狀態載入完成，且使用者已登入時才重定向
-    if (!authLoading && isAuthenticated) {
-      console.log('[LOGIN PAGE] User is authenticated, redirecting...');
-      toast.info("您已登入，正在跳轉...");
-      redirectToPage();
-    }
-  }, [authLoading, isAuthenticated, redirectToPage]);
+    const checkAuthStatus = async () => {
+      console.log('[LOGIN PAGE] Auth status:', {
+        authLoading,
+        isAuthenticated
+      });
+
+      if (authLoading) {
+        // 還在載入中，等待
+        return;
+      }
+
+      if (isAuthenticated) {
+        // 前端認為已登入，但需要驗證是否真的有效
+        try {
+          console.log('[LOGIN PAGE] Checking cookie availability...');
+          console.log('[LOGIN PAGE] document.cookie:', document.cookie);
+
+          const response = await fetch('/api/auth/me', {
+            credentials: 'include', // 確保包含 cookies
+          });
+
+          console.log('[LOGIN PAGE] /api/auth/me response status:', response.status);
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log('[LOGIN PAGE] User is authenticated, user:', data.user?.email);
+            // 真的已登入，執行重定向
+            console.log('[LOGIN PAGE] User is authenticated, redirecting...');
+            toast.info("您已登入，正在跳轉...");
+            redirectToPage();
+          } else {
+            // 認證失敗，強制登出
+            const errorData = await response.json();
+            console.log('[LOGIN PAGE] Auth verification failed, error:', errorData);
+            toast.warning("登入狀態已過期，請重新登入");
+            logout();
+          }
+        } catch (error) {
+          // 網路錯誤或其他問題，強制登出
+          console.error('[LOGIN PAGE] Auth check error:', error);
+          toast.warning("登入狀態驗證失敗，請重新登入");
+          logout();
+        }
+      } else {
+        // 前端認為未登入，檢查是否有殘留的認證資料需要清除
+        const hasLocalToken = localStorage.getItem('auth-token');
+        if (hasLocalToken) {
+          console.log('[LOGIN PAGE] Found stale local auth data, cleaning up');
+          localStorage.removeItem('auth-token');
+        }
+      }
+
+      setIsCheckingAuth(false);
+    };
+
+    checkAuthStatus();
+  }, [authLoading, isAuthenticated, redirectToPage, logout]);
 
   const updateErrorMessage = useCallback((msg: string) => {
     setErrors([msg]);
@@ -60,10 +113,9 @@ export default function LoginPage() {
         // 使用 Zustand store 儲存登入狀態
         if (result.user && result.token) {
           login(result.user, result.token);
+          // 登入成功後的導向
+          redirectToPage();
         }
-        toast.success("登入成功，即將跳轉頁面");
-        // 登入成功後的導向
-        redirectToPage();
       } else {
         toast.error(result.error || result.message || "登入失敗");
         setErrors([result.error || result.message || "登入失敗"]);
@@ -79,14 +131,21 @@ export default function LoginPage() {
   }, [login, redirectToPage]);
 
 
-  // 如果正在檢查認證狀態或已登入，顯示載入狀態
-  if (authLoading || isAuthenticated) {
+  // 如果正在檢查認證狀態，顯示載入狀態
+  if (authLoading || isCheckingAuth) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="loading loading-spinner loading-lg"></div>
         <span className="ml-2">檢查登入狀態中...</span>
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    <PageAuthBlocker
+      title="請先登入"
+      description="您需要登入才能訪問此頁面"
+    />
   }
 
   return (
@@ -139,9 +198,13 @@ export default function LoginPage() {
 
         <div className="w-full flex flex-col gap-2">
           {/* Google */}
-          <button className="btn dark:btn-neutral">
+          <button className="btn dark:btn-neutral" disabled>
             <FcGoogle className="size-[1.2em]" size={20} />
             Login with Google
+          </button>
+          <button className="btn dark:btn-neutral" disabled>
+            <FaDiscord className="size-[1.2em]" size={20} />
+            Login with Discord
           </button>
         </div>
 
