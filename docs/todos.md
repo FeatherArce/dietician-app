@@ -21,7 +21,11 @@
 
 - [x] Fixed vercel deploy middleware cann't recognize token correctly
 
-### 2025-12-05
+### 2025-11-05
 
 - [ ] Fixed new account login won't redirect to /lunch, only occurs on vercel deploy
 - [ ] Admin function to turn custom order item to shop menu item
+
+### 2025-11-07
+
+- [ ] 重作登入邏輯
