@@ -2,13 +2,21 @@
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import { useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { user, isLoading, logout } = useAuth();
+  const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
-  };
+  const handleLogout = useCallback(async () => {
+    try {
+      await logout();
+      router.push(ROUTE_CONSTANTS.LOGIN);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  }, [logout, router]);
 
   return (
     <div className="navbar bg-base-100 border-b border-base-300">
