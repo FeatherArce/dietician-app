@@ -31,7 +31,7 @@ export interface LunchOrderItemStatistic {
     items: EventOrderItem[];
 }
 
-export interface PrismaLunchEvent extends LunchEvent {
+export interface LunchEventStatistics {
     _count?: {
         orders?: number;
         total_amount?: number;
@@ -39,22 +39,24 @@ export interface PrismaLunchEvent extends LunchEvent {
         paid_orders?: number;
         unpaid_orders?: number;
     };
-    _statistics?:{
+    _statistics?: {
         groupByLunchOrderItems: LunchOrderItemStatistic[];
     };
+}
+
+export interface PrismaLunchEvent extends LunchEvent, LunchEventStatistics {   
     [x: string]: unknown;
 }
 
 export interface EventWithOrders extends PrismaLunchEvent {
-    orders: Array<EventOrder>;
+    orders?: Array<EventOrder>;
 }
 
 /**
  * 擴展的午餐活動介面，包含額外的關聯資料
  */
-export interface EventWithDetails extends PrismaLunchEvent {
+export interface EventWithDetails extends EventWithOrders {
     owner?: User;
     shop?: EventShop;
-    orders?: Array<EventOrder>;
     attendees?: Array<User>;
 }

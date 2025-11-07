@@ -4,6 +4,7 @@ import React, { forwardRef, useCallback, useImperativeHandle } from 'react';
 import {
     FaDollarSign,
     FaShoppingCart,
+    FaUser,
     FaUsers
 } from 'react-icons/fa';
 import type { EventWithDetails } from '../types';
@@ -68,6 +69,7 @@ function EventOrderSummaryTable(
     }: EventStatisticsProps,
     ref: React.Ref<EventOrderSummaryTableRef>
 ) {
+    console.log('EventOrderSummaryTable rendered with event:', event);
     // 下載統計報告
     const downloadReport = useCallback(() => {
         if (!event) return;
@@ -109,8 +111,8 @@ function EventOrderSummaryTable(
                 {renderStat(<FaShoppingCart size={24} />, '訂單數量', event?._count?.orders || 0, '筆訂單')}               
                 {renderStat(<FaUsers size={24} />, '參與人數', event?._count?.attendees || 0, '位顧客')}
                 {renderStat(<FaDollarSign size={24} />, '總金額', formatCurrency(event?._count?.total_amount || 0), '新台幣')}
-                {renderStat(<FaDollarSign size={24} />, '已收款', formatCurrency(event?._count?.paid_orders || 0), '新台幣')}
-                {renderStat(<FaDollarSign size={24} />, '未收款', formatCurrency(event?._count?.unpaid_orders || 0), '新台幣')}
+                {renderStat(<FaUser size={24} />, '已收款人數', (event?._count?.paid_orders || 0), '位顧客')}
+                {renderStat(<FaUser size={24} />, '未收款人數', (event?._count?.unpaid_orders || 0), '位顧客')}
             </div>)}
 
             {/* 訂單明細 */}

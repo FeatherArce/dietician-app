@@ -1,52 +1,8 @@
-import { EventWithOrders } from '@/app/lunch/types';
+import { EventWithDetails, EventWithOrders } from '@/app/lunch/types';
 import { checkRequiredFields } from '@/libs/utils';
 import { lunchEventService, type CreateLunchEventData, type LunchEventFilters } from '@/services/server/lunch/lunch-event-services';
 import { NextRequest, NextResponse } from 'next/server';
-
-export function getAttendeesFromEventOrders(event: EventWithOrders) {
-    const newAttendees = new Map<string, { id: string; name: string, email: string }>();
-    for (const order of event?.orders || []) {
-        if (!newAttendees.has(order.id)) {
-            newAttendees.set(order.id, {
-                id: order.id,
-                name: order.user?.name || '',
-                email: order.user?.email || '',
-            });
-        }
-    }
-    const newEvent = {
-        ...event,
-        attendees: Array.from(newAttendees.values())
-    };
-    return newEvent;
-}
-
-export function getEventRequestFilters(request: NextRequest): LunchEventFilters {
-    const searchParams = request.nextUrl.searchParams;
-    const filters: LunchEventFilters = {};
-
-    const isActiveParam = searchParams.get('is_active');
-    if (isActiveParam !== null) {
-        filters.isActive = isActiveParam === 'true';
-    }
-
-    const ownerIdParam = searchParams.get('owner_id');
-    if (ownerIdParam) {
-        filters.ownerId = ownerIdParam;
-    }
-
-    const dateFromParam = searchParams.get('date_from');
-    if (dateFromParam) {
-        filters.eventDateFrom = new Date(dateFromParam);
-    }
-
-    const dateToParam = searchParams.get('date_to');
-    if (dateToParam) {
-        filters.eventDateTo = new Date(dateToParam);
-    }
-
-    return filters;
-}
+import { getEventDetails, getEventRequestFilters } from './utils';
 
 export async function GET(request: NextRequest) {
     try {
@@ -54,9 +10,9 @@ export async function GET(request: NextRequest) {
         const filters: LunchEventFilters = getEventRequestFilters(request);
 
         const events = await lunchEventService.getEvents(filters);
-        const newEvents = [];
+        const newEvents: Array<EventWithDetails> = [];
         for (const event of events) {
-            const newEvent = getAttendeesFromEventOrders(event);
+            const newEvent = getEventDetails(event);
             newEvents.push(newEvent);
         }
 
