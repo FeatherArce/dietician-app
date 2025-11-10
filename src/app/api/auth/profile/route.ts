@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AuthService } from '@/services/server/auth';
 import { updateProfileSchema } from '@/services/server/auth/validation-schemas';
-import { getSessionFromRequest } from '@/services/server/auth/request-utils';
+import { auth } from "@/libs/auth";
 
 export async function PATCH(request: NextRequest) {
     try {
         // 驗證用戶是否已登入
-        const session = getSessionFromRequest(request);
+        const session = await auth();
         if (!session) {
             return NextResponse.json(
                 { error: '未授權', success: false },
@@ -30,7 +30,7 @@ export async function PATCH(request: NextRequest) {
         const { name, email, preferred_theme } = validation.data;
 
         // 更新用戶資料
-        const result = await AuthService.updateProfile(session.userId, {
+        const result = await AuthService.updateProfile(session?.user?.id, {
             name,
             email,
             preferred_theme

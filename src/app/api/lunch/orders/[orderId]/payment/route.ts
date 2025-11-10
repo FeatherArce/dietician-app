@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSessionFromRequest } from '@/services/server/auth/request-utils';
+import { auth } from "@/libs/auth";
 import { orderService } from '@/services/server/lunch/order-services';
 import { UserRole } from '@/prisma-generated/postgres-client';
 
@@ -8,8 +8,8 @@ export async function PATCH(
     { params }: { params: Promise<{ orderId: string }> }
 ) {
     try {
-        const session = getSessionFromRequest(request);
-        if (!session) {
+        const session = await auth();
+        if (!session?.user) {
             return NextResponse.json(
                 { error: '未授權訪問', success: false }, 
                 { status: 401 }
@@ -39,7 +39,7 @@ export async function PATCH(
         // }
 
         // 暫時只允許管理者操作，等資料庫遷移完成後恢復權限檢查
-        if (session.role !== UserRole.ADMIN && session.role !== UserRole.MODERATOR) {
+        if (session?.user?.role !== UserRole.ADMIN && session?.user?.role !== UserRole.MODERATOR) {
             return NextResponse.json(
                 { error: '權限不足', success: false }, 
                 { status: 403 }

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSessionFromRequest } from '@/services/server/auth/request-utils';
+import { auth } from "@/libs/auth";
 import { orderService } from '@/services/server/lunch/order-services';
 
 // 創建新訂單
 export async function POST(request: NextRequest) {
     try {
-        const session = getSessionFromRequest(request);
-        if (!session) {
+        const session = await auth();
+        if (!session?.user) {
             return NextResponse.json(
                 { error: '未授權訪問', success: false }, 
                 { status: 401 }
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
         }
 
         // 檢查是否已有訂單存在
-        const existingOrder = await orderService.getUserOrderForEvent(session.userId, event_id);
+        const existingOrder = await orderService.getUserOrderForEvent(session.user?.id, event_id);
         if (existingOrder) {
             return NextResponse.json(
                 { error: '您已經有訂單了，請使用更新功能', success: false }, 
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         }
 
         const order = await orderService.createOrder({
-            user_id: session.userId,
+            user_id: session.user?.id,
             event_id,
             items,
             note: note || ''
@@ -58,8 +58,8 @@ export async function POST(request: NextRequest) {
 // 獲取訂單列表
 export async function GET(request: NextRequest) {
     try {
-        const session = getSessionFromRequest(request);
-        if (!session) {
+        const session = await auth();
+        if (!session?.user) {
             return NextResponse.json(
                 { error: '未授權訪問', success: false }, 
                 { status: 401 }
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
             orders = await orderService.getOrders({ userId: userId });
         } else {
             // 一般用戶只能看自己的訂單
-            orders = await orderService.getOrders({ userId: session.userId });
+            orders = await orderService.getOrders({ userId: session.user?.id });
         }
 
         return NextResponse.json({ orders, success: true });
@@ -93,8 +93,8 @@ export async function GET(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
     try {
-        const session = getSessionFromRequest(request);
-        if (!session) {
+        const session = await auth();
+        if (!session?.user) {
             return NextResponse.json(
                 { error: '未授權訪問', success: false }, 
                 { status: 401 }
@@ -128,8 +128,8 @@ export async function DELETE(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
     try {
-        const session = getSessionFromRequest(request);
-        if (!session) {
+        const session = await auth();
+        if (!session?.user) {
             return NextResponse.json(
                 { error: '未授權訪問', success: false }, 
                 { status: 401 }

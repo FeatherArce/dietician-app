@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSessionFromRequest } from '@/services/server/auth/request-utils';
+import { auth } from "@/libs/auth";
 import { menuItemService } from '@/services/server/lunch/shop-services';
 
 // PATCH /api/lunch/menus/[menuId]/items/[itemId] - 更新項目
@@ -8,8 +8,8 @@ export async function PATCH(
   { params }: { params: Promise<{ menuId: string; itemId: string }> }
 ) {
   try {
-    const user = await getSessionFromRequest(request);
-    if (!user) {
+    const session = await auth();
+    if (!session?.user) {
       return NextResponse.json({ error: '請先登入' }, { status: 401 });
     }
 
@@ -71,8 +71,8 @@ export async function DELETE(
   { params }: { params: Promise<{ menuId: string; itemId: string }> }
 ) {
   try {
-    const user = await getSessionFromRequest(request);
-    if (!user) {
+    const session = await auth();
+    if (!session?.user) {
       return NextResponse.json({ error: '請先登入' }, { status: 401 });
     }
 

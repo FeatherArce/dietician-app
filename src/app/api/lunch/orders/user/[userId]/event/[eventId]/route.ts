@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSessionFromRequest } from '@/services/server/auth/request-utils';
+import { auth } from "@/libs/auth";
 import { orderService } from '@/services/server/lunch/order-services';
 
 export async function GET(
@@ -7,8 +7,8 @@ export async function GET(
     { params }: { params: Promise<{ userId: string; eventId: string }> }
 ) {
     try {
-        const session = getSessionFromRequest(request);
-        if (!session) {
+        const session = await auth();
+        if (!session?.user) {
             return NextResponse.json(
                 { error: '未授權訪問', success: false }, 
                 { status: 401 }
@@ -18,7 +18,7 @@ export async function GET(
         const { userId, eventId } = await params;
 
         // 檢查權限：只能查看自己的訂單，除非是管理員
-        if (session.userId !== userId && session.role !== 'ADMIN' && session.role !== 'MODERATOR') {
+        if (session.user?.id !== userId && session.user?.role !== 'ADMIN' && session.user?.role !== 'MODERATOR') {
             return NextResponse.json(
                 { error: '權限不足', success: false }, 
                 { status: 403 }

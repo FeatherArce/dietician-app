@@ -6,7 +6,7 @@ import { auth } from "@/libs/auth";
 export async function POST(request: NextRequest) {
     try {
         // 驗證用戶是否已登入
-        const session = auth();
+        const session = await auth();
         if (!session) {
             return NextResponse.json(
                 { error: '未授權', success: false },
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        console.log('Change password request for user:', session?.userId);
+        console.log('Change password request for user:', session?.user?.id);
 
         // 驗證輸入資料
         const validation = changePasswordSchema.safeParse(body);
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
         const { currentPassword, newPassword, confirmPassword } = validation.data;
 
         // 更改密碼
-        const result = await AuthService.changePassword(session?.userId, {
+        const result = await AuthService.changePassword(session?.user?.id, {
             currentPassword,
             newPassword,
             confirmPassword

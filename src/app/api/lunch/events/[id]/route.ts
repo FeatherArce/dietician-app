@@ -1,6 +1,6 @@
 import { EventOrder, EventOrderItem } from '@/app/lunch/types';
 import { UserRole } from '@/prisma-generated/postgres-client';
-import { getSessionFromRequest } from '@/services/server/auth/request-utils';
+import { auth } from "@/libs/auth";
 import { LunchEventFilters, lunchEventService } from '@/services/server/lunch/lunch-event-services';
 import { NextRequest, NextResponse } from 'next/server';
 import { getEventDetails, getEventRequestFilters } from '../utils';
@@ -58,7 +58,7 @@ export async function PUT(
         const { id } = await params;
 
         // 驗證用戶身份
-        const session = getSessionFromRequest(request);
+        const session = await auth();
         if (!session) {
             return NextResponse.json(
                 { error: '未授權訪問', success: false },
@@ -75,9 +75,9 @@ export async function PUT(
             );
         }
 
-        const isOwner = existingEvent.owner_id === session.userId;
-        const isAdmin = session.role === UserRole.ADMIN;
-        const isModerator = session.role === UserRole.MODERATOR;
+        const isOwner = existingEvent.owner_id === session?.user?.id;
+        const isAdmin = session?.user?.role === UserRole.ADMIN;
+        const isModerator = session?.user?.role === UserRole.MODERATOR;
 
         if (!isOwner && !isAdmin && !isModerator) {
             return NextResponse.json(
@@ -132,7 +132,7 @@ export async function PATCH(
         const { id } = await params;
 
         // 驗證用戶身份
-        const session = getSessionFromRequest(request);
+        const session = await auth();
         if (!session) {
             return NextResponse.json(
                 { error: '未授權訪問', success: false },
@@ -150,9 +150,9 @@ export async function PATCH(
         }
 
         // 權限檢查：事件擁有者、管理員或系統管理員
-        const isOwner = existingEvent.owner_id === session.userId;
-        const isAdmin = session.role === UserRole.ADMIN;
-        const isModerator = session.role === UserRole.MODERATOR;
+        const isOwner = existingEvent.owner_id === session?.user?.id;
+        const isAdmin = session?.user?.role === UserRole.ADMIN;
+        const isModerator = session?.user?.role === UserRole.MODERATOR;
 
         if (!isOwner && !isAdmin && !isModerator) {
             return NextResponse.json(
@@ -207,7 +207,7 @@ export async function DELETE(
         const { id } = await params;
 
         // 驗證用戶身份
-        const session = getSessionFromRequest(request);
+        const session = await auth();
         if (!session) {
             return NextResponse.json(
                 { error: '未授權訪問', success: false },
@@ -225,9 +225,9 @@ export async function DELETE(
         }
 
         // 權限檢查：事件擁有者、管理員或系統管理員
-        const isOwner = existingEvent.owner_id === session.userId;
-        const isAdmin = session.role === UserRole.ADMIN;
-        const isModerator = session.role === UserRole.MODERATOR;
+        const isOwner = existingEvent.owner_id === session?.user?.id;
+        const isAdmin = session?.user?.role === UserRole.ADMIN;
+        const isModerator = session?.user?.role === UserRole.MODERATOR;
 
         if (!isOwner && !isAdmin && !isModerator) {
             return NextResponse.json(

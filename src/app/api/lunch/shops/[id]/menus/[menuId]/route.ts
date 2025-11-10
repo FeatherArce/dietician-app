@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSessionFromRequest } from '@/services/server/auth/request-utils';
+import { auth } from "@/libs/auth";
 import postgresClient from '@/services/prisma';
 
 // GET /api/lunch/shops/[id]/menus/[menuId] - 獲取特定菜單
@@ -8,8 +8,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string; menuId: string }> }
 ) {
   try {
-    const user = await getSessionFromRequest(request);
-    if (!user) {
+    const session = await auth();
+    if (!session?.user) {
       return NextResponse.json({ error: '請先登入' }, { status: 401 });
     }
 
@@ -59,8 +59,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string; menuId: string }> }
 ) {
   try {
-    const user = await getSessionFromRequest(request);
-    if (!user) {
+    const session = await auth();
+    if (!session?.user) {
       return NextResponse.json({ error: '請先登入' }, { status: 401 });
     }
 
@@ -130,8 +130,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; menuId: string }> }
 ) {
   try {
-    const user = await getSessionFromRequest(request);
-    if (!user) {
+    const session = await auth();
+    if (!session?.user) {
       return NextResponse.json({ error: '請先登入' }, { status: 401 });
     }
 
