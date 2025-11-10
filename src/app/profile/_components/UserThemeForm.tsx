@@ -1,10 +1,11 @@
 import { Form2, Input, Select } from '@/components/form2'
 import { Form2Ref, FormValues } from '@/components/form2/types';
 import { toast } from '@/components/Toast';
+import { useTheme } from '@/hooks/useTheme';
 import { User } from '@/prisma-generated/postgres-client';
 import { updateUser } from '@/services/client/user';
-import { PublicUser } from '@/services/server/auth';
-import { useAuthStore } from '@/stores/auth-store';
+import type { PublicUser } from '@/types/User';
+import { useSession } from "next-auth/react";
 import React, { forwardRef, useCallback, useImperativeHandle, useMemo } from 'react'
 
 // 可用主題列表
@@ -37,7 +38,7 @@ interface UserFormProps {
 }
 
 function UserThemeForm({ user }: UserFormProps, ref: React.Ref<Form2Ref>) {
-    const { setTheme } = useAuthStore();
+    const { setTheme } = useTheme();
     const [loading, setLoading] = React.useState(false);
     const formRef = React.useRef<Form2Ref>(null);
 

@@ -1,6 +1,6 @@
 "use client";
 import { UserRole } from "@/prisma-generated/postgres-client";
-import { useAuthStore } from "@/stores/auth-store";
+import { useSession } from "next-auth/react";
 import { getUserRoleLabel } from "@/types/User";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,10 @@ type TabType = 'info' | 'profile' | 'password' | 'settings' | 'security';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading: authLoading, refreshUser } = useAuthStore();
+  const { data: session, status } = useSession();
+  const authLoading = status === 'loading';
+  const isAuthenticated = status === 'authenticated';
+  const user = session?.user;
   const [activeTab, setActiveTab] = useState<TabType>('info');
 
   // 側邊欄選項

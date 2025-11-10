@@ -2,9 +2,9 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { useAuthStore } from "@/stores/auth-store";
-import { 
-  FaArrowLeft, 
+import { useSession } from "next-auth/react";
+import {
+  FaArrowLeft,
   FaSpinner,
   FaSave,
   FaEdit
@@ -33,13 +33,16 @@ export default function EditMenuPage() {
   const params = useParams();
   const shopId = params.id as string;
   const menuId = params.menuId as string;
-  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
-  
+  const { data: session, status } = useSession();
+  const authLoading = status === 'loading';
+  const isAuthenticated = status === 'authenticated';
+  const user = session?.user;
+
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [shopData, setShopData] = useState<ShopData | null>(null);
   const [menuData, setMenuData] = useState<MenuData | null>(null);
-  
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -61,7 +64,7 @@ export default function EditMenuPage() {
             'Authorization': `Bearer ${localStorage.getItem('authToken')}`
           }
         });
-        
+
         if (shopResponse.ok) {
           const shopData = await shopResponse.json();
           setShopData(shopData.shop);
@@ -73,21 +76,21 @@ export default function EditMenuPage() {
             'Authorization': `Bearer ${localStorage.getItem('authToken')}`
           }
         });
-        
+
         if (menuResponse.ok) {
           const menuResponseData = await menuResponse.json();
           const menu = menuResponseData.menu;
-          
+
           setMenuData(menu);
           setFormData({
             name: menu.name,
             description: menu.description || "",
             is_available: menu.is_available
           });
-          
+
           // 設定分類和項目資料
           setCategories(menu.categories || []);
-          
+
           // 從分類中提取所有項目
           const allItems: MenuItem[] = [];
           menu.categories?.forEach((category: MenuCategory & { items?: MenuItem[] }) => {
@@ -131,7 +134,7 @@ export default function EditMenuPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -173,7 +176,7 @@ export default function EditMenuPage() {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
-    
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -209,8 +212,8 @@ export default function EditMenuPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">資料不存在</h2>
           <p className="mb-4">找不到指定的商店或菜單</p>
-          <button 
-            onClick={() => router.back()} 
+          <button
+            onClick={() => router.back()}
             className="btn btn-primary"
           >
             返回
@@ -223,19 +226,19 @@ export default function EditMenuPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* 麵包屑導航 */}
-      <Breadcrumb 
+      <Breadcrumb
         items={[
           { label: '商店管理', href: '/lunch/shops' },
           { label: shopData.name, href: `/lunch/shops/${shopId}` },
           { label: menuData.name, href: `/lunch/shops/${shopId}/menus/${menuId}` },
           { label: '編輯', current: true }
-        ]} 
+        ]}
       />
 
       {/* 頁面標題 */}
       <div className="flex items-center space-x-4 mb-6">
-        <button 
-          onClick={() => router.back()} 
+        <button
+          onClick={() => router.back()}
           className="btn btn-ghost btn-circle"
         >
           <FaArrowLeft className="w-5 h-5" />
@@ -253,19 +256,19 @@ export default function EditMenuPage() {
 
       {/* 分頁標籤 */}
       <div className="tabs tabs-boxed mb-6">
-        <button 
+        <button
           className={`tab ${currentTab === 'basic' ? 'tab-active' : ''}`}
           onClick={() => setCurrentTab('basic')}
         >
           基本資訊
         </button>
-        <button 
+        <button
           className={`tab ${currentTab === 'categories' ? 'tab-active' : ''}`}
           onClick={() => setCurrentTab('categories')}
         >
           分類管理
         </button>
-        <button 
+        <button
           className={`tab ${currentTab === 'items' ? 'tab-active' : ''}`}
           onClick={() => setCurrentTab('items')}
         >
@@ -279,7 +282,7 @@ export default function EditMenuPage() {
           <div className="card bg-base-100 shadow-sm">
             <form onSubmit={handleSubmit} className="card-body">
               <h2 className="card-title text-xl mb-4">基本資訊</h2>
-              
+
               <div className="grid grid-cols-1 gap-6">
                 {/* 菜單名稱 */}
                 <div className="form-control w-full">

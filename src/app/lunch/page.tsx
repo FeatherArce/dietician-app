@@ -6,7 +6,7 @@ import SearchContainer from '@/components/SearchContainer';
 import { Select } from '@/components/SearchContainer/SearchFields';
 import { ROUTE_CONSTANTS } from '@/constants/app-constants';
 import { authFetch } from '@/libs/auth-fetch';
-import { useAuthStore } from '@/stores/auth-store';
+import { useSession } from "next-auth/react";
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -36,12 +36,10 @@ enum EventActiveType {
  * @returns Lunch Page
  */
 export default function LunchPage() {
-    const { user, isAuthenticated, isLoading } = useAuthStore();
-    console.log('[LUNCH PAGE] Auth state:', {
-        isLoading,
-        isAuthenticated,
-        userEmail: user?.email
-    });
+    const { data: session, status } = useSession();
+    const isLoading = status === 'loading';
+    const isAuthenticated = status === 'authenticated';
+    const user = session?.user;
     const [myEvents, setMyEvents] = useState<EventWithDetails[]>([]);
     const [myOrders, setMyOrders] = useState<MyOrder[]>([]);
     const [loading, setLoading] = useState(true);

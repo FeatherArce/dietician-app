@@ -7,7 +7,7 @@ import { SearchInput, Select } from "@/components/SearchContainer/SearchFields";
 import { toast, useToastAPI } from "@/components/Toast";
 import PageContainer from "@/components/page/PageContainer";
 import { LunchEvent, UserRole } from "@/prisma-generated/postgres-client";
-import { useAuthStore } from "@/stores/auth-store";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -38,7 +38,10 @@ export default function EventsPage() {
   // 初始化 notification 和 toast API
   useNotificationAPI();
   useToastAPI();
-  const { user } = useAuthStore();
+  const { data: session, status } = useSession();
+  const authLoading = status === 'loading';
+  const isAuthenticated = status === 'authenticated';
+  const user = session?.user;
   const [events, setEvents] = useState<EventWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('');

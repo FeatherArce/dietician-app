@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar";
-import { AuthProvider } from "@/hooks/useAuth";
 import { NotificationProvider, NotificationContainer } from "@/components/Notification";
 import { ToastProvider, ToastContainer } from "@/components/Toast";
 import "@/components/Notification/notification.css";
 import "@/components/Toast/toast.css";
 import ThemeProvider from "@/components/ThemeProvider";
+import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,19 +33,18 @@ export default function RootLayout({
     <html lang="zh-TW">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen grid grid-rows-[auto_1fr] min-w-xs`}
-      >
-        <ThemeProvider>
-          <NotificationProvider>
-            <ToastProvider>
-              <AuthProvider>
+      ><SessionProvider>
+          <ThemeProvider>
+            <NotificationProvider>
+              <ToastProvider>
                 <Navbar />
                 {children}
-              </AuthProvider>
-              <NotificationContainer />
-              <ToastContainer />
-            </ToastProvider>
-          </NotificationProvider>
-        </ThemeProvider>
+                <NotificationContainer />
+                <ToastContainer />
+              </ToastProvider>
+            </NotificationProvider>
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

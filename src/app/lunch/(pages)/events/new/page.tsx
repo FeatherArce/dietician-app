@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuthStore } from "@/stores/auth-store";
+import { useSession } from "next-auth/react";
 import {
   FaArrowLeft,
   FaCalendarAlt,
@@ -24,7 +24,10 @@ interface Shop {
 
 export default function NewEventPage() {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading: authLoading } = useAuthStore();
+  const { data: session, status } = useSession();
+  const authLoading = status === 'loading';
+  const isAuthenticated = status === 'authenticated';
+  const user = session?.user;
 
   const [loading, setLoading] = useState(false);
   const [shops, setShops] = useState<Shop[]>([]);

@@ -4,6 +4,7 @@ import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import type { JWT } from "next-auth/jwt"
 import type { Session } from "next-auth"
+import { UserRole } from "@/prisma-generated/postgres-client"
 
 // 擴展 JWT 類型
 declare module "next-auth/jwt" {
@@ -16,9 +17,13 @@ declare module "next-auth/jwt" {
 // 擴展 Session 和 User 類型
 declare module "next-auth" {
     interface User {
-        role?: string
+        role?: UserRole
         email_verified?: boolean
         preferred_theme?: string
+        is_active?: boolean | null
+        created_at?: Date | null
+        last_login?: Date | null
+        login_count?: number | null
     }
 }
 
@@ -70,6 +75,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     role: user.role,
                     email_verified: user.email_verified,
                     preferred_theme: user.preferred_theme,
+                    is_active: user.is_active,
+                    created_at: user.created_at,
+                    last_login: user.last_login,
+                    login_count: user.login_count,
                 }
             },
         }),
@@ -103,7 +112,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // ===== Secret 配置（JWT 加密密鑰） =====
     secret: process.env.NEXTAUTH_SECRET,
 
-     // ===== CALLBACKS（處理 Token 和 Session） =====
+    // ===== CALLBACKS（處理 Token 和 Session） =====
     callbacks: {
         // JWT 回調：在 token 中新增自訂資訊
         jwt({ token, user }) {
@@ -119,14 +128,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session({ session, token }) {
             if (session.user) {
                 session.user.id = token.id as string
-                session.user.role = token.role as string
+                session.user.role = token.role ? token.role as UserRole : undefined
+                session.user.email = token.email as string
             }
             return session
         },
 
         // 登入時的回調
-        signIn() {
-            return true  // 允許登入
+        async signIn({ profile, user, account, credentials }) {
+            return user.email ? true : false;
         }
     },
 

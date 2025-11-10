@@ -2,7 +2,7 @@
 import Breadcrumb from "@/components/Breadcrumb";
 import DataTable from "@/components/DataTable";
 import { authFetch } from "@/libs/auth-fetch";
-import { useAuthStore } from "@/stores/auth-store";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -34,7 +34,10 @@ export default function EventDetailPage() {
   const params = useParams();
   const router = useRouter();
   const eventId = params.id as string;
-  const { user } = useAuthStore();
+  const { data: session, status } = useSession();
+  const authLoading = status === 'loading';
+  const isAuthenticated = status === 'authenticated';
+  const user = session?.user;
 
   const [event, setEvent] = useState<EventWithDetails | null>(null);
   const [loading, setLoading] = useState(true);

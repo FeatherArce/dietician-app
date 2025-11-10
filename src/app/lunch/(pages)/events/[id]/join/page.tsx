@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { useAuthStore } from '@/stores/auth-store';
+import { useSession } from "next-auth/react";
 import { FaCalendarAlt, FaStore, FaUsers } from 'react-icons/fa';
 import Link from 'next/link';
 import { authFetch } from '@/libs/auth-fetch';
@@ -12,7 +12,10 @@ import { EventWithDetails } from '@/app/lunch/types';
 
 export default function JoinEventPage() {
     const params = useParams();
-    const { user, isAuthenticated, isLoading } = useAuthStore();
+    const { data: session, status } = useSession();
+    const isLoading = status === 'loading';
+    const isAuthenticated = status === 'authenticated';
+    const user = session?.user;
     const [event, setEvent] = useState<EventWithDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

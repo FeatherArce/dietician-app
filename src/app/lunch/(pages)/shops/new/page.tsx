@@ -1,7 +1,7 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumb";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
-import { useAuthStore } from "@/stores/auth-store";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -15,10 +15,13 @@ import {
 
 export default function NewShopPage() {
   const router = useRouter();
-  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
+  const { data: session, status } = useSession();
+const authLoading = status === 'loading';
+  const isAuthenticated = status === 'authenticated';
+  const user = session?.user;
   
   const [loading, setLoading] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -48,7 +51,7 @@ export default function NewShopPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -64,9 +67,9 @@ export default function NewShopPage() {
         email: formData.email.trim() || null,
         website: formData.website.trim() || null,
       };
-      
+
       console.log('Sending request with data:', requestData);
-      
+
       const response = await fetch('/api/lunch/shops', {
         method: 'POST',
         headers: {
@@ -76,7 +79,7 @@ export default function NewShopPage() {
       });
 
       console.log('Response status:', response.status);
-      
+
       const data = await response.json();
       console.log('Response data:', data);
 
@@ -102,7 +105,7 @@ export default function NewShopPage() {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
-    
+
     // 清除對應的錯誤
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -136,17 +139,17 @@ export default function NewShopPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* 麵包屑導航 */}
-      <Breadcrumb 
+      <Breadcrumb
         items={[
           { label: '商店管理', href: '/lunch/shops' },
           { label: '建立商店', current: true }
-        ]} 
+        ]}
       />
 
       {/* 頁面標題 */}
       <div className="flex items-center space-x-4 mb-6">
-        <button 
-          onClick={() => router.back()} 
+        <button
+          onClick={() => router.back()}
           className="btn btn-ghost btn-circle"
         >
           <FaArrowLeft className="w-5 h-5" />
@@ -279,7 +282,7 @@ export default function NewShopPage() {
                 <FaStore className="w-5 h-5 text-primary" />
                 商店設定
               </h2>
-              
+
               {/* 啟用狀態 */}
               <div className="form-control">
                 <label className="label cursor-pointer">

@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { useAuthStore } from "@/stores/auth-store";
+import { useSession } from "next-auth/react";
 import {
   FaArrowLeft,
   FaSpinner,
@@ -29,7 +29,9 @@ export default function EditShopPageExample() {
   const router = useRouter();
   const params = useParams();
   const shopId = params.id as string;
-  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
+  const { data: session, status } = useSession();
+  const authLoading = status === 'loading';
+  const isAuthenticated = status === 'authenticated';
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);

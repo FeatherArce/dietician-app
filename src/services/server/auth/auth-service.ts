@@ -1,7 +1,7 @@
 import prisma from '@/services/prisma';
 import { PasswordService } from './password-service';
-import { SessionService, type PublicUser } from './session-service';
-import { generateSecureToken } from './edge-utils';
+import type { PublicUser } from '@/types/User';
+import { generateSecureToken } from './vaild-utils';
 import {
     registerSchema,
     loginSchema,
@@ -44,7 +44,7 @@ const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 分鐘
  * 設計為跨資料庫相容，遷移友善
  */
 export class AuthService {
-    
+
     /**
      * 使用者註冊
      * @param data 註冊資料
@@ -67,7 +67,7 @@ export class AuthService {
             const existingUser = await this.checkUserExists(
                 validatedData.email
             );
-            
+
             if (existingUser.exists) {
                 return {
                     success: false,
@@ -111,15 +111,12 @@ export class AuthService {
 
             // 8. 生成 token
             const publicUser = this.toPublicUser(user);
-            const tokens = SessionService.generateTokenPair(publicUser);
 
             return {
                 success: true,
                 user: publicUser,
-                token: tokens.accessToken,
-                refreshToken: tokens.refreshToken,
-                message: validatedData.email ? 
-                    '註冊成功！請檢查您的 Email 以驗證帳號。' : 
+                message: validatedData.email ?
+                    '註冊成功！請檢查您的 Email 以驗證帳號。' :
                     '註冊成功！'
             };
 
@@ -128,141 +125,6 @@ export class AuthService {
             return {
                 success: false,
                 message: '註冊失敗，請稍後再試'
-            };
-        }
-    }
-
-    /**
-     * 使用者登入
-     * @param credentials 登入憑證
-     * @returns Promise<AuthResult> 登入結果
-     */
-    static async login(credentials: LoginCredentials): Promise<AuthResult> {
-        try {
-            // 1. 驗證輸入
-            const validation = loginSchema.safeParse(credentials);
-            if (!validation.success) {
-                return {
-                    success: false,
-                    errors: validation.error.issues.map(e => e.message)
-                };
-            }
-
-            // 2. 查找使用者
-            const user = await this.findUserByEmail(credentials.email);
-            if (!user) {
-                // 記錄失敗的登入嘗試
-                await this.logFailedLogin(credentials.email);
-                return {
-                    success: false,
-                    message: 'Email 或密碼錯誤'
-                };
-            }
-
-            // 3. 檢查帳號狀態
-            if (!user.is_active) {
-                return {
-                    success: false,
-                    message: '帳號已被停用，請聯繫管理員'
-                };
-            }
-
-            // 4. 檢查登入限制
-            const isLocked = await this.isAccountLocked(user.id);
-            if (isLocked) {
-                return {
-                    success: false,
-                    message: `帳號已被鎖定，請 ${LOCKOUT_DURATION / 60000} 分鐘後再試`
-                };
-            }
-
-            // 5. 驗證密碼
-            const isValidPassword = await PasswordService.verify(
-                credentials.password,
-                user.password_hash || ''
-            );
-
-            if (!isValidPassword) {
-                await this.logFailedLogin(user.id);
-                return {
-                    success: false,
-                    message: 'Email 或密碼錯誤'
-                };
-            }
-
-            // 6. 更新登入資訊
-            await this.updateLoginInfo(user.id);
-
-            // 7. 生成 token
-            const publicUser = this.toPublicUser(user);
-            const tokens = SessionService.generateTokenPair(publicUser);
-
-            return {
-                success: true,
-                user: publicUser,
-                token: tokens.accessToken,
-                refreshToken: tokens.refreshToken,
-                message: '登入成功'
-            };
-
-        } catch (error) {
-            console.error('Login error:', error);
-            return {
-                success: false,
-                message: '登入失敗，請稍後再試'
-            };
-        }
-    }
-
-    /**
-     * 使用者登出
-     * @param token 訪問 token
-     * @returns Promise<boolean> 是否成功登出
-     */
-    static async logout(token: string): Promise<boolean> {
-        try {
-            return await SessionService.logout(token);
-        } catch (error) {
-            console.error('Logout error:', error);
-            return false;
-        }
-    }
-
-    /**
-     * 刷新 token
-     * @param refreshToken 刷新 token
-     * @returns Promise<AuthResult> 刷新結果
-     */
-    static async refreshToken(refreshToken: string): Promise<AuthResult> {
-        try {
-            const newToken = await SessionService.refreshAccessToken(
-                refreshToken,
-                async (id: string) => {
-                    const user = await prisma.user.findUnique({
-                        where: { id }
-                    });
-                    return user ? this.toPublicUser(user) : null;
-                }
-            );
-
-            if (!newToken) {
-                return {
-                    success: false,
-                    message: 'Refresh token 無效或已過期'
-                };
-            }
-
-            return {
-                success: true,
-                token: newToken,
-                message: 'Token 刷新成功'
-            };
-
-        } catch (error) {
-            console.error('Token refresh error:', error);
-            return {
-                success: false,
-                message: 'Token 刷新失敗'
             };
         }
     }
@@ -496,8 +358,8 @@ export class AuthService {
             return {
                 success: true,
                 user: this.toPublicUser(updatedUser),
-                message: data.email ? 
-                    '個人資料更新成功！請檢查新 Email 以完成驗證。' : 
+                message: data.email ?
+                    '個人資料更新成功！請檢查新 Email 以完成驗證。' :
                     '個人資料更新成功！'
             };
 

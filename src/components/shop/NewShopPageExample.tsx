@@ -2,17 +2,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuthStore } from "@/stores/auth-store";
-import { 
-  FaArrowLeft, 
+import { useSession } from "next-auth/react";
+import {
+  FaArrowLeft,
   FaSpinner,
   FaSave,
   FaPlus
 } from "react-icons/fa";
 import Breadcrumb from "@/components/Breadcrumb";
-import { 
-  ShopForm, 
-  ShopFormData, 
+import {
+  ShopForm,
+  ShopFormData,
   ShopFormErrors,
   getInitialShopFormData,
   validateShopForm,
@@ -22,15 +22,17 @@ import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 export default function NewShopPageExample() {
   const router = useRouter();
-  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
-  
+  const { data: session, status } = useSession();
+  const authLoading = status === 'loading';
+  const isAuthenticated = status === 'authenticated';
+
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<ShopFormData>(getInitialShopFormData());
   const [errors, setErrors] = useState<ShopFormErrors>({});
 
   const handleFormChange = (name: keyof ShopFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // 清除對應的錯誤
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -39,7 +41,7 @@ export default function NewShopPageExample() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // 驗證表單
     const validationErrors = validateShopForm(formData);
     if (Object.keys(validationErrors).length > 0) {
@@ -50,7 +52,7 @@ export default function NewShopPageExample() {
     setLoading(true);
     try {
       const requestData = cleanShopFormData(formData);
-      
+
       const response = await fetch('/api/lunch/shops', {
         method: 'POST',
         headers: {
@@ -104,17 +106,17 @@ export default function NewShopPageExample() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* 麵包屑導航 */}
-      <Breadcrumb 
+      <Breadcrumb
         items={[
           { label: '商店管理', href: '/lunch/shops' },
           { label: '建立商店', current: true }
-        ]} 
+        ]}
       />
 
       {/* 頁面標題 */}
       <div className="flex items-center space-x-4 mb-6">
-        <button 
-          onClick={() => router.back()} 
+        <button
+          onClick={() => router.back()}
           className="btn btn-ghost btn-circle"
         >
           <FaArrowLeft className="w-5 h-5" />

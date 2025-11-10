@@ -2,10 +2,10 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { useAuthStore } from "@/stores/auth-store";
-import { 
-  FaArrowLeft, 
-  FaUtensils, 
+import { useSession } from "next-auth/react";
+import {
+  FaArrowLeft,
+  FaUtensils,
   FaSpinner,
   FaSave
 } from "react-icons/fa";
@@ -23,8 +23,11 @@ export default function NewMenuPage() {
   const router = useRouter();
   const params = useParams();
   const shopId = params.id as string;
-  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
-  
+  const { data: session, status } = useSession();
+  const authLoading = status === 'loading';
+  const isAuthenticated = status === 'authenticated';
+  const user = session?.user;
+
   const [shop, setShop] = useState<Shop | null>(null);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -34,7 +37,7 @@ export default function NewMenuPage() {
     is_available: true
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+
   // 新增的狀態：管理分類和項目
   const [createdMenuId, setCreatedMenuId] = useState<string | null>(null);
   const [categories, setCategories] = useState<MenuCategory[]>([]);
@@ -78,7 +81,7 @@ export default function NewMenuPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -128,7 +131,7 @@ export default function NewMenuPage() {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
-    
+
     // 清除對應的錯誤
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -165,8 +168,8 @@ export default function NewMenuPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">商店不存在</h2>
           <p className="mb-4">找不到指定的商店</p>
-          <button 
-            onClick={() => router.back()} 
+          <button
+            onClick={() => router.back()}
             className="btn btn-primary"
           >
             返回
@@ -179,24 +182,24 @@ export default function NewMenuPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* 麵包屑導航 */}
-      <Breadcrumb 
+      <Breadcrumb
         items={[
           { label: '商店管理', href: '/lunch/shops' },
           { label: shop.name, href: `/lunch/shops/${shopId}` },
           { label: '新增菜單', current: true }
-        ]} 
+        ]}
       />
 
       {/* 頁面標題 */}
       <div className="flex items-center space-x-4 mb-6">
-        <button 
+        <button
           onClick={() => {
             if (currentStep === 'details') {
               setCurrentStep('menu');
             } else {
               router.back();
             }
-          }} 
+          }}
           className="btn btn-ghost btn-circle"
         >
           <FaArrowLeft className="w-5 h-5" />
@@ -209,7 +212,7 @@ export default function NewMenuPage() {
             </span>
           </h1>
           <p className="text-base-content/70 mt-1">
-            {currentStep === 'menu' 
+            {currentStep === 'menu'
               ? `為 「${shop.name}」 建立新的菜單`
               : `為 「${formData.name}」 新增分類和項目`
             }
@@ -239,7 +242,7 @@ export default function NewMenuPage() {
                 {/* 基本資訊 */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">基本資訊</h3>
-                  
+
                   {/* 菜單名稱 */}
                   <div className="form-control">
                     <label className="label">

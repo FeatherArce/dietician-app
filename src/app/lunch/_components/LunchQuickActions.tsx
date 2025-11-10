@@ -1,6 +1,6 @@
 "use client";
 import { UserRole } from '@/prisma-generated/postgres-client';
-import { useAuthStore } from '@/stores/auth-store';
+import { useSession } from "next-auth/react";
 import Link from 'next/link';
 import {
     FaCalendarAlt,
@@ -9,9 +9,12 @@ import {
 } from 'react-icons/fa';
 
 export default function LunchQuickActions() {
-    const { user } = useAuthStore();
+    const { data: session, status } = useSession();
+    const authLoading = status === 'loading';
+    const isAuthenticated = status === 'authenticated';
+    const user = session?.user;
 
-    if(!user) {
+    if (!user) {
         return null;
     }
 

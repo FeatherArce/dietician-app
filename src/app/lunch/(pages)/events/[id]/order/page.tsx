@@ -4,7 +4,7 @@ import DataTable from "@/components/DataTable";
 import { Notification } from "@/components/Notification";
 import Tabs from "@/components/Tabs";
 import { formatCurrency, formatNumber } from "@/libs/formatter";
-import { useAuthStore } from "@/stores/auth-store";
+import { useSession } from "next-auth/react";
 import { EventData, EventMenu, EventMenuCategory, EventMenuItem } from "@/types/LunchEvent";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -40,7 +40,11 @@ interface ExistingOrder {
 
 export default function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading } = useAuthStore();
+  const { data: session, status } = useSession();
+  const isLoading = status === 'loading';
+  const isAuthenticated = status === 'authenticated';
+  const user = session?.user;
+
   const [event, setEvent] = useState<EventData | null>(null);
   const [existingOrder, setExistingOrder] = useState<ExistingOrder | null>(null);
   const [orderItems, setOrderItems] = useState<EventOrderItem[]>([]);

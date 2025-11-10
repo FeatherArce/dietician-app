@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { useAuthStore } from "@/stores/auth-store";
 import {
   FaArrowLeft,
   FaStore,
@@ -49,7 +48,7 @@ export default function EditEventPage() {
   const router = useRouter();
   const params = useParams();
   const eventId = params.id as string;
-  const { user, isAuthenticated, isLoading: authLoading } = useAuthStore();
+  const { user, isAuthenticated, isLoading: authLoading } = useSession();
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
