@@ -8,6 +8,7 @@ import "@/components/Notification/notification.css";
 import "@/components/Toast/toast.css";
 import ThemeProvider from "@/components/ThemeProvider";
 import { SessionProvider } from "next-auth/react";
+import { cn } from "@/libs/utils";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,9 +32,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-TW">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen grid grid-rows-[auto_1fr] min-w-xs`}
-      ><SessionProvider>
+      <body        
+        className={cn(
+          geistSans.variable,
+          geistMono.variable,
+          "antialiased",
+          "min-h-screen",
+          "grid",
+          "grid-rows-[auto_1fr]",
+          "min-w-xs"
+        )}
+      >
+        <SessionProvider>
           <ThemeProvider>
             <NotificationProvider>
               <ToastProvider>
