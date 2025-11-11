@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { useSession } from "next-auth/react";
 import { FaCalendarAlt, FaStore, FaUsers } from 'react-icons/fa';
@@ -8,6 +8,8 @@ import { authFetch } from '@/libs/auth-fetch';
 import { ROUTE_CONSTANTS } from '@/constants/app-constants';
 import EventCard from '@/app/lunch/_components/EventCard';
 import { EventWithDetails } from '@/app/lunch/types';
+import { getLunchEventById, getLunchEvents } from '@/services/client/lunch/lunch-event';
+import { LunchOrder } from '@/prisma-generated/postgres-client';
 
 
 export default function JoinEventPage() {
@@ -21,62 +23,65 @@ export default function JoinEventPage() {
     const [error, setError] = useState<string | null>(null);
     const [hasOrder, setHasOrder] = useState(false);
 
-    const eventId = params.id as string;
+    const eventId = useMemo(() => {
+        return params.id as string;
+    }, [params.id]);
 
-    useEffect(() => {
-        const fetchEvent = async () => {
-            try {
-                setLoading(true);
-                const response = await fetch(`/api/lunch/events/${eventId}`);
-                const data = await response.json();
-
-                if (data.success && data.event) {
-                    setEvent(data.event);
-
-                    // 如果用戶已登入，檢查是否已有訂單
-                    if (user?.id) {
-                        const orderResponse = await authFetch(`/api/lunch/orders?userId=${user.id}&eventId=${eventId}`);
-                        const orderData = await orderResponse.json();
-                        setHasOrder(orderData.success && orderData.orders && orderData.orders.length > 0);
-                    }
-                } else {
-                    setError(data.error || '活動不存在');
-                }
-            } catch (err) {
-                console.error('Failed to fetch event:', err);
-                setError('載入活動失敗');
-            } finally {
-                setLoading(false);
+    const getEvent = useCallback(async () => {
+        if (!eventId) {
+            setError('無效的活動 ID');
+            setLoading(false);
+            return;
+        }
+        try {
+            setLoading(true);
+            const { response, result } = await getLunchEventById(eventId);
+            console.log('Fetch event by ID response:', { response, result });
+            const data = result;
+            if (data.success && data.event) {
+                setEvent(data.event);
+            } else {
+                setEvent(null);
+                setError(data.error || '活動不存在');
             }
-        };
+        } catch (error) {
 
-        if (eventId) {
-            fetchEvent();
+        } finally {
+            setLoading(false);
+        }
+    }, [eventId]);
+
+    const hasUserOrder = useCallback((uid: string, orders: LunchOrder[]) => {
+        return orders.some(order => order.user_id === uid);
+    }, []);
+
+    const getOrder = useCallback(async () => {
+        if (!user?.id) {
+            return;
+        }
+        try {
+            setLoading(true);
+
+            const orderResponse = await authFetch(`/api/lunch/orders?userId=${user.id}&eventId=${eventId}`);
+            const orderData = await orderResponse.json();
+            console.log('Fetch user orders for event response:', orderData);
+            setHasOrder(orderData.success && orderData.orders && hasUserOrder(user.id, orderData.orders));
+
+        } catch (err) {
+            console.error('Failed to fetch event:', err);
+            setError('載入活動失敗');
+        } finally {
+            setLoading(false);
         }
     }, [eventId, user?.id]);
 
-    const getEventStatus = () => {
-        if (!event) return null;
+    useEffect(() => {
+        getEvent();
+    }, [getEvent]);
 
-        const now = new Date();
-        const orderDeadline = new Date(event.order_deadline);
-
-        if (!event.is_active) {
-            return { status: 'closed', text: '已關閉', color: 'badge-error' };
-        }
-
-        if (orderDeadline < now) {
-            return { status: 'ended', text: '訂餐結束', color: 'badge-warning' };
-        }
-
-        return { status: 'active', text: '進行中', color: 'badge-success' };
-    };
-
-    const canOrder = () => {
-        if (!event) return false;
-        const status = getEventStatus();
-        return status?.status === 'active';
-    };
+    useEffect(() => {
+        getOrder();
+    }, [isAuthenticated, getOrder]);
 
     if (isLoading || loading) {
         return (
@@ -116,71 +121,14 @@ export default function JoinEventPage() {
         );
     }
 
-    const eventStatus = getEventStatus();
-
     return (
-        <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="container mx-auto px-4 py-8 space-y-4 max-w-2xl">
             {/* 頁面標題 */}
             <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold mb-2">參與訂餐活動</h1>
                 <p className="text-base-content/70">
                     您收到了一個訂餐活動邀請
                 </p>
-            </div>
-
-            {/* 活動詳情卡片 */}
-            <div className="card bg-base-100 shadow-lg border border-base-200 mb-6">
-                <div className="card-body">
-                    <div className="flex justify-between items-start mb-4">
-                        <h2 className="card-title text-xl">{event.title}</h2>
-                        <span className={`badge ${eventStatus?.color} badge-sm`}>
-                            {eventStatus?.text}
-                        </span>
-                    </div>
-
-                    {event.description && (
-                        <p className="text-base-content/70 mb-4">
-                            {event.description}
-                        </p>
-                    )}
-
-                    <div className="space-y-3 text-sm">
-                        <div className="flex items-center space-x-2">
-                            <FaCalendarAlt className="w-4 h-4 text-primary" />
-                            <span>活動日期：{new Date(event.event_date).toLocaleDateString("zh-TW")}</span>
-                        </div>
-
-                        <div className="flex items-center space-x-2">
-                            <span className="text-warning">⏰</span>
-                            <span>訂餐截止：{new Date(event.order_deadline).toLocaleString("zh-TW")}</span>
-                        </div>
-
-                        {event.shop && (
-                            <div className="flex items-center space-x-2">
-                                <FaStore className="w-4 h-4 text-secondary" />
-                                <span>商店：{event.shop.name}</span>
-                            </div>
-                        )}
-
-                        {event.owner && (
-                            <div className="flex items-center space-x-2">
-                                <span>👤</span>
-                                <span>主辦人：{event.owner.name}</span>
-                            </div>
-                        )}
-
-                        <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-1">
-                                <FaUsers className="w-4 h-4 text-secondary" />
-                                <span>{event._count?.attendees || event.attendees?.length || 0} 人參與</span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                                <span>📋</span>
-                                <span>{event._count?.orders || event.orders?.length || 0} 筆訂單</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <EventCard
@@ -209,36 +157,6 @@ export default function JoinEventPage() {
                                 <span>✅ 您已經在這個活動中訂餐了！</span>
                             </div>
                         )}
-
-                        <div className="flex justify-center space-x-3">
-                            <Link
-                                href={`/lunch/events/${event.id}`}
-                                className="btn btn-ghost"
-                            >
-                                查看詳情
-                            </Link>
-
-                            {canOrder() && (
-                                <Link
-                                    href={`/lunch/events/${event.id}/order`}
-                                    className="btn btn-primary"
-                                >
-                                    {hasOrder ? '修改訂單' : '開始訂餐'}
-                                </Link>
-                            )}
-
-                            {!canOrder() && eventStatus?.status === 'ended' && (
-                                <button className="btn btn-disabled">
-                                    訂餐已結束
-                                </button>
-                            )}
-
-                            {!canOrder() && eventStatus?.status === 'closed' && (
-                                <button className="btn btn-disabled">
-                                    活動已關閉
-                                </button>
-                            )}
-                        </div>
 
                         <div className="text-center">
                             <Link href="/lunch" className="link link-primary text-sm">

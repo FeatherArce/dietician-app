@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
-import { useCallback } from "react";
+import { useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 
 export default function Navbar() {
+  const [isPending, startTransition] = useTransition();
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -38,16 +39,27 @@ export default function Navbar() {
               </div>
             </div>
             <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
-              <li>
+              <li className="">
                 <div className="justify-between">
                   <span>{session?.user?.name}</span>
                   <span className="badge badge-sm badge-outline">{session?.user?.role}</span>
                 </div>
               </li>
-              <li><span className="text-xs opacity-70">@{session?.user?.name}</span></li>
               <div className="divider my-1"></div>
-              <li><a href="/profile">個人設定</a></li>
-              <li><a onClick={handleLogout}>登出</a></li>
+              <li><Link href="/profile">個人設定</Link></li>
+              <li>
+                <a
+                  onClick={() => {
+                    if (isPending) return;
+                    startTransition(handleLogout);
+                  }}
+                >
+                  {isPending ? (
+                    <span className="loading loading-spinner loading-sm"></span>
+                  ) : null}
+                  登出
+                </a>
+              </li>
             </ul>
           </div>
         ) : (

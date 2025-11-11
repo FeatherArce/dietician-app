@@ -1,6 +1,7 @@
 import prisma from '@/services/prisma';
 import { User, UserRole, Prisma } from '@/prisma-generated/postgres-client';
-import { type PublicUser } from '@/services/server/auth';
+import type { User as NextAuthUser } from 'next-auth';
+import type { PublicUser } from '@/types/User';
 
 // 類型定義
 export type CreateUserData = {
@@ -36,21 +37,21 @@ export const userService = {
     async getUsers(filters: UserFilters = {}) {
         try {
             const where: Prisma.UserWhereInput = {};
-            
+
             if (filters.role) {
                 where.role = filters.role;
             }
-            
+
             if (filters.isActive !== undefined) {
                 where.is_active = filters.isActive;
             }
-            
+
             if (filters.searchName) {
                 where.name = {
                     contains: filters.searchName
                 };
             }
-            
+
             if (filters.searchEmail) {
                 where.email = {
                     contains: filters.searchEmail
@@ -83,7 +84,7 @@ export const userService = {
                 },
                 orderBy: { created_at: 'desc' }
             });
-            
+
             return users;
         } catch (error) {
             console.error('Error fetching users:', error);
@@ -325,10 +326,10 @@ export const userService = {
         try {
             const order = await prisma.lunchOrder.findUnique({
                 where: { id: orderId },
-                select: { 
+                select: {
                     user_id: true,
                     event: {
-                        select: { 
+                        select: {
                             owner_id: true,
                             order_deadline: true,
                             is_active: true
@@ -344,7 +345,7 @@ export const userService = {
             // 檢查是否為訂單擁有者或事件擁有者
             const isOrderOwner = order.user_id === userId;
             const isEventOwner = order.event.owner_id === userId;
-            
+
             if (!isOrderOwner && !isEventOwner) {
                 return false;
             }
@@ -379,7 +380,7 @@ export const userService = {
                 }),
                 // 進行中的事件數
                 prisma.lunchEvent.count({
-                    where: { 
+                    where: {
                         owner_id: userId,
                         is_active: true,
                         order_deadline: {
@@ -415,7 +416,7 @@ export const userService = {
                 prisma.lunchEvent.count(),
                 // 進行中事件數
                 prisma.lunchEvent.count({
-                    where: { 
+                    where: {
                         is_active: true,
                         order_deadline: {
                             gte: new Date()
@@ -471,8 +472,7 @@ export const userService = {
         }
     },
 
-    // 轉換為公開使用者資料（移除敏感資訊）
-    toPublicUser(user: User): PublicUser {
+    toNextAuthUser(user: User): NextAuthUser {
         return {
             id: user.id,
             name: user.name,

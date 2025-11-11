@@ -14,6 +14,7 @@ import { Checkbox, Form2, Input, Select } from "@/components/form2";
 import { createLunchEvent } from "@/services/client/lunch/lunch-event";
 import { Notification } from "@/components/Notification";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 
 interface Shop {
   id: string;
@@ -122,15 +123,10 @@ export default function NewEventPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">請先登入</h2>
-          <p className="mb-4">您需要登入才能建立訂餐活動</p>
-          <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary">
-            前往登入
-          </Link>
-        </div>
-      </div>
+      <PageAuthBlocker
+        description='您需要登入才能建立訂餐活動'
+        loading={authLoading}
+      />
     );
   }
 

@@ -6,7 +6,18 @@ export default function PageAuthBlocker({
     title = '請先登入',
     description = '您需要登入才能參與訂餐',
     buttonText = '前往登入',
+    loading = false,
 }) {
+    // const { data: session, status } = useSession();
+
+    if (loading) {
+        return (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]">
+                <span className="loading loading-spinner loading-lg"></span>
+            </div>
+        );
+    }
+
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="text-center">

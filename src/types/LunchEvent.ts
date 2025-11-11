@@ -3,6 +3,7 @@ import { MenuCategory, MenuItem, Menu, Shop, LunchEvent } from "@/prisma-generat
 export interface EventMenuItem extends MenuItem {
     // 可以根據需要添加額外的屬性
     trigger_at?: string;
+    [key: string]: any;
 }
 
 export interface EventMenuCategory extends MenuCategory {

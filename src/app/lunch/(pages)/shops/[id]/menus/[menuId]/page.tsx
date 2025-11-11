@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -20,6 +20,8 @@ import MenuCategoryManager, { MenuCategory } from "@/components/menu/MenuCategor
 import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
 import { Menu } from "@/prisma-generated/postgres-client";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import PageAuthBlocker from "@/components/page/PageAuthBlocker";
+import { getLunchShopById, getLunchShopMenuItems, getLunchShops } from "@/services/client/lunch/lunch-shop";
 
 interface MenuData extends Menu {
   categories?: Array<MenuCategory>;
@@ -54,38 +56,28 @@ export default function MenuDetailPage() {
     return foundMenu;
   }, [selectedMenuId, shopData]);
 
+  const getShop = useCallback(async () => {
+    try {
+      const { response, result } = await getLunchShopById(shopId);
+      console.log("Shop Response:", response, result);
+      setShopData(result.shop);
+      const selectedMenu = result?.shop?.menus?.find((m: Menu) => m.id === menuId);
+      if (selectedMenu) {
+        setMenu(selectedMenu);
+        setSelectedMenuId(selectedMenu.id);
+      }
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+      router.back();
+    } finally {
+      setLoading(false);
+    }
+  }, [router, shopId, menuId]);
+
   // 獲取菜單資料
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // 獲取商店資料
-        const shopResponse = await authFetch(`/api/lunch/shops/${shopId}`);
-        if (shopResponse.ok) {
-          const data = await shopResponse.json();
-          console.log("Shop Data:", data);
-          setShopData(data.shop);
-        }
-
-        // 獲取菜單資料
-        const menuResponse = await authFetch(`/api/lunch/shops/${shopId}/menus/${menuId}`);
-        if (menuResponse.ok) {
-          const menuData = await menuResponse.json();
-          setMenu(menuData.menu);
-        } else {
-          throw new Error("菜單不存在");
-        }
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-        router.back();
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (shopId && menuId) {
-      fetchData();
-    }
-  }, [shopId, menuId, router]);
+    getShop();
+  }, [getShop]);
 
   const toggleMenuStatus = async () => {
     if (!menu) return;
@@ -120,15 +112,10 @@ export default function MenuDetailPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">請先登入</h2>
-          <p className="mb-4">您需要登入才能管理菜單</p>
-          <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary">
-            前往登入
-          </Link>
-        </div>
-      </div>
+      <PageAuthBlocker
+        description='您需要登入才能管理菜單'
+        loading={authLoading}
+      />
     );
   }
 
@@ -230,7 +217,7 @@ export default function MenuDetailPage() {
       <div className="w-full">
         <div className="space-y-6">
           {/* 菜單選擇 */}
-          <div className="w-full">
+          {/* <div className="w-full">
             <h2 className="card-title text-xl mb-4">選擇菜單</h2>
             <div className="flex justify-between items-center gap-2">
               <Select
@@ -251,20 +238,20 @@ export default function MenuDetailPage() {
                 建立菜單
               </Link>
             </div>
-          </div>
+          </div> */}
 
-          {(!shopData?.menus || shopData.menus.length === 0) && (
+          {/* {(!shopData?.menus || shopData.menus.length === 0) && (
             <div className="text-center py-4">
               <p className="text-base-content/70">
                 此商店尚未建立菜單，請先建立菜單。
               </p>
             </div>
-          )}
+          )} */}
 
           {selectedMenuId && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               {/* 分類管理 */}
-              <div className="card bg-base-100 shadow-sm">
+              {/* <div className="card bg-base-100 shadow-sm">
                 <div className="card-body">
                   <MenuCategoryManager
                     menuId={selectedMenuId}
@@ -274,7 +261,7 @@ export default function MenuDetailPage() {
                     }}
                   />
                 </div>
-              </div>
+              </div> */}
 
               {/* 項目管理 */}
               <div className="card bg-base-100 shadow-sm">

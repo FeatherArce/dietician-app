@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { AUTH_CONSTANTS } from "@/constants/app-constants";
 
 export default function Home() {
   return (
@@ -27,7 +28,7 @@ export default function Home() {
             </div>
           </Link> */}
           <Link 
-            href="/lunch" 
+            href={AUTH_CONSTANTS.DEFAULT_REDIRECT_AFTER_LOGIN}
             className="card bg-base-100 shadow-xl hover:bg-accent hover:text-accent-content transition cursor-pointer"
           >
             <div className="card-body items-center">

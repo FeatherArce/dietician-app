@@ -26,7 +26,7 @@ import PageTitle from "@/components/page/PageTitle";
 import { MealFormMode, MenuFormValues } from "./_components/MealForm";
 import { toast } from "@/components/Toast";
 import { authFetch } from "@/libs/auth-fetch";
-import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import { AUTH_CONSTANTS, ROUTE_CONSTANTS } from "@/constants/app-constants";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import { EventOrderItem } from "@/app/lunch/types";
 
@@ -41,7 +41,7 @@ interface ExistingOrder {
 export default function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const isLoading = status === 'loading';
+  const authLoading = status === 'loading';
   const isAuthenticated = status === 'authenticated';
   const user = session?.user;
 
@@ -402,7 +402,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     );
   }
 
-  if (isLoading || loading) {
+  if (authLoading || loading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-center items-center h-64">
@@ -415,9 +415,8 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
   if (!isAuthenticated) {
     return (
       <PageAuthBlocker
-        title="請先登入"
         description="您需要登入才能參與訂餐"
-        buttonText="前往登入"
+        loading={authLoading}
       />
     );
   }
@@ -459,7 +458,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
-          { label: '午餐系統', href: '/lunch' },
+          { label: '午餐系統', href: AUTH_CONSTANTS.DEFAULT_REDIRECT_AFTER_LOGIN },
           { label: event.title, href: `/lunch/events/${eventId}` },
           { label: '參與訂餐', current: true }
         ]}

@@ -1,31 +1,26 @@
 "use client";
-
-import React from 'react';
-import Link from 'next/link';
+import LoadingIndicator from '@/components/LoadingIndicator';
+import { toast } from '@/components/Toast';
 import { LunchEvent, UserRole } from '@/prisma-generated/postgres-client';
+import type { User } from 'next-auth';
+import Link from 'next/link';
 import {
     FaCalendarAlt,
-    FaUsers,
+    FaChartBar,
+    FaClipboardList,
     FaClock,
+    FaEdit,
+    FaExternalLinkAlt,
+    FaShare,
     FaStore,
     FaUser,
-    FaUserFriends,
-    FaClipboardList,
-    FaShare,
-    FaExternalLinkAlt,
-    FaChartBar,
-    FaInfo,
-    FaEdit
+    FaUsers
 } from 'react-icons/fa';
 import type { EventWithDetails, MyOrder } from '../types';
-import type { User } from '@/prisma-generated/postgres-client';
-import LoadingIndicator from '@/components/LoadingIndicator';
-import { PublicUser } from '@/services/server/auth';
-import { toast } from '@/components/Toast';
 
 interface EventCardProps {
     event: EventWithDetails;
-    user: PublicUser | null;
+    user?: User;    
     getUserOrderForEvent?: (eventId: string) => MyOrder | null;
     onShowOrderDetail?: (order: MyOrder) => void;
     onShowEventStats?: (eventId: string) => void; // 新增統計按鈕回調

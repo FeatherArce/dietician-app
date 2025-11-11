@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AuthService } from '@/services/server/auth';
-import { AUTH_CONSTANTS } from '@/constants/app-constants';
 
 export async function POST(request: NextRequest) {
     try {
@@ -19,31 +18,26 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const { user, token } = result;
+        const { user } = result;
         
-        if (!user || !token) {
+        if (!user) {
             return NextResponse.json(
-                { error: 'Registration failed - missing user or token' }, 
+                { error: 'Registration failed - missing user data' }, 
                 { status: 500 }
             );
         }
         
-        // 設定 HTTP-only cookie
-        const response = NextResponse.json({
+        // 只返回註冊結果，登入由前端通過 signIn() 處理
+        return NextResponse.json({
             success: true,
-            user: user,
-            token: token,  // 也返回 token 給前端使用
-            message: 'Registration successful'
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                role: user.role
+            },
+            message: 'Registration successful. Please sign in.'
         });
-        
-        response.cookies.set(AUTH_CONSTANTS.ACCESS_TOKEN_KEY, token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 24 * 60 * 60 // 1 day
-        });
-        
-        return response;
         
     } catch (error) {
         console.error('Registration error:', error);

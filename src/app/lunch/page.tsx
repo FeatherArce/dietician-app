@@ -18,6 +18,7 @@ import EventCard from './_components/EventCard';
 import EventOrderSummaryTable from './_components/EventOrderSummaryTable';
 import OrderDetailModal from './_components/OrderDetailModal';
 import type { EventWithDetails, MyOrder } from './types';
+import PageAuthBlocker from '@/components/page/PageAuthBlocker';
 
 enum EventActiveType {
     ACTIVE = 'active',
@@ -37,7 +38,7 @@ enum EventActiveType {
  */
 export default function LunchPage() {
     const { data: session, status } = useSession();
-    const isLoading = status === 'loading';
+    const authLoading = status === 'loading';
     const isAuthenticated = status === 'authenticated';
     const user = session?.user;
     const [myEvents, setMyEvents] = useState<EventWithDetails[]>([]);
@@ -54,10 +55,11 @@ export default function LunchPage() {
 
     const filteredEvents = useMemo(() => {
         return (myEvents || []).filter(event => {
-            if (selectedActiveType === EventActiveType.ACTIVE && !event.is_active) {
+            const isOpen = event.order_deadline ? new Date(event.order_deadline) > new Date() : false;
+            if (selectedActiveType === EventActiveType.ACTIVE && (!event.is_active || !isOpen)) {
                 return false;
             }
-            if (selectedActiveType === EventActiveType.INACTIVE && event.is_active) {
+            if (selectedActiveType === EventActiveType.INACTIVE && (event.is_active && isOpen)) {
                 return false;
             }
             return true;
@@ -123,11 +125,11 @@ export default function LunchPage() {
     }, [user?.id]);
 
     useEffect(() => {
-        if (!isLoading && isAuthenticated) {
+        if (!authLoading && isAuthenticated) {
             fetchEvents();
             fetchMyOrders();
         }
-    }, [isAuthenticated, isLoading, user?.id, fetchEvents, fetchMyOrders]);
+    }, [isAuthenticated, authLoading, user?.id, fetchEvents, fetchMyOrders]);
 
     // 顯示事件統計
     const handleEventCardShowStats = (eventId: string) => {
@@ -159,15 +161,10 @@ export default function LunchPage() {
 
     if (!isAuthenticated) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <div className="text-center">
-                    <h2 className="text-2xl font-bold mb-4">請先登入</h2>
-                    <p className="mb-4">您需要登入才能使用訂餐功能</p>
-                    <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary">
-                        前往登入
-                    </Link>
-                </div>
-            </div>
+            <PageAuthBlocker
+                description='您需要登入才能使用訂餐功能'
+                loading={authLoading}
+            />
         );
     }
 

@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/libs/auth";
 import { orderService } from '@/services/server/lunch/order-services';
+import { ApiResponse } from '../../utils';
 
 // 創建新訂單
 export async function POST(request: NextRequest) {
     try {
         const session = await auth();
-        if (!session?.user) {
-            return NextResponse.json(
-                { error: '未授權訪問', success: false }, 
-                { status: 401 }
-            );
+        if (!session?.user?.id) {
+            return ApiResponse.error(401);
         }
 
         const data = await request.json();
@@ -19,7 +17,7 @@ export async function POST(request: NextRequest) {
         // 驗證必要欄位
         if (!event_id || !items || items.length === 0) {
             return NextResponse.json(
-                { error: '缺少必要欄位', success: false }, 
+                { error: '缺少必要欄位', success: false },
                 { status: 400 }
             );
         }
@@ -28,7 +26,7 @@ export async function POST(request: NextRequest) {
         const existingOrder = await orderService.getUserOrderForEvent(session.user?.id, event_id);
         if (existingOrder) {
             return NextResponse.json(
-                { error: '您已經有訂單了，請使用更新功能', success: false }, 
+                { error: '您已經有訂單了，請使用更新功能', success: false },
                 { status: 409 }
             );
         }
@@ -40,16 +38,16 @@ export async function POST(request: NextRequest) {
             note: note || ''
         });
 
-        return NextResponse.json({ 
-            order, 
-            message: '訂單已建立', 
-            success: true 
+        return NextResponse.json({
+            order,
+            message: '訂單已建立',
+            success: true
         }, { status: 201 });
 
     } catch (error) {
         console.error('POST /api/lunch/orders error:', error);
         return NextResponse.json(
-            { error: 'Failed to create order', success: false }, 
+            { error: 'Failed to create order', success: false },
             { status: 500 }
         );
     }
@@ -61,7 +59,7 @@ export async function GET(request: NextRequest) {
         const session = await auth();
         if (!session?.user) {
             return NextResponse.json(
-                { error: '未授權訪問', success: false }, 
+                { error: '未授權訪問', success: false },
                 { status: 401 }
             );
         }
@@ -85,7 +83,7 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         console.error('GET /api/lunch/orders error:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch orders', success: false }, 
+            { error: 'Failed to fetch orders', success: false },
             { status: 500 }
         );
     }
@@ -96,7 +94,7 @@ export async function DELETE(request: NextRequest) {
         const session = await auth();
         if (!session?.user) {
             return NextResponse.json(
-                { error: '未授權訪問', success: false }, 
+                { error: '未授權訪問', success: false },
                 { status: 401 }
             );
         }
@@ -106,21 +104,21 @@ export async function DELETE(request: NextRequest) {
 
         if (!id) {
             return NextResponse.json(
-                { error: '缺少訂單ID', success: false }, 
+                { error: '缺少訂單ID', success: false },
                 { status: 400 }
             );
         }
 
         await orderService.deleteOrder(id);
-        return NextResponse.json({ 
-            message: '訂單已刪除', 
-            success: true 
+        return NextResponse.json({
+            message: '訂單已刪除',
+            success: true
         });
 
     } catch (error) {
         console.error('DELETE /api/lunch/orders error:', error);
         return NextResponse.json(
-            { error: 'Failed to delete order', success: false }, 
+            { error: 'Failed to delete order', success: false },
             { status: 500 }
         );
     }
@@ -131,7 +129,7 @@ export async function PUT(request: NextRequest) {
         const session = await auth();
         if (!session?.user) {
             return NextResponse.json(
-                { error: '未授權訪問', success: false }, 
+                { error: '未授權訪問', success: false },
                 { status: 401 }
             );
         }
@@ -141,7 +139,7 @@ export async function PUT(request: NextRequest) {
 
         if (!id) {
             return NextResponse.json(
-                { error: '缺少訂單ID', success: false }, 
+                { error: '缺少訂單ID', success: false },
                 { status: 400 }
             );
         }
@@ -151,16 +149,16 @@ export async function PUT(request: NextRequest) {
             note
         });
 
-        return NextResponse.json({ 
+        return NextResponse.json({
             order,
-            message: '訂單已更新', 
-            success: true 
+            message: '訂單已更新',
+            success: true
         });
 
     } catch (error) {
         console.error('PUT /api/lunch/orders error:', error);
         return NextResponse.json(
-            { error: 'Failed to update order', success: false }, 
+            { error: 'Failed to update order', success: false },
             { status: 500 }
         );
     }

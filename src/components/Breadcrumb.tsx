@@ -1,5 +1,6 @@
 "use client";
 
+import { AUTH_CONSTANTS } from '@/constants/app-constants';
 import Link from 'next/link';
 import { FaHome } from 'react-icons/fa';
 
@@ -41,7 +42,7 @@ export default function Breadcrumb({ homeItem, items }: BreadcrumbProps) {
       <ul>
         {/* 首頁 */}
         <li>
-          {renderItem(homeItem || { label: '午餐系統', href: '/lunch', icon: <FaHome /> })}
+          {renderItem(homeItem || { label: '午餐系統', href: AUTH_CONSTANTS.DEFAULT_REDIRECT_AFTER_LOGIN, icon: <FaHome /> })}
         </li>
 
         {/* 動態項目 */}

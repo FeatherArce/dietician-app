@@ -5,18 +5,8 @@
 // ==================== 認證相關 ====================
 export const AUTH_CONSTANTS = {
   // LocalStorage Keys
-  ACCESS_TOKEN_KEY: 'auth-token',
-  PREFERENCE_THEME_KEY: 'preference-theme',
-  
-  // Cookie Keys  
-  REFRESH_TOKEN_KEY: 'refresh-token',
-  
-  // API 端點
-  LOGIN_ENDPOINT: '/api/auth/login',
-  LOGOUT_ENDPOINT: '/api/auth/logout', 
-  REFRESH_ENDPOINT: '/api/auth/refresh',
-  ME_ENDPOINT: '/api/auth/me',
-  
+  PREFERENCE_THEME_KEY: 'preference-theme',  
+    
   // 重定向路徑
   LOGIN_REDIRECT: '/auth/login',
   DEFAULT_REDIRECT_AFTER_LOGIN: '/lunch',

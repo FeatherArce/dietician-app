@@ -13,6 +13,7 @@ import { FaDiscord } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
 export default function LoginPage() {
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -30,6 +31,7 @@ export default function LoginPage() {
 
   const handleFinish = useCallback(async (values: any) => {
     try {
+      setIsLoading(true);
       const res = await signIn("credentials", {
         ...values,
         redirect: false,
@@ -43,6 +45,8 @@ export default function LoginPage() {
       }
 
       setErrors(["登入失敗，請稍後再試。"]);
+    } finally {
+      setIsLoading(false);
     }
   }, [redirectToNextPage]);
 
@@ -94,7 +98,7 @@ export default function LoginPage() {
         <Form2.Button.Container>
           <Form2.Button
             type="submit"
-            loading={status === 'loading'}
+            loading={status === 'loading' || isLoading}
             className="btn-primary w-full mt-6"
           >
             登入

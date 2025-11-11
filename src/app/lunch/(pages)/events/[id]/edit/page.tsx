@@ -14,6 +14,8 @@ import { authFetch } from "@/libs/auth-fetch";
 import { UserRole } from "@/prisma-generated/postgres-client";
 import UnauthorizedView from "@/components/UnauthorizedView";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import { useSession } from "next-auth/react";
+import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 
 interface Shop {
   id: string;
@@ -48,7 +50,10 @@ export default function EditEventPage() {
   const router = useRouter();
   const params = useParams();
   const eventId = params.id as string;
-  const { user, isAuthenticated, isLoading: authLoading } = useSession();
+  const { data: session, status } = useSession();
+  const user = session?.user;
+  const isAuthenticated = status === "authenticated";
+  const authLoading = status === "loading";
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -222,15 +227,10 @@ export default function EditEventPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">請先登入</h2>
-          <p className="mb-4">您需要登入才能編輯訂餐活動</p>
-          <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary">
-            前往登入
-          </Link>
-        </div>
-      </div>
+      <PageAuthBlocker
+        description='您需要登入才能編輯訂餐活動'      
+        loading={authLoading}
+      />
     );
   }
 

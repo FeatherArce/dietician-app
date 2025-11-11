@@ -254,10 +254,7 @@ export default function FullShopForm({
   return (
     <Form2
       initialValues={initialValues}
-      onValuesChange={(changedValues, allValues) => {
-        console.log('Changed Values:', changedValues);
-        console.log('All Values:', allValues);
-      }}
+      onValuesChange={onValuesChange}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
       {...props}

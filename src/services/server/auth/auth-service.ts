@@ -16,11 +16,13 @@ import {
     type UpdateProfileData
 } from './validation-schemas';
 import { User, UserRole } from '@/prisma-generated/postgres-client';
+import type { User as NextAuthUser } from 'next-auth';
+import userService from '../user-services';
 
 // 認證結果類型
 export interface AuthResult {
     success: boolean;
-    user?: PublicUser;
+    user?: NextAuthUser;
     token?: string;
     refreshToken?: string;
     message?: string;
@@ -110,7 +112,7 @@ export class AuthService {
             }
 
             // 8. 生成 token
-            const publicUser = this.toPublicUser(user);
+            const publicUser = userService.toNextAuthUser(user);
 
             return {
                 success: true,
@@ -357,7 +359,7 @@ export class AuthService {
 
             return {
                 success: true,
-                user: this.toPublicUser(updatedUser),
+                user: userService.toNextAuthUser(updatedUser),
                 message: data.email ?
                     '個人資料更新成功！請檢查新 Email 以完成驗證。' :
                     '個人資料更新成功！'
@@ -441,24 +443,6 @@ export class AuthService {
      */
     private static generateSecureToken(): string {
         return generateSecureToken();
-    }
-
-    /**
-     * 轉換為公開使用者資料
-     */
-    private static toPublicUser(user: User): PublicUser {
-        return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            is_active: user.is_active,
-            is_deleted: user.is_deleted,
-            preferred_theme: user.preferred_theme,
-            created_at: user.created_at,
-            last_login: user.last_login || undefined,
-            login_count: user.login_count
-        };
     }
 
     /**

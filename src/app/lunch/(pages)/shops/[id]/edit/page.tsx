@@ -24,6 +24,7 @@ import MenuCategoryManager, { MenuCategory } from "@/components/menu/MenuCategor
 import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
 import { Select } from "@/components/SearchContainer/SearchFields";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 
 interface ShopData extends ShopFormData {
   id: string;
@@ -194,16 +195,10 @@ export default function EditShopPage() {
   // 未認證狀態
   if (!isAuthenticated) {
     return (
-      <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <FaExclamationCircle className="w-16 h-16 mx-auto text-warning mb-4" />
-          <h2 className="text-2xl font-bold mb-2">需要登入</h2>
-          <p className="text-base-content/70 mb-6">請先登入以存取此頁面</p>
-          <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary">
-            前往登入
-          </Link>
-        </div>
-      </div>
+      <PageAuthBlocker
+        description='您需要登入才能編輯商店資訊'
+        loading={authLoading}
+      />
     );
   }
 

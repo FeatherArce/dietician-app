@@ -2,16 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { AuthService } from '@/services/server/auth';
 import { changePasswordSchema } from '@/services/server/auth/validation-schemas';
 import { auth } from "@/libs/auth";
+import { ApiResponse } from '../../utils';
 
 export async function POST(request: NextRequest) {
     try {
         // 驗證用戶是否已登入
         const session = await auth();
-        if (!session) {
-            return NextResponse.json(
-                { error: '未授權', success: false },
-                { status: 401 }
-            );
+        if (!session?.user?.id) {
+            return ApiResponse.error(401);
         }
 
         const body = await request.json();

@@ -14,6 +14,7 @@ import {
   FaDollarSign
 } from 'react-icons/fa';
 import { MenuCategory } from './MenuCategoryManager';
+import MenuItemTable from './MenuItemTable';
 
 export interface MenuItem {
   id: string;
@@ -55,7 +56,7 @@ export default function MenuItemManager({
   onItemsChange,
   isReadOnly = false
 }: MenuItemManagerProps) {
-  console.log("MenuItemManager", {categories, items});
+  console.log("MenuItemManager", { categories, items });
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
@@ -85,15 +86,15 @@ export default function MenuItemManager({
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = '項目名稱為必填';
     }
-    
+
     if (formData.price < 0) {
       newErrors.price = '價格不能為負數';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -118,7 +119,7 @@ export default function MenuItemManager({
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         onItemsChange([...(items || []), data.item]);
         setIsCreating(false);
@@ -153,9 +154,9 @@ export default function MenuItemManager({
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
-        const updatedItems = items?.map(item => 
+        const updatedItems = items?.map(item =>
           item.id === itemId ? { ...item, ...data.item } : item
         );
         onItemsChange(updatedItems);
@@ -183,7 +184,7 @@ export default function MenuItemManager({
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         const updatedItems = items?.filter(item => item.id !== itemId);
         onItemsChange(updatedItems);
@@ -227,10 +228,10 @@ export default function MenuItemManager({
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : 
-               name === 'price' || name === 'sort_order' ? parseFloat(value) || 0 : value
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked :
+        name === 'price' || name === 'sort_order' ? parseFloat(value) || 0 : value
     }));
-    
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -253,7 +254,7 @@ export default function MenuItemManager({
   // 按分類分組顯示項目
   const groupedItems = React.useMemo(() => {
     const groups: Record<string, MenuItem[]> = {};
-    
+
     items?.forEach(item => {
       const categoryId = item.category_id || 'uncategorized';
       if (!groups[categoryId]) {
@@ -261,7 +262,7 @@ export default function MenuItemManager({
       }
       groups[categoryId].push(item);
     });
-    
+
     return groups;
   }, [items]);
 
@@ -276,423 +277,11 @@ export default function MenuItemManager({
             {items?.length || 0} 個項目
           </span>
         </h3>
-        {!isReadOnly && !isCreating && !editingId && (
-          <button
-            onClick={startCreate}
-            className="btn btn-primary btn-sm"
-          >
-            <FaPlus className="w-3 h-3" />
-            新增項目
-          </button>
-        )}
       </div>
 
-      {/* 提示訊息 */}
-      {categories?.length === 0 && (
-        <div className="alert alert-info">
-          <span>尚無分類，新增的項目將歸類為「{DEFAULT_VALUES.UNCATEGORIZED_NAME}」</span>
-        </div>
-      )}
-
-      {/* 錯誤訊息 */}
-      {errors.submit && (
-        <div className="alert alert-error">
-          <span>{errors.submit}</span>
-        </div>
-      )}
-
-      {/* 新增項目表單 */}
-      {isCreating && (
-        <div className="card bg-base-200 border-2 border-dashed border-primary">
-          <div className="card-body">
-            <h4 className="card-title text-sm">新增項目</h4>
-            <div className="space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">項目名稱 *</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className={`input input-bordered input-sm ${errors.name ? 'input-error' : ''}`}
-                    placeholder="例如：招牌牛肉麵"
-                  />
-                  {errors.name && (
-                    <label className="label">
-                      <span className="label-text-alt text-error">{errors.name}</span>
-                    </label>
-                  )}
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">價格 *</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    className={`input input-bordered input-sm ${errors.price ? 'input-error' : ''}`}
-                    placeholder="0"
-                    min="0"
-                    step="1"
-                  />
-                  {errors.price && (
-                    <label className="label">
-                      <span className="label-text-alt text-error">{errors.price}</span>
-                    </label>
-                  )}
-                </div>
-              </div>
-
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">項目描述</span>
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="textarea textarea-bordered textarea-sm"
-                  placeholder="選填：項目說明、成分、特色等"
-                  rows={2}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">分類</span>
-                  </label>
-                  <select
-                    name="category_id"
-                    value={formData.category_id}
-                    onChange={handleInputChange}
-                    className="select select-bordered select-sm"
-                  >
-                    <option value="">{DEFAULT_VALUES.UNCATEGORIZED_NAME}</option>
-                    {categories?.map(category => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">排序</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="sort_order"
-                    value={formData.sort_order}
-                    onChange={handleInputChange}
-                    className="input input-bordered input-sm"
-                    min="0"
-                  />
-                </div>
-
-                <div className="form-control">
-                  <label className="label cursor-pointer">
-                    <span className="label-text">啟用</span>
-                    <input
-                      type="checkbox"
-                      name="is_available"
-                      checked={formData.is_available}
-                      onChange={handleInputChange}
-                      className="toggle toggle-primary toggle-sm"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">圖片網址</span>
-                </label>
-                <input
-                  type="url"
-                  name="image_url"
-                  value={formData.image_url}
-                  onChange={handleInputChange}
-                  className="input input-bordered input-sm"
-                  placeholder="選填：https://example.com/image.jpg"
-                />
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <button
-                  onClick={cancelEdit}
-                  className="btn btn-ghost btn-sm"
-                >
-                  <FaTimes className="w-3 h-3" />
-                  取消
-                </button>
-                <button
-                  onClick={handleCreate}
-                  disabled={loading === 'create'}
-                  className="btn btn-primary btn-sm"
-                >
-                  {loading === 'create' ? (
-                    <FaSpinner className="w-3 h-3 animate-spin" />
-                  ) : (
-                    <FaSave className="w-3 h-3" />
-                  )}
-                  建立
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 項目列表 (按分類分組) */}
-      <div className="space-y-6">
-        {Object.entries(groupedItems).map(([categoryId, categoryItems]) => (
-          <div key={categoryId} className="space-y-2">
-            <h4 className="text-sm font-medium text-base-content/70 border-b pb-1">
-              {getCategoryName(categoryId)} ({categoryItems.length} 個項目)
-            </h4>
-            
-            <div className="space-y-2">
-              {categoryItems.map((item) => (
-                <div key={item.id} className="card bg-base-100 border">
-                  <div className="card-body p-4">
-                    {editingId === item.id ? (
-                      /* 編輯模式 */
-                      <div className="space-y-3">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div className="form-control">
-                            <label className="label">
-                              <span className="label-text">項目名稱 *</span>
-                            </label>
-                            <input
-                              type="text"
-                              name="name"
-                              value={formData.name}
-                              onChange={handleInputChange}
-                              className={`input input-bordered input-sm ${errors.name ? 'input-error' : ''}`}
-                            />
-                            {errors.name && (
-                              <label className="label">
-                                <span className="label-text-alt text-error">{errors.name}</span>
-                              </label>
-                            )}
-                          </div>
-
-                          <div className="form-control">
-                            <label className="label">
-                              <span className="label-text">價格 *</span>
-                            </label>
-                            <input
-                              type="number"
-                              name="price"
-                              value={formData.price}
-                              onChange={handleInputChange}
-                              className={`input input-bordered input-sm ${errors.price ? 'input-error' : ''}`}
-                              min="0"
-                              step="1"
-                            />
-                            {errors.price && (
-                              <label className="label">
-                                <span className="label-text-alt text-error">{errors.price}</span>
-                              </label>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="form-control">
-                          <label className="label">
-                            <span className="label-text">項目描述</span>
-                          </label>
-                          <textarea
-                            name="description"
-                            value={formData.description}
-                            onChange={handleInputChange}
-                            className="textarea textarea-bordered textarea-sm"
-                            rows={2}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <div className="form-control">
-                            <label className="label">
-                              <span className="label-text">分類</span>
-                            </label>
-                            <select
-                              name="category_id"
-                              value={formData.category_id}
-                              onChange={handleInputChange}
-                              className="select select-bordered select-sm"
-                            >
-                              <option value="">{DEFAULT_VALUES.UNCATEGORIZED_NAME}</option>
-                              {categories?.map(category => (
-                                <option key={category.id} value={category.id}>
-                                  {category.name}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-
-                          <div className="form-control">
-                            <label className="label">
-                              <span className="label-text">排序</span>
-                            </label>
-                            <input
-                              type="number"
-                              name="sort_order"
-                              value={formData.sort_order}
-                              onChange={handleInputChange}
-                              className="input input-bordered input-sm"
-                              min="0"
-                            />
-                          </div>
-
-                          <div className="form-control">
-                            <label className="label cursor-pointer">
-                              <span className="label-text">啟用</span>
-                              <input
-                                type="checkbox"
-                                name="is_available"
-                                checked={formData.is_available}
-                                onChange={handleInputChange}
-                                className="toggle toggle-primary toggle-sm"
-                              />
-                            </label>
-                          </div>
-                        </div>
-
-                        <div className="form-control">
-                          <label className="label">
-                            <span className="label-text">圖片網址</span>
-                          </label>
-                          <input
-                            type="url"
-                            name="image_url"
-                            value={formData.image_url}
-                            onChange={handleInputChange}
-                            className="input input-bordered input-sm"
-                          />
-                        </div>
-
-                        <div className="flex justify-end space-x-2">
-                          <button
-                            onClick={cancelEdit}
-                            className="btn btn-ghost btn-sm"
-                          >
-                            <FaTimes className="w-3 h-3" />
-                            取消
-                          </button>
-                          <button
-                            onClick={() => handleUpdate(item.id)}
-                            disabled={loading === `update-${item.id}`}
-                            className="btn btn-primary btn-sm"
-                          >
-                            {loading === `update-${item.id}` ? (
-                              <FaSpinner className="w-3 h-3 animate-spin" />
-                            ) : (
-                              <FaSave className="w-3 h-3" />
-                            )}
-                            儲存
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      /* 檢視模式 */
-                      <div className="flex justify-between items-start">
-                        <div className="flex space-x-3 flex-1">
-                          {item.image_url && (
-                            <div className="avatar">
-                              <div className="w-12 h-12 rounded-lg">
-                                <Image 
-                                  src={item.image_url} 
-                                  alt={item.name}
-                                  width={48}
-                                  height={48}
-                                  className="object-cover"
-                                />
-                              </div>
-                            </div>
-                          )}
-                          
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2">
-                              <h4 className="font-semibold">{item.name}</h4>
-                              <span className={`badge badge-sm ${item.is_available ? 'badge-success' : 'badge-error'}`}>
-                                {item.is_available ? '供應' : '停售'}
-                              </span>
-                              <span className="badge badge-outline badge-sm">
-                                排序: {item.sort_order}
-                              </span>
-                            </div>
-                            
-                            <div className="flex items-center space-x-2 mt-1">
-                              <span className="text-lg font-bold text-primary flex items-center">
-                                <FaDollarSign className="w-3 h-3" />
-                                {formatPrice(item.price)}
-                              </span>
-                            </div>
-                            
-                            {item.description && (
-                              <p className="text-sm text-base-content/70 mt-1">
-                                {item.description}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        {!isReadOnly && (
-                          <div className="flex space-x-1">
-                            <button
-                              onClick={() => startEdit(item)}
-                              disabled={isCreating || editingId !== null}
-                              className="btn btn-ghost btn-sm btn-square"
-                            >
-                              <FaEdit className="w-3 h-3" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(item.id)}
-                              disabled={loading === `delete-${item.id}` || isCreating || editingId !== null}
-                              className="btn btn-ghost btn-sm btn-square text-error hover:bg-error hover:text-error-content"
-                            >
-                              {loading === `delete-${item.id}` ? (
-                                <FaSpinner className="w-3 h-3 animate-spin" />
-                              ) : (
-                                <FaTrash className="w-3 h-3" />
-                              )}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {(!items || items?.length === 0) && !isCreating && (
-        <div className="text-center py-8 text-base-content/50">
-          <FaUtensils className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <p>尚未建立任何項目</p>
-          {!isReadOnly && (
-            <button
-              onClick={startCreate}
-              className="btn btn-primary btn-sm mt-3"
-            >
-              <FaPlus className="w-3 h-3" />
-              建立第一個項目
-            </button>
-          )}
-        </div>
-      )}
+      <MenuItemTable
+        menuId={menuId}
+      />
     </div>
   );
 }

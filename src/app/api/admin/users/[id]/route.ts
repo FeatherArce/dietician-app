@@ -2,15 +2,16 @@
 // Can Get/Update full user data, and really Delete a user
 import { NextRequest, NextResponse } from 'next/server';
 import { adminUserService } from '@/services/server/admin/admin-user-services';
-import { SessionService } from '@/services/server/auth';
-import { ApiResponse, isRequesterAdmin } from '@/app/api/utils';
+import { ApiResponse } from '@/app/api/utils';
+import { auth } from '@/libs/auth';
 
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    try {
-        if (!isRequesterAdmin(request)) {
+    try {       
+         const session = await auth();
+        if (!session?.user?.id || session.user.role !== 'ADMIN') {
             return ApiResponse.error(401);
         }
 

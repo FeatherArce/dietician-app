@@ -13,6 +13,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import MenuCategoryManager, { MenuCategory } from "@/components/menu/MenuCategoryManager";
 import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 
 interface MenuData {
   id: string;
@@ -194,15 +195,10 @@ export default function EditMenuPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">請先登入</h2>
-          <p className="mb-4">您需要登入才能編輯菜單</p>
-          <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-primary">
-            前往登入
-          </Link>
-        </div>
-      </div>
+      <PageAuthBlocker
+        description="您需要登入才能編輯菜單"
+        loading={authLoading}
+      />
     );
   }
 

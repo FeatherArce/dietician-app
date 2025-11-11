@@ -20,7 +20,8 @@ declare module "next-auth" {
         role?: UserRole
         email_verified?: boolean
         preferred_theme?: string
-        is_active?: boolean | null
+        is_active?: boolean | null        
+        is_deleted?: boolean | null
         created_at?: Date | null
         last_login?: Date | null
         login_count?: number | null
