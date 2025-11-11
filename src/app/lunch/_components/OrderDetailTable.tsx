@@ -4,6 +4,7 @@ import { formatCurrency } from '@/libs/formatter';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FaClipboardList, FaUserFriends } from 'react-icons/fa';
 import { EventWithDetails } from '../types';
+import Tabs from '@/components/Tabs';
 
 enum DisplayMode {
     ByUser = 'by-user',
@@ -80,52 +81,46 @@ export default function OrderDetailTable({ event, ...props }: OrderDetailTablePr
 
     return (
         <div className='grid grid-rows-[auto_1fr] w-full overflow-x-auto space-y-4' {...props}>
-            {/* 明細顯示模式切換 */}
-            <div className="flex justify-center">
-                <div className="join">
-                    <button
-                        className={`join-item btn btn-sm ${displayMode === DisplayMode.ByUser ? 'btn-active' : 'btn-outline'}`}
-                        onClick={() => setDisplayMode(DisplayMode.ByUser)}
-                    >
-                        <FaUserFriends className="mr-1" />
-                        依使用者
-                    </button>
-                    <button
-                        className={`join-item btn btn-sm ${displayMode === DisplayMode.ByItem ? 'btn-active' : 'btn-outline'}`}
-                        onClick={() => setDisplayMode(DisplayMode.ByItem)}
-                    >
-                        <FaClipboardList className="mr-1" />
-                        依餐點
-                    </button>
-                </div>
-            </div>
-
-            {/* 詳細明細 */}
-            {displayMode === 'by-user' ? (
-                // 依使用者顯示
-                <div className='w-full max-w-full overflow-auto'>
-                    <h4 className="font-semibold mb-3 flex items-center gap-2">
-                        <FaUserFriends className="text-info" />
-                        使用者訂單明細
-                    </h4>
-                    <div className="space-y-3">
-                        <UserOrderDetailTable event={event} />
-                    </div>
-                </div>
-            ) : (
-                // 依餐點顯示
-                <div className='w-full max-w-full overflow-auto'>
-                    <h4 className="font-semibold mb-3 flex items-center gap-2">
-                        <FaClipboardList className="text-info" />
-                        餐點統計明細
-                    </h4>
-                    <div className="space-y-3">
-                        <MenuOrderDetailTable event={event} />
-                    </div>
-                </div>
-            )}
+            <Tabs
+                activeTab={displayMode}
+                onTabChange={(tabId) => setDisplayMode(tabId as DisplayMode)}
+                items={[
+                    {
+                        id: DisplayMode.ByUser,
+                        label: '依使用者',
+                        icon: <FaUserFriends className="mr-1" />,
+                        content: (<>
+                            <div className='w-full max-w-full overflow-auto'>
+                                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                                    <FaUserFriends className="text-info" />
+                                    使用者訂單明細
+                                </h4>
+                                <div className="space-y-3">
+                                    <UserOrderDetailTable event={event} />
+                                </div>
+                            </div>
+                        </>)
+                    },
+                    {
+                        id: DisplayMode.ByItem,
+                        label: '依餐點',
+                        icon: <FaClipboardList className="mr-1" />,
+                        content: (<>
+                            <div className='w-full max-w-full overflow-auto'>
+                                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                                    <FaClipboardList className="text-info" />
+                                    餐點統計明細
+                                </h4>
+                                <div className="space-y-3">
+                                    <MenuOrderDetailTable event={event} />
+                                </div>
+                            </div>
+                        </>)
+                    }
+                ]}
+            />
         </div>
-    )
+    );
 }
 
 interface OrderDetailTableSource extends Record<string, unknown> {
