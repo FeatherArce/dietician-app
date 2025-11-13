@@ -17,6 +17,21 @@ interface PasswordRules {
     noCommonPatterns: boolean;
 }
 
+export function generateSecureToken(): string {
+    // 在 Edge Runtime 中使用 Web Crypto API
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+        const array = new Uint8Array(32);
+        crypto.getRandomValues(array);
+        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+    
+    // 備用方法：使用 Math.random（較不安全，僅用於開發）
+    console.warn('Using fallback random token generation - not recommended for production');
+    return Array.from({ length: 64 }, () => 
+        Math.floor(Math.random() * 16).toString(16)
+    ).join('');
+}
+
 /**
  * 密碼管理服務
  * 提供密碼加密、驗證、強度檢查等功能

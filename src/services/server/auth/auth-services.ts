@@ -1,7 +1,7 @@
 import { UserRole } from "@/prisma-generated/postgres-client";
 import type { User as NextAuthUser } from 'next-auth';
 import prisma from "../../prisma";
-import { PasswordService } from "./password-service";
+import { generateSecureToken, PasswordService } from "./password-service";
 import { ChangePasswordData, changePasswordSchema, RegisterData, registerSchema, ResetPasswordData, ResetPasswordRequestData, resetPasswordRequestSchema, resetPasswordSchema, UpdateProfileData, updateProfileSchema } from "./validation-schemas";
 import userService from "../user-services";
 
@@ -37,10 +37,6 @@ async function checkUserExists(email: string): Promise<EmailCheckResult> {
     }
 
     return { exists: false };
-}
-
-function generateSecureToken(): string {
-    return generateSecureToken();
 }
 
 async function sendVerificationEmail(email: string, token: string): Promise<void> {

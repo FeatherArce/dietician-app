@@ -100,9 +100,14 @@ export default function EditUserPage() {
     setLoading(true);
     setErrors({});
 
+    // let action = 'update';
+    // if (values.password && String(values.password).trim() !== '') {
+    //   action = 'force_reset_password';
+    // }
+
     try {
       const uid = userId as string;
-      const res = await updateUser(uid, values);
+      const res = await updateUser(uid, { ...values });
       const { response, result } = res;
       if (response.ok && result.success) {
         console.log('User updated successfully');
@@ -187,6 +192,9 @@ export default function EditUserPage() {
                   placeholder="請選擇角色"
                 />
               </Form2.Item>
+              {/* <Form2.Item name="password" label="重設密碼" help="如需重設密碼，請在此輸入新密碼，否則留空">
+                <Input type="password" placeholder="輸入新密碼以重設" />
+              </Form2.Item> */}
               <Form2.Item name="is_active" label="帳戶狀態" valuePropName="checked">
                 <Checkbox label='是否啟用帳戶，勾選為啟用' />
               </Form2.Item>

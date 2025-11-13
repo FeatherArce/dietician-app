@@ -139,6 +139,17 @@ export async function POST(
         const data = await request.json();
 
         switch (data.action) {
+            case 'update':
+                const newData = { ...data };
+                delete newData.action;
+                delete newData.password; // 密碼不在此處更新
+                const updatedUser = await userService.updateUser(userId, newData);
+                return NextResponse.json({
+                    user: updatedUser,
+                    message: '使用者已更新',
+                    success: true
+                });
+
             case 'activate':
                 const activatedUser = await userService.activateUser(userId);
                 return NextResponse.json({
@@ -154,13 +165,19 @@ export async function POST(
                         { status: 400 }
                     );
                 }
-                const updatedUser = await userService.updateUserRole(userId, data.role);
+                const roleUpdatedUser = await userService.updateUserRole(userId, data.role);
                 return NextResponse.json({
-                    user: updatedUser,
+                    user: roleUpdatedUser,
                     message: '使用者角色已更新',
                     success: true
                 });
 
+            case 'force_reset_password':
+                await userService.forceResetPassword(userId, data.password);
+                return NextResponse.json({
+                    message: '密碼重設郵件已發送',
+                    success: true
+                });
             case 'verify_email':
                 const verifiedUser = await userService.verifyEmail(userId);
                 return NextResponse.json({

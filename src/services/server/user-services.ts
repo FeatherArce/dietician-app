@@ -1,6 +1,7 @@
 import prisma from '@/services/prisma';
 import { User, UserRole, Prisma } from '@/prisma-generated/postgres-client';
 import type { User as NextAuthUser } from 'next-auth';
+import { PasswordService } from './auth/password-service';
 
 // 類型定義
 export type CreateUserData = {
@@ -215,6 +216,20 @@ export const userService = {
         } catch (error) {
             console.error('Error updating user:', error);
             throw new Error('Failed to update user');
+        }
+    },
+
+    async forceResetPassword(id: string, password: string) {
+        try {
+            const passwordHash = await PasswordService.hash(password);
+            const user = await prisma.user.update({
+                where: { id },
+                data: { password_hash: passwordHash },
+            });
+            return user;
+        } catch (error) {
+            console.error('Error creating user:', error);
+            throw new Error('Failed to create user');
         }
     },
 
