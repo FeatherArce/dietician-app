@@ -13,7 +13,8 @@ const adminOnlyRoutes = [
     '/crm',
     '/erp',
     '/api/crm',
-    '/api/erp'
+    '/api/erp',
+    '/users',    
 ];
 
 const rootPage = '/';
