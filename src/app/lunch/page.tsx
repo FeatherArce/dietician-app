@@ -17,8 +17,10 @@ import {
 import EventCard from './_components/EventCard';
 import EventOrderSummaryTable from './_components/EventOrderSummaryTable';
 import OrderDetailModal from './_components/OrderDetailModal';
-import type { EventWithDetails, MyOrder } from './types';
 import PageAuthBlocker from '@/components/page/PageAuthBlocker';
+import { ILunchEvent, MyOrder } from '@/types/LunchEvent';
+import { getLunchEventById } from '@/services/client/lunch/lunch-event';
+import { toast } from '@/components/Toast';
 
 enum EventActiveType {
     ACTIVE = 'active',
@@ -41,7 +43,7 @@ export default function LunchPage() {
     const authLoading = status === 'loading';
     const isAuthenticated = status === 'authenticated';
     const user = session?.user;
-    const [myEvents, setMyEvents] = useState<EventWithDetails[]>([]);
+    const [myEvents, setMyEvents] = useState<ILunchEvent[]>([]);
     const [myOrders, setMyOrders] = useState<MyOrder[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedActiveType, setSelectedActiveType] = useState<string>(EventActiveType.ACTIVE); // 活動類型篩選
@@ -50,7 +52,7 @@ export default function LunchPage() {
 
     // 個別事件統計相關狀態
     const statisticModalRef = useRef<ModalRef>(null);
-    const [selectedEvent, setSelectedEvent] = useState<EventWithDetails | undefined>(undefined);
+    const [selectedEvent, setSelectedEvent] = useState<ILunchEvent | undefined>(undefined);
     const [loadingEventStats, setLoadingEventStats] = useState(false);
 
     const filteredEvents = useMemo(() => {
@@ -76,7 +78,7 @@ export default function LunchPage() {
             const data = await response.json();
 
             if (data.success && data.events) {
-                const events = data.events as EventWithDetails[];
+                const events = data.events as ILunchEvent[];
                 setMyEvents(events);
             }
         } catch (error) {
@@ -107,18 +109,17 @@ export default function LunchPage() {
 
         setLoadingEventStats(true);
         try {
-            const response = await authFetch(`/api/lunch/events/${eventId}`);
+            const { response, result } = await getLunchEventById(eventId);
 
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.event) {
-                    // 轉換事件資料為統計格式 (複用事件詳細頁面的邏輯)
-                    const event = data.event as EventWithDetails;
-                    setSelectedEvent(event);
-                }
+            const event = result.data?.event;
+            if (!response.ok || !result.success || !event) {
+                throw new Error(result.message || `無法取得活動資料 (狀態碼: ${response.status})`);
             }
+
+            setSelectedEvent(event);
         } catch (error) {
             console.error('獲取事件統計資料失敗:', error);
+            toast.error(`無法取得活動資料: ${error instanceof Error ? error.message : String(error)}`);
         } finally {
             setLoadingEventStats(false);
         }

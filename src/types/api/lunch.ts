@@ -1,9 +1,9 @@
 import { Menu, Shop } from "@/prisma-generated/postgres-client";
 import { ApiResponse } from "./api";
-import { EventWithDetails } from "@/app/lunch/types";
+import { ILunchEvent } from "../LunchEvent";
 
 // src/app/api/lunch/events 的回應型別定義
-export type GetEventResponse = ApiResponse<{ event: EventWithDetails }>;
+export type GetEventResponse = ApiResponse<{ event: ILunchEvent }>;
 
 // src/app/api/lunch/shops 的回應型別定義
 export type GetShopsResponse = ApiResponse<{ shops: Shop[] }>;

@@ -1,6 +1,5 @@
 "use client";
 import LunchEventForm from "@/app/lunch/_components/LunchEventForm";
-import { EventWithDetails } from "@/app/lunch/types";
 import Breadcrumb from "@/components/Breadcrumb";
 import { FormValues } from "@/components/form2";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
@@ -8,6 +7,7 @@ import { toast } from "@/components/Toast";
 import UnauthorizedView from "@/components/UnauthorizedView";
 import { UserRole } from "@/prisma-generated/postgres-client";
 import { getLunchEventById, updateLunchEvent } from "@/services/client/lunch/lunch-event";
+import { ILunchEvent } from "@/types/LunchEvent";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
@@ -27,7 +27,7 @@ export default function EditEventPage() {
 
   const [isPending, startTransition] = useTransition();
   const [loading, setLoading] = useState(false);
-  const [eventData, setEventData] = useState<EventWithDetails | undefined>();
+  const [eventData, setEventData] = useState<ILunchEvent | undefined>();
 
   const getLunchEvent = useCallback(async () => {
     try {

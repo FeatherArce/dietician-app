@@ -7,11 +7,11 @@ import {
     FaUser,
     FaUsers
 } from 'react-icons/fa';
-import type { EventWithDetails } from '../types';
 import OrderDetailTable from './OrderDetailTable';
+import { ILunchEvent } from '@/types/LunchEvent';
 
 interface EventStatisticsProps extends React.HTMLAttributes<HTMLDivElement> {
-    event?: EventWithDetails;
+    event?: ILunchEvent;
     showStatistics?: boolean;
 }
 
@@ -20,7 +20,7 @@ export interface EventOrderSummaryTableRef {
 }
 
 // 生成統計報告文字
-const generateReportText = (event: EventWithDetails) => {
+const generateReportText = (event: ILunchEvent) => {
     const { shop, orders, _count } = event;
 
     let report = `【訂餐統計報告】\n\n`;

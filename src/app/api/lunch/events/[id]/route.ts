@@ -1,4 +1,3 @@
-import { EventOrder, EventOrderItem } from '@/app/lunch/types';
 import { UserRole } from '@/prisma-generated/postgres-client';
 import { auth } from "@/libs/auth";
 import { LunchEventFilters, lunchEventService } from '@/services/server/lunch/lunch-event-services';

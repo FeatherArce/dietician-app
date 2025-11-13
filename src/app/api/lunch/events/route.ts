@@ -1,8 +1,8 @@
-import { EventWithDetails, EventWithOrders } from '@/app/lunch/types';
 import { checkRequiredFields } from '@/libs/utils';
 import { lunchEventService, type CreateLunchEventData, type LunchEventFilters } from '@/services/server/lunch/lunch-event-services';
 import { NextRequest, NextResponse } from 'next/server';
 import { getEventDetails, getEventRequestFilters } from './utils';
+import { ILunchEvent } from '@/types/LunchEvent';
 
 export async function GET(request: NextRequest) {
     try {
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
         const filters: LunchEventFilters = getEventRequestFilters(request);
 
         const events = await lunchEventService.getEvents(filters);
-        const newEvents: Array<EventWithDetails> = [];
+        const newEvents: Array<ILunchEvent> = [];
         for (const event of events) {
             const newEvent = getEventDetails(event);
             newEvents.push(newEvent);

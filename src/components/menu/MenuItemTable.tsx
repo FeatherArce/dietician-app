@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import DataTable from '../DataTable'
-import { EventMenuItem } from '@/types/LunchEvent'
+import { IShopMenuItem } from '@/types/LunchEvent'
 import { formatCurrency } from '@/libs/formatter'
 import { FaEdit, FaPlus, FaSpinner, FaTrash } from 'react-icons/fa';
 import { getLunchShopMenuItems } from '@/services/client/lunch/lunch-shop';
@@ -16,7 +16,7 @@ interface MenuItemTableProps {
 
 interface MenuItemTableModalSettings {
     mode: 'create' | 'edit';
-    item?: EventMenuItem;
+    item?: IShopMenuItem;
 }
 
 export default function MenuItemTable({
@@ -25,7 +25,7 @@ export default function MenuItemTable({
     const formRef = useRef<Form2Ref>(null);
     const modalRef = useRef<ModalRef>(null);
     const [isPending, startTransition] = useTransition();
-    const [menuItems, setMenuItems] = useState<EventMenuItem[]>([]);
+    const [menuItems, setMenuItems] = useState<IShopMenuItem[]>([]);
     const [modalSettings, setModalSettings] = useState<MenuItemTableModalSettings>({
         mode: 'create',
     });
@@ -50,7 +50,7 @@ export default function MenuItemTable({
         (async () => { await getMenuItems(); })();
     }, [getMenuItems]);
 
-    const modalOpenHandler = useCallback((mode: 'create' | 'edit', item?: EventMenuItem) => {
+    const modalOpenHandler = useCallback((mode: 'create' | 'edit', item?: IShopMenuItem) => {
         setModalSettings({ mode, item });
         if (mode === 'edit' && item) {
             formRef.current?.setFieldsValue(item);
@@ -130,7 +130,7 @@ export default function MenuItemTable({
                     新增菜單項目
                 </button>
             </div>
-            <DataTable<EventMenuItem>
+            <DataTable<IShopMenuItem>
                 dataSource={menuItems}
                 columns={[
                     // { key: 'sort_order', title: '排序順序', },

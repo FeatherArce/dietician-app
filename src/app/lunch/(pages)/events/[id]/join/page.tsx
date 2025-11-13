@@ -7,9 +7,9 @@ import Link from 'next/link';
 import { authFetch } from '@/libs/auth-fetch';
 import { ROUTE_CONSTANTS } from '@/constants/app-constants';
 import EventCard from '@/app/lunch/_components/EventCard';
-import { EventWithDetails } from '@/app/lunch/types';
 import { getLunchEventById, getLunchEvents } from '@/services/client/lunch/lunch-event';
 import { LunchOrder } from '@/prisma-generated/postgres-client';
+import { ILunchEvent } from '@/types/LunchEvent';
 
 
 export default function JoinEventPage() {
@@ -18,7 +18,7 @@ export default function JoinEventPage() {
     const isLoading = status === 'loading';
     const isAuthenticated = status === 'authenticated';
     const user = session?.user;
-    const [event, setEvent] = useState<EventWithDetails | null>(null);
+    const [event, setEvent] = useState<ILunchEvent | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [hasOrder, setHasOrder] = useState(false);
@@ -73,7 +73,7 @@ export default function JoinEventPage() {
         } finally {
             setLoading(false);
         }
-    }, [eventId, user?.id]);
+    }, [eventId, user?.id, hasUserOrder]);
 
     useEffect(() => {
         getEvent();

@@ -1,14 +1,6 @@
-import { EventOrderItem, EventWithDetails, EventWithOrders, LunchEventStatistics } from "@/app/lunch/types";
 import type { LunchEventFilters } from '@/services/server/lunch/lunch-event-services';
+import { ILunchEvent, LunchEventStatistics, LunchOrderItemStatistic } from '@/types/LunchEvent';
 import { NextRequest } from "next/server";
-
-export interface LunchOrderItemStatistic {
-    name: string;
-    quantity: number;
-    price: number;
-    total: number;
-    items: EventOrderItem[];
-}
 
 export function getEventRequestFilters(request: NextRequest): LunchEventFilters {
     const searchParams = request.nextUrl.searchParams;
@@ -37,7 +29,7 @@ export function getEventRequestFilters(request: NextRequest): LunchEventFilters 
     return filters;
 }
 
-function getAttendees(event: EventWithDetails | EventWithOrders) {
+function getAttendees(event: ILunchEvent) {
     const newAttendees = new Map<string, { id: string; name: string, email: string }>();
     for (const order of event?.orders || []) {
         if (!newAttendees.has(order.id)) {
@@ -51,7 +43,7 @@ function getAttendees(event: EventWithDetails | EventWithOrders) {
     return Array.from(newAttendees.values());
 }
 
-function getStatistics(event: EventWithDetails): LunchEventStatistics {
+function getStatistics(event: ILunchEvent): LunchEventStatistics {
     // 統計餐點的總數量 (不重複計算相同餐點)
     const lunchOrderItemMap = new Map<string, LunchOrderItemStatistic>();
     let totalAmount = 0;
@@ -101,15 +93,15 @@ function getStatistics(event: EventWithDetails): LunchEventStatistics {
     });
 }
 
-export function getEventDetails(event: EventWithDetails | EventWithOrders): EventWithDetails {
+export function getEventDetails(event: ILunchEvent): ILunchEvent {
     const newEventAttendees = getAttendees(event);
     // const totalAmount = (event.orders || []).reduce((sum, order) => sum + order.total, 0);
-    const newStatistics = getStatistics(event as EventWithDetails);
+    const newStatistics = getStatistics(event as ILunchEvent);
     // 添加統計資料到事件物件
-    const newEventWithOrders: EventWithOrders = {
+    const newEventWithOrders: ILunchEvent = {
         ...event,
         ...newStatistics,
-        _count:{
+        _count: {
             ...event._count,
             ...newStatistics._count,
             attendees: newEventAttendees.length,

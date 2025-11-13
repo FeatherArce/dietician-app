@@ -2,6 +2,7 @@
 import LoadingIndicator from '@/components/LoadingIndicator';
 import { toast } from '@/components/Toast';
 import { LunchEvent, UserRole } from '@/prisma-generated/postgres-client';
+import { ILunchEvent, MyOrder } from '@/types/LunchEvent';
 import type { User } from 'next-auth';
 import Link from 'next/link';
 import {
@@ -16,10 +17,9 @@ import {
     FaUser,
     FaUsers
 } from 'react-icons/fa';
-import type { EventWithDetails, MyOrder } from '../types';
 
 interface EventCardProps {
-    event: EventWithDetails;
+    event: ILunchEvent;
     user?: User;    
     getUserOrderForEvent?: (eventId: string) => MyOrder | null;
     onShowOrderDetail?: (order: MyOrder) => void;

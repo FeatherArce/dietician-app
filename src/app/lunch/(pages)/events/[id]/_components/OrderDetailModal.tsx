@@ -1,17 +1,16 @@
 "use client";
 
-import React from 'react';
-import {
-    FaTimes,
-    FaUser,
-    FaCalendarAlt,
-    FaDollarSign,
-    FaClipboardList,
-    FaStickyNote
-} from 'react-icons/fa';
 import DataTable, { Column, SummaryConfig } from '@/components/DataTable';
-import { LunchOrder, LunchOrderItem, User } from '@/prisma-generated/postgres-client';
-import { EventOrder } from '@/app/lunch/types';
+import { LunchOrderItem } from '@/prisma-generated/postgres-client';
+import { ILunchOrder } from '@/types/LunchEvent';
+import {
+    FaCalendarAlt,
+    FaClipboardList,
+    FaDollarSign,
+    FaStickyNote,
+    FaTimes,
+    FaUser
+} from 'react-icons/fa';
 
 // interface OrderItem extends Record<string, unknown> {
 //     id: string;
@@ -24,7 +23,7 @@ import { EventOrder } from '@/app/lunch/types';
 interface OrderDetailModalProps {
     isOpen: boolean;
     onClose: () => void;
-    order: EventOrder | null;
+    order: ILunchOrder | null;
     // order: {
     //     id: string;
     //     total: number;

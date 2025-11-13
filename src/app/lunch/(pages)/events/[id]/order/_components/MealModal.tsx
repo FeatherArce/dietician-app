@@ -1,18 +1,17 @@
 import { Form2Ref } from '@/components/form2/types';
 import Modal, { ModalRef } from '@/components/Modal';
-import { EventMenuItem } from '@/types/LunchEvent';
+import { ILunchOrderItem, IShopMenuItem } from '@/types/LunchEvent';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import MealForm, { MealFormMode, MenuFormValues } from './MealForm';
-import { EventOrderItem } from '@/app/lunch/types';
 
 export interface MealModalSettings {
   mode: MealFormMode;
   from: 'menu' | 'custom';
-  menu_item?: EventMenuItem;
+  menu_item?: IShopMenuItem;
   open: boolean;
   // Edit mode only  
   index?: number; // 編輯模式下的項目索引
-  values?: EventOrderItem;
+  values?: ILunchOrderItem;
 }
 
 interface AddMealModalProps {

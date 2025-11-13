@@ -3,8 +3,8 @@ import DataTable from '@/components/DataTable';
 import { formatCurrency } from '@/libs/formatter';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FaClipboardList, FaUserFriends } from 'react-icons/fa';
-import { EventWithDetails } from '../types';
 import Tabs from '@/components/Tabs';
+import { ILunchEvent } from '@/types/LunchEvent';
 
 enum DisplayMode {
     ByUser = 'by-user',
@@ -12,7 +12,7 @@ enum DisplayMode {
 }
 
 interface OrderDetailTableProps extends React.HTMLAttributes<HTMLDivElement> {
-    event?: EventWithDetails;
+    event?: ILunchEvent;
 }
 
 // 把點餐明細改寫成表格形式顯示，並支援依使用者或依餐點兩種模式切換
@@ -132,7 +132,7 @@ interface OrderDetailTableSource extends Record<string, unknown> {
     note?: string;
 }
 
-function UserOrderDetailTable({ event }: { event?: EventWithDetails }) {
+function UserOrderDetailTable({ event }: { event?: ILunchEvent }) {
     const orderDetails = useMemo(() => {
         const newDetails: Array<OrderDetailTableSource> = [];
         (event?.orders || []).forEach(order => {
@@ -198,7 +198,7 @@ function UserOrderDetailTable({ event }: { event?: EventWithDetails }) {
     );
 }
 
-function MenuOrderDetailTable({ event }: { event?: EventWithDetails }) {
+function MenuOrderDetailTable({ event }: { event?: ILunchEvent }) {
     const orderDetails = useMemo(() => {
         // 依餐點彙總訂單明細
         const detailsMap: Map<string, {

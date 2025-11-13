@@ -1,11 +1,9 @@
 "use client";
-
 import React from 'react';
 import Link from 'next/link';
-import type { MyOrder } from '../types';
 import DataTable from '@/components/DataTable';
 import { formatCurrency } from '@/libs/formatter';
-import { EventOrderItem } from '../types';
+import { ILunchOrderItem, MyOrder } from '@/types/LunchEvent';
 
 interface OrderDetailModalProps {
     selectedOrder: MyOrder | null;
@@ -101,7 +99,7 @@ export default OrderDetailModal;
 
 function OrderTable({ order }: { order: MyOrder }) {
     return (
-        <DataTable<EventOrderItem>
+        <DataTable<ILunchOrderItem>
             dataSource={order.items}
             pagination={false}
             columns={[
