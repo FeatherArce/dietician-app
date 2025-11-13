@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ROUTE_CONSTANTS } from './constants/app-constants';
-import { auth } from './libs/auth';
+import { getToken } from 'next-auth/jwt';
 
 // 需要認證的路由模式
 const protectedRoutes = [
-    '/crm',
-    '/erp',
     '/lunch',
     '/api/lunch',
+];
+
+const adminOnlyRoutes = [
+    // 在此添加僅限管理員訪問的路由模式
+    '/crm',
+    '/erp',
     '/api/crm',
     '/api/erp'
 ];
@@ -16,7 +20,7 @@ const rootPage = '/';
 const defaultAuthRedirectPage = '/lunch';
 
 // 認證相關路由（已登入時重定向）
-const authRoutes = [
+const loginRoutes = [
     ROUTE_CONSTANTS.LOGIN,
     ROUTE_CONSTANTS.REGISTER,
 ];
@@ -27,19 +31,22 @@ const publicRoutes = [
     '/auth/reset-password'
 ];
 
-/**
- * 檢查路由是否符合模式
- */
+// Edge 環境不能使用 prisma 客戶端，只是匯入型別也不行，因此改用字串陣列定義角色
+const adminRole = 'ADMIN';
+
+// 檢查路由是否符合模式
 function matchesPattern(pathname: string, patterns: string[]): boolean {
     return patterns.some(pattern => pathname.startsWith(pattern));
 }
 
-/**
- * 創建重定向響應
- */
+// 創建重定向響應
 function createRedirect(url: string, request: NextRequest) {
     const redirectUrl = new URL(url, request.url);
     return NextResponse.redirect(redirectUrl);
+}
+
+function isApiRoute(pathname: string): boolean {
+    return pathname.startsWith('/api/');
 }
 
 // NextAuth 中間件集成
@@ -58,10 +65,21 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // 驗證使用者會話
-    const session = await auth();
-    console.log('[MIDDLEWARE] Session validation result:', session);
-    const isAuthenticated = !!session?.user;
+    // console.log(`[MIDDLEWARE] Processing request for: ${pathname}`);
+    // console.log(`[MIDDLEWARE] Cookies:`, request.cookies);
+
+    // 在 Edge 環境中使用 getToken 來獲取 JWT token 時，需要指定 cookie 名稱
+    const nextAuthCookieName = process.env.NODE_ENV === 'production'
+        ? '__Secure-next-auth.session-token'
+        : 'next-auth.session-token';
+    // 取得使用者的 JWT token
+    const jwtToken = await getToken({
+        req: request,
+        secret: process.env.NEXTAUTH_SECRET,
+        cookieName: nextAuthCookieName
+    });
+    // console.log(`[MIDDLEWARE] Token`, jwtToken);
+    const isAuthenticated = !!jwtToken;
 
     // 處理根目錄路由
     if (pathname === rootPage) {
@@ -69,21 +87,16 @@ export async function middleware(request: NextRequest) {
     }
 
     // 處理認證路由（Root/登入/註冊頁面）
-    if (matchesPattern(pathname, authRoutes)) {
-        console.log(`[MIDDLEWARE] Auth route accessed: ${pathname}, isAuthenticated: ${isAuthenticated}`);
+    if (matchesPattern(pathname, loginRoutes)) {
+        // console.log(`[MIDDLEWARE] Auth route accessed: ${pathname}, isAuthenticated: ${isAuthenticated}`);
 
         if (isAuthenticated) {
             // 已登入使用者重定向到主頁或上次訪問頁面
             const redirectTo = request.nextUrl.searchParams.get('redirect');
             const finalRedirect = redirectTo || defaultAuthRedirectPage;
 
-            console.log(`[MIDDLEWARE] Redirecting authenticated user from ${pathname} to ${finalRedirect}`);
-
-            if (redirectTo) {
-                return createRedirect(redirectTo, request);
-            } else {
-                return createRedirect(defaultAuthRedirectPage, request);
-            }
+            // console.log(`[MIDDLEWARE] Redirecting authenticated user from ${pathname} to ${finalRedirect}`);
+            return createRedirect(finalRedirect, request);
         }
         return NextResponse.next();
     }
@@ -96,10 +109,28 @@ export async function middleware(request: NextRequest) {
     // 處理受保護的路由
     if (matchesPattern(pathname, protectedRoutes)) {
         if (!isAuthenticated) {
-            console.log('Unauthorized access attempt to:', pathname);
-
             // API 路由返回 401
-            if (pathname.startsWith('/api/')) {
+            if (isApiRoute(pathname)) {
+                return NextResponse.json(
+                    { error: 'Unauthorized' },
+                    { status: 401 }
+                );
+            }
+
+            // 頁面路由重定向到登入頁面
+            const newRedirectUrl = new URL(ROUTE_CONSTANTS.LOGIN, request.url);
+            newRedirectUrl.searchParams.set('redirect', pathname);
+            newRedirectUrl.searchParams.set('from', 'protected');
+            return NextResponse.redirect(newRedirectUrl);
+        }
+
+        // 已認證且有權限的使用者可以訪問
+        return NextResponse.next();
+    }
+    if (matchesPattern(pathname, adminOnlyRoutes)) {
+        if (!isAuthenticated) {
+            // API 路由返回 401
+            if (isApiRoute(pathname)) {
                 return NextResponse.json(
                     { error: 'Unauthorized' },
                     { status: 401 }
@@ -114,36 +145,17 @@ export async function middleware(request: NextRequest) {
         }
 
         // 檢查特定角色權限（可選）
-        const userRole = session.user?.role || '';
-
-        // CRM 系統權限檢查
-        if (pathname.startsWith('/crm') || pathname.startsWith('/api/crm')) {
-            // 根據需要設定 CRM 權限規則
-            // 例如：只有 ADMIN 和 MANAGER 可以訪問
-            if (!['ADMIN', 'MANAGER'].includes(userRole)) {
-                if (pathname.startsWith('/api/')) {
-                    return NextResponse.json(
-                        { error: 'Insufficient permissions' },
-                        { status: 403 }
-                    );
-                }
-                return createRedirect('/unauthorized', request);
+        const userRole = jwtToken?.role || '';
+        if (adminRole !== userRole) {
+            // API 路由返回 401
+            if (isApiRoute(pathname)) {
+                return NextResponse.json(
+                    { error: 'Insufficient permissions' },
+                    { status: 403 }
+                );
             }
-        }
-
-        // ERP 系統權限檢查
-        if (pathname.startsWith('/erp') || pathname.startsWith('/api/erp')) {
-            // 根據需要設定 ERP 權限規則
-            // 例如：只有 ADMIN 可以訪問
-            if (userRole !== 'ADMIN') {
-                if (pathname.startsWith('/api/')) {
-                    return NextResponse.json(
-                        { error: 'Insufficient permissions' },
-                        { status: 403 }
-                    );
-                }
-                return createRedirect('/unauthorized', request);
-            }
+            // 頁面路由重定向到未授權頁面
+            return createRedirect('/unauthorized', request);
         }
 
         // 已認證且有權限的使用者可以訪問

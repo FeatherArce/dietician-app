@@ -17,9 +17,6 @@ export default function UnauthorizedPage() {
             <Link href="/" className="btn btn-primary">
               回到首頁
             </Link>
-            <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-outline">
-              重新登入
-            </Link>
           </div>
         </div>
       </div>

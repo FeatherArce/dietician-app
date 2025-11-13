@@ -10,7 +10,7 @@ import { UserRole } from "@/prisma-generated/postgres-client"
 declare module "next-auth/jwt" {
     interface JWT {
         id?: string
-        role?: string
+        role?: string // 實際上會是 UserRole，但 JWT 只能存字串
     }
 }
 
