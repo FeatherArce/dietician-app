@@ -111,6 +111,7 @@ export function getEventDetails(event: EventWithDetails | EventWithOrders): Even
         ...newStatistics,
         _count:{
             ...event._count,
+            ...newStatistics._count,
             attendees: newEventAttendees.length,
         },
         attendees: newEventAttendees,
