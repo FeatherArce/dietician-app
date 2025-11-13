@@ -37,12 +37,12 @@ export default function JoinEventPage() {
             setLoading(true);
             const { response, result } = await getLunchEventById(eventId);
             console.log('Fetch event by ID response:', { response, result });
-            const data = result;
-            if (data.success && data.event) {
-                setEvent(data.event);
+
+            if (result.success && result?.data?.event) {
+                setEvent(result.data.event);
             } else {
                 setEvent(null);
-                setError(data.error || '活動不存在');
+                setError(result.message || '活動不存在');
             }
         } catch (error) {
 
