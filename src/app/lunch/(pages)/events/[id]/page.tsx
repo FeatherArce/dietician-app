@@ -21,9 +21,10 @@ import {
   FaUsers
 } from "react-icons/fa";
 import EventOrderSummaryTable, { EventOrderSummaryTableRef } from "../../../_components/EventOrderSummaryTable";
-import type { EventOrder, EventWithDetails } from "../../../types";
 import { getLunchEventById, updateLunchEvent } from "@/services/client/lunch/lunch-event";
 import { toast } from "@/components/Toast";
+import { ILunchEvent, ILunchOrder } from "@/types/LunchEvent";
+import { UserRole } from "@/prisma-generated/postgres-client";
 
 // interface EventWithSummary extends EventWithDetails {
 //   orderCount: number;
@@ -41,12 +42,16 @@ export default function EventDetailPage() {
   const isAuthenticated = status === 'authenticated';
   const user = session?.user;
 
-  const [event, setEvent] = useState<EventWithDetails | null>(null);
+  const [event, setEvent] = useState<ILunchEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [isPaymentPending, startPaymentTransition] = useState(false);
 
   const eventTableRef = useRef<EventOrderSummaryTableRef>(null);
+
+  const canEdit = useMemo(() => {
+    return event?.owner_id === user?.id || user?.role === UserRole.ADMIN || user?.role === UserRole.MODERATOR
+  }, [event, user]);
 
   const fetchEvent = useCallback(async () => {
     try {
@@ -201,7 +206,7 @@ export default function EventDetailPage() {
 
         <div className="flex space-x-2">
           {/* 只有活動擁有者才能看到編輯和狀態控制按鈕 */}
-          {event.owner_id === user?.id && (
+          {canEdit && (
             <>
               <Link
                 href={`/lunch/events/${eventId}/edit`}
@@ -293,7 +298,7 @@ export default function EventDetailPage() {
         <h3 className="text-xl font-bold">活動資訊</h3>
 
         <div className="grid grid-cols-2 gap-4">
-          <div>
+          {/* <div>
             <label className="text-sm text-base-content/70">活動名稱</label>
             <div className="font-semibold">{event.title}</div>
           </div>
@@ -303,7 +308,7 @@ export default function EventDetailPage() {
               <label className="text-sm text-base-content/70">活動描述</label>
               <div className="text-base-content/80">{event.description}</div>
             </div>
-          )}
+          )} */}
 
           <div>
             <label className="text-sm text-base-content/70">主辦人</label>
@@ -312,6 +317,32 @@ export default function EventDetailPage() {
                 <span className="font-medium">{event.owner.name}</span>
               ) : (
                 "未知"
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-xl font-bold">商店資訊</h3>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <FaStore className="w-5 h-5 text-primary" />
+                <div>
+                  <span className="font-semibold">{event.shop?.name}</span>
+                </div>
+              </div>
+
+              {event.shop?.address && (
+                <div>
+                  <label className="text-sm text-base-content/70">地址</label>
+                  <div className="text-base-content/80">{event.shop.address}</div>
+                </div>
+              )}
+
+              {event.shop?.phone && (
+                <div>
+                  <label className="text-sm text-base-content/70">電話</label>
+                  <div className="text-base-content/80">{event.shop.phone}</div>
+                </div>
               )}
             </div>
           </div>
@@ -345,38 +376,6 @@ export default function EventDetailPage() {
         </div>
       </div>
 
-      {/* 商店資訊 */}
-      {event.shop && (
-        <>
-          <hr className=" border-gray-500" />
-          <div className="space-y-2">
-            <h3 className="text-xl font-bold">商店資訊</h3>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <FaStore className="w-5 h-5 text-primary" />
-                <div>
-                  <span className="font-semibold">{event.shop.name}</span>
-                </div>
-              </div>
-
-              {event.shop.address && (
-                <div>
-                  <label className="text-sm text-base-content/70">地址</label>
-                  <div className="text-base-content/80">{event.shop.address}</div>
-                </div>
-              )}
-
-              {event.shop.phone && (
-                <div>
-                  <label className="text-sm text-base-content/70">電話</label>
-                  <div className="text-base-content/80">{event.shop.phone}</div>
-                </div>
-              )}
-            </div>
-          </div>
-        </>
-      )}
-
       {/* divider */}
       <hr className=" border-gray-500" />
 
@@ -391,7 +390,7 @@ export default function EventDetailPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <DataTable<EventOrder>
+          <DataTable<ILunchOrder>
             dataSource={event.orders || []}
             columns={[
               { key: 'id', title: '訂單編號', render: (value, order) => String(value).slice(-8) },
@@ -426,7 +425,7 @@ export default function EventDetailPage() {
                 key: 'is_paid', title: '收款狀態', render: (value, order) => (
                   <>
                     {/* 只有活動擁有者才能修改收款狀態 */}
-                    {event.owner_id === user?.id ? (
+                    {canEdit ? (
                       <div className="flex items-center space-x-2">
                         {isPaymentPending ? (
                           <span className="loading loading-spinner loading-sm"></span>
