@@ -9,6 +9,7 @@ import "@/components/Toast/toast.css";
 import ThemeProvider from "@/components/ThemeProvider";
 import { SessionProvider } from "next-auth/react";
 import { cn } from "@/libs/utils";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-TW">
-      <body        
+      <body
         className={cn(
           geistSans.variable,
           geistMono.variable,
@@ -48,7 +49,9 @@ export default function RootLayout({
             <NotificationProvider>
               <ToastProvider>
                 <Navbar />
-                {children}
+                <Suspense>
+                  {children}
+                </Suspense>
                 <NotificationContainer />
                 <ToastContainer />
               </ToastProvider>
