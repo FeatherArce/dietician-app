@@ -2,15 +2,19 @@
 import Breadcrumb from "@/components/Breadcrumb";
 import DataTable from "@/components/DataTable";
 import { Notification } from "@/components/Notification";
+import PageAuthBlocker from "@/components/page/PageAuthBlocker";
+import PageTitle from "@/components/page/PageTitle";
 import Tabs from "@/components/Tabs";
+import { toast } from "@/components/Toast";
+import { AUTH_CONSTANTS } from "@/constants/app-constants";
+import { authFetch } from "@/libs/auth-fetch";
 import { formatCurrency, formatNumber } from "@/libs/formatter";
+import { MenuCategory } from "@/prisma-generated/postgres-client";
+import { getLunchEventById } from "@/services/client/lunch/lunch-event";
 import { useSession } from "next-auth/react";
-import { EventData, EventMenu, EventMenuCategory, EventMenuItem } from "@/types/LunchEvent";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  FaArrowLeft,
   FaCheck,
   FaClock,
   FaEdit,
@@ -21,21 +25,16 @@ import {
   FaUtensils
 } from "react-icons/fa";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import MealModal, { MealModalSettings } from "./_components/MealModal";
-import PageTitle from "@/components/page/PageTitle";
 import { MealFormMode, MenuFormValues } from "./_components/MealForm";
-import { toast } from "@/components/Toast";
-import { authFetch } from "@/libs/auth-fetch";
-import { AUTH_CONSTANTS, ROUTE_CONSTANTS } from "@/constants/app-constants";
-import PageAuthBlocker from "@/components/page/PageAuthBlocker";
-import { EventOrderItem } from "@/app/lunch/types";
+import MealModal, { MealModalSettings } from "./_components/MealModal";
+import { ILunchOrderItem, ILunchEvent, IShopMenu, IShopMenuCategory, IShopMenuItem } from "@/types/LunchEvent";
 
 
 interface ExistingOrder {
   id: string;
   total: number;
   note?: string;
-  items: EventOrderItem[];
+  items: ILunchOrderItem[];
 }
 
 export default function OrderPage({ params }: { params: Promise<{ id: string }> }) {
@@ -45,9 +44,9 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
   const isAuthenticated = status === 'authenticated';
   const user = session?.user;
 
-  const [event, setEvent] = useState<EventData | null>(null);
+  const [event, setEvent] = useState<ILunchEvent | undefined>();
   const [existingOrder, setExistingOrder] = useState<ExistingOrder | null>(null);
-  const [orderItems, setOrderItems] = useState<EventOrderItem[]>([]);
+  const [orderItems, setOrderItems] = useState<ILunchOrderItem[]>([]);
   const [orderNote, setOrderNote] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -67,31 +66,25 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     getParams();
   }, [params]);
 
-  // 獲取事件資料
-  useEffect(() => {
-    const fetchEvent = async () => {
-      if (!eventId) return;
+  const getEvent = useCallback(async () => {
+    if (!eventId) return;
 
-      try {
-        const response = await fetch(`/api/lunch/events/${eventId}`);
-        const data = await response.json();
-
-        if (data.success && data.event) {
-          setEvent(data.event);
-        } else {
-          throw new Error(data.error || "活動不存在");
-        }
-      } catch (error) {
-        console.error("Failed to fetch event:", error);
-        alert("無法載入活動資料");
-        router.back();
+    try {
+      const { response, result } = await getLunchEventById(eventId);
+      console.log('getLunchEventById > API Response:', { response, result });
+      const event = result.data?.event;
+      if (!response.ok || !result.success || !event) {
+        throw new Error(result.message || '活動不存在');
       }
-    };
-
-    if (eventId) {
-      fetchEvent();
+      setEvent(event);
+    } catch (error) {
+      console.error('Failed to fetch event:', error);
     }
-  }, [eventId, router]);
+  }, [eventId]);
+
+  useEffect(() => {
+    getEvent();
+  }, [getEvent]);
 
   // 獲取現有訂單
   useEffect(() => {
@@ -131,7 +124,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
   };
 
   // 開啟菜單項目設定視窗
-  const openAddMenuMealModal = (menuItem: EventMenuItem) => {
+  const openAddMenuMealModal = (menuItem: IShopMenuItem) => {
     setMealModalSettings({
       mode: MealFormMode.ADD,
       from: 'menu',
@@ -149,7 +142,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     });
   };
 
-  const openEditMealModal = (item: EventOrderItem, index: number) => {
+  const openEditMealModal = (item: ILunchOrderItem, index: number) => {
     if (!item) return;
 
     let foundedMenuItem = null;
@@ -176,7 +169,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
 
   // 新增或更新訂單項目，為了避免有重複項目，需要先檢查新增項目是否已存在
   // 如果備註有差異，則合併備註，否則只更新數量
-  const appendOrderItem = useCallback((newItem: EventOrderItem) => {
+  const appendOrderItem = useCallback((newItem: ILunchOrderItem) => {
     console.log("Appending order item", newItem);
     setOrderItems((prevItems) => {
       const existingItemIndex = prevItems?.findIndex(item =>
@@ -209,7 +202,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     });
   }, []);
 
-  const updateOrderItem = useCallback((index: number, updatedItem: EventOrderItem) => {
+  const updateOrderItem = useCallback((index: number, updatedItem: ILunchOrderItem) => {
     console.log("Updating order item", index, updatedItem);
     setOrderItems((prevItems) => {
       const updatedItems = [...prevItems];
@@ -224,7 +217,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       from: 'custom',
       open: false
     });
-    const appendedItem: EventOrderItem = values as EventOrderItem;
+    const appendedItem: ILunchOrderItem = values as ILunchOrderItem;
 
     if (settings.mode === MealFormMode.ADD) {
       appendOrderItem(appendedItem);
@@ -249,7 +242,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
         return newQuantity === 0 ? null : { ...item, quantity: newQuantity };
       }
       return item;
-    }).filter(Boolean) as EventOrderItem[]);
+    }).filter(Boolean) as ILunchOrderItem[]);
   };
 
   // 移除項目
@@ -329,10 +322,10 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
   };
 
   const tabMenus = useMemo(() => {
-    const newMenus: Array<EventMenu> = [];
+    const newMenus: Array<IShopMenu> = [];
     (event?.shop?.menus || []).forEach((menu) => {
-      const newMenu: EventMenu = { ...menu, categories: [], items: [] };
-      const categoryMap = new Map<string, EventMenuCategory>();
+      const newMenu: IShopMenu = { ...menu, categories: [], items: [] };
+      const categoryMap = new Map<string, MenuCategory & { items: Array<IShopMenuItem>; }>();
 
       categoryMap.set('default', {
         id: 'default',
@@ -345,7 +338,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
         sort_order: 0,
         items: []
       });
-      (menu.items || []).forEach((item) => {
+      (menu?.items || []).forEach((item) => {
         if (!item.category_id) {
           const defaultCategory = categoryMap.get('default');
           if (defaultCategory) {
@@ -357,7 +350,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
         }
       });
 
-      (menu.categories || []).forEach((category) => {
+      (menu?.categories || []).forEach((category) => {
         categoryMap.set(category.id, category);
       });
 
@@ -369,7 +362,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     return newMenus;
   }, [event]);
 
-  const TabMenuContent = ({ category }: { category: EventMenuCategory }) => {
+  const TabMenuContent = ({ category }: { category: IShopMenuCategory }) => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {category.items.map(item => (
@@ -491,7 +484,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
             )}
             <div className="flex items-center space-x-2">
               <FaUsers className="w-4 h-4 text-secondary" />
-              <span>主辦：{event.owner.name}</span>
+              <span>主辦：{event.owner?.name}</span>
             </div>
           </div>
         </div>
@@ -557,7 +550,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
                 </label>
               </div>
               <div>
-                <DataTable<EventOrderItem>
+                <DataTable<ILunchOrderItem>
                   dataSource={orderItems}
                   pagination={false}
                   columns={[
