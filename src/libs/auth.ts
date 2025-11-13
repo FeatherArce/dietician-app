@@ -1,5 +1,5 @@
 import prisma from "@/services/prisma"
-import { PasswordService } from "@/services/server/auth"
+import { PasswordService } from "@/services/server/auth/password-service"
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import type { JWT } from "next-auth/jwt"

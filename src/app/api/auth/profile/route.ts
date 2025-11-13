@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AuthService } from '@/services/server/auth';
 import { updateProfileSchema } from '@/services/server/auth/validation-schemas';
 import { auth } from "@/libs/auth";
-import { ApiResponse } from '../../utils';
+import { ApiMessage } from '../../utils';
+import { updateProfile } from '@/services/server/auth/auth-services';
 
 export async function PATCH(request: NextRequest) {
     try {
         // 驗證用戶是否已登入
         const session = await auth();
         if (!session?.user?.id) {
-            return ApiResponse.error(401);
+            return ApiMessage.error(401);
         }
 
         const body = await request.json();
@@ -28,7 +28,7 @@ export async function PATCH(request: NextRequest) {
         const { name, email, preferred_theme } = validation.data;
 
         // 更新用戶資料
-        const result = await AuthService.updateProfile(session?.user?.id, {
+        const result = await updateProfile(session?.user?.id, {
             name,
             email,
             preferred_theme

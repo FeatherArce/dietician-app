@@ -1,12 +1,12 @@
+import { register } from '@/services/server/auth/auth-services';
 import { NextRequest, NextResponse } from 'next/server';
-import { AuthService } from '@/services/server/auth';
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
         
         // 使用 AuthService 進行註冊
-        const result = await AuthService.register(body);
+        const result = await register(body);
         
         if (!result.success) {
             return NextResponse.json(

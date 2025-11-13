@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/libs/auth";
 import { orderService } from '@/services/server/lunch/order-services';
-import { ApiResponse } from '../../utils';
+import { ApiMessage } from '../../utils';
 
 // 創建新訂單
 export async function POST(request: NextRequest) {
     try {
         const session = await auth();
         if (!session?.user?.id) {
-            return ApiResponse.error(401);
+            return ApiMessage.error(401);
         }
 
         const data = await request.json();

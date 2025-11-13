@@ -2,7 +2,7 @@
 // Can Get/Update full user data, and really Delete a user
 import { NextRequest, NextResponse } from 'next/server';
 import { adminUserService } from '@/services/server/admin/admin-user-services';
-import { ApiResponse } from '@/app/api/utils';
+import { ApiMessage } from '@/app/api/utils';
 import { auth } from '@/libs/auth';
 
 export async function GET(
@@ -12,21 +12,21 @@ export async function GET(
     try {       
          const session = await auth();
         if (!session?.user?.id || session.user.role !== 'ADMIN') {
-            return ApiResponse.error(401);
+            return ApiMessage.error(401);
         }
 
         const { id: userId } = await params;
         const user = await adminUserService.getUserById(userId);
 
         if (!user) {
-            return ApiResponse.error(404, '找不到使用者');
+            return ApiMessage.error(404, '找不到使用者');
         }
         return NextResponse.json({
             user,
             success: true
         });
     } catch (error) {
-        return ApiResponse.error(500, 'Failed to fetch user');
+        return ApiMessage.error(500, 'Failed to fetch user');
     }
 }
 
@@ -40,14 +40,14 @@ export async function PATCH(
         const updatedUser = await adminUserService.updateUserById(userId, data);
 
         if (!updatedUser) {
-            return ApiResponse.error(404, 'Could not find user to update');
+            return ApiMessage.error(404, 'Could not find user to update');
         }
         return NextResponse.json({
             user: updatedUser,
             success: true
         });
     } catch (error) {
-        return ApiResponse.error(500, 'Failed to update user');
+        return ApiMessage.error(500, 'Failed to update user');
     }
 }
 
@@ -60,12 +60,12 @@ export async function DELETE(
         const deleted = await adminUserService.deleteUserById(userId);
 
         if (!deleted) {
-            return ApiResponse.error(404, 'Could not find user to delete');
+            return ApiMessage.error(404, 'Could not find user to delete');
         }
         return NextResponse.json({
             success: true
         });
     } catch (error) {
-        return ApiResponse.error(500, 'Failed to delete user');
+        return ApiMessage.error(500, 'Failed to delete user');
     }
 }

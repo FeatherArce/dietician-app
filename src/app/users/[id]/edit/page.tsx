@@ -6,7 +6,7 @@ import PageTitle from '@/components/page/PageTitle';
 import { toast } from '@/components/Toast';
 import { UserRole } from '@/prisma-generated/postgres-client';
 import { updateUser } from '@/services/client/user';
-import { getUserRoleLabel } from '@/types/User';
+import { getUserRoleChineseName } from '@/types/User';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FaSave } from 'react-icons/fa';
@@ -54,9 +54,9 @@ export default function EditUserPage() {
   const formRef = useRef<Form2Ref>(null);
 
   const roleOptions = useMemo(() => ([
-    { label: getUserRoleLabel(UserRole.USER), value: 'USER' },
-    { label: getUserRoleLabel(UserRole.MODERATOR), value: 'MODERATOR' },
-    { label: getUserRoleLabel(UserRole.ADMIN), value: 'ADMIN' },
+    { label: getUserRoleChineseName(UserRole.USER), value: 'USER' },
+    { label: getUserRoleChineseName(UserRole.MODERATOR), value: 'MODERATOR' },
+    { label: getUserRoleChineseName(UserRole.ADMIN), value: 'ADMIN' },
   ]), []);
 
   // 取得用戶資料

@@ -8,7 +8,7 @@ export const API_ERROR_MESSAGES: { [key: number]: string } = {
     500: 'Internal Server Error',
 };
 
-export class ApiResponse {
+export class ApiMessage {
     static success(data: any, status: number = 200) {
         return NextResponse.json({ data, success: true }, { status });
     }

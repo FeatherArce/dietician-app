@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaEnvelope, FaLock, FaUserTag, FaArrowLeft, FaSave } from 'react-icons/fa';
 import Breadcrumb from '@/components/Breadcrumb';
-import { getUserRoleLabel } from '@/types/User';
+import { getUserRoleChineseName } from '@/types/User';
 import { UserRole } from '@/prisma-generated/postgres-client';
 
 interface FormData {
@@ -282,9 +282,9 @@ export default function NewUserPage() {
                     onChange={(e) => handleInputChange('role', e.target.value as FormData['role'])}
                     disabled={loading}
                   >
-                    <option value="USER">{getUserRoleLabel(UserRole.USER)}</option>
-                    <option value="MODERATOR">{getUserRoleLabel(UserRole.MODERATOR)}</option>
-                    <option value="ADMIN">{getUserRoleLabel(UserRole.ADMIN)}</option>
+                    <option value="USER">{getUserRoleChineseName(UserRole.USER)}</option>
+                    <option value="MODERATOR">{getUserRoleChineseName(UserRole.MODERATOR)}</option>
+                    <option value="ADMIN">{getUserRoleChineseName(UserRole.ADMIN)}</option>
                   </select>
                   {errors.role && (
                     <label className="label">

@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa";
 import { User, UserRole } from "@/prisma-generated/postgres-client";
 import Breadcrumb from "@/components/Breadcrumb";
-import { getUserRoleLabel } from "@/types/User";
+import { getUserRoleChineseName } from "@/types/User";
 
 interface UserWithStats extends User {
   orderCount: number;
@@ -96,10 +96,10 @@ export default function UserDetailPage() {
     };
     
     const labels: Record<UserRole, string> = {
-      ADMIN: getUserRoleLabel(UserRole.ADMIN),
-      MODERATOR: getUserRoleLabel(UserRole.MODERATOR),
-      USER: getUserRoleLabel(UserRole.USER),
-      GUEST: getUserRoleLabel(UserRole.GUEST)
+      ADMIN: getUserRoleChineseName(UserRole.ADMIN),
+      MODERATOR: getUserRoleChineseName(UserRole.MODERATOR),
+      USER: getUserRoleChineseName(UserRole.USER),
+      GUEST: getUserRoleChineseName(UserRole.GUEST)
     };
 
     return (

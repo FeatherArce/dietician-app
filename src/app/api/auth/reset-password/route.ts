@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AuthService } from '@/services/server/auth';
+import { requestPasswordReset } from '@/services/server/auth/auth-services';
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
         
         // 使用 AuthService 請求密碼重設
-        const success = await AuthService.requestPasswordReset(body);
+        const success = await requestPasswordReset(body);
         
         if (!success) {
             return NextResponse.json(

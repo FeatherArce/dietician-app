@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AuthService } from '@/services/server/auth';
+import { resetPassword } from '@/services/server/auth/auth-services';
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
         
         // 使用 AuthService 重設密碼
-        const result = await AuthService.resetPassword(body);
+        const result = await resetPassword(body);
         
         if (!result.success) {
             return NextResponse.json(

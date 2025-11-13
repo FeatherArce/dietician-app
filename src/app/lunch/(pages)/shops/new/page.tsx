@@ -28,11 +28,11 @@ export default function NewShopPage() {
 
       console.log('Response:', response);
 
-      if (response.ok && result.success && result?.shop?.id) {
-        router.push(`/lunch/shops/${result?.shop?.id}`);
+      if (response.ok && result.success && result?.data?.shop?.id) {
+        router.push(`/lunch/shops/${result?.data?.shop?.id}`);
       } else {
         console.error('API Error:', response);
-        throw new Error(result.error || `建立商店失敗 (狀態碼: ${response.status})`);
+        throw new Error(result.message || `建立商店失敗 (狀態碼: ${response.status})`);
       }
     } catch (error) {
       console.error('Failed to create shop:', error);

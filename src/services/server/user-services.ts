@@ -1,7 +1,6 @@
 import prisma from '@/services/prisma';
 import { User, UserRole, Prisma } from '@/prisma-generated/postgres-client';
 import type { User as NextAuthUser } from 'next-auth';
-import type { PublicUser } from '@/types/User';
 
 // 類型定義
 export type CreateUserData = {

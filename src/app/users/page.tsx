@@ -8,7 +8,7 @@ import DataTable, { Column } from "@/components/DataTable";
 import PageContainer from "@/components/page/PageContainer";
 import SearchContainer from "@/components/SearchContainer";
 import { SearchInput, Select } from "@/components/SearchContainer/SearchFields";
-import { getUserRoleLabel } from "@/types/User";
+import { getUserRoleChineseName } from "@/types/User";
 import Modal, { ModalRef } from "@/components/Modal";
 import { deleteUser } from "@/services/client/admin/admin-user";
 import { toast } from "@/components/Toast";
@@ -121,10 +121,10 @@ export default function UsersPage() {
     };
 
     const labels: Record<UserRole, string> = {
-      ADMIN: getUserRoleLabel(UserRole.ADMIN),
-      MODERATOR: getUserRoleLabel(UserRole.MODERATOR),
-      USER: getUserRoleLabel(UserRole.USER),
-      GUEST: getUserRoleLabel(UserRole.GUEST)
+      ADMIN: getUserRoleChineseName(UserRole.ADMIN),
+      MODERATOR: getUserRoleChineseName(UserRole.MODERATOR),
+      USER: getUserRoleChineseName(UserRole.USER),
+      GUEST: getUserRoleChineseName(UserRole.GUEST)
     };
 
     return (
@@ -351,9 +351,9 @@ export default function UsersPage() {
         <Select
           label="角色篩選"
           options={[
-            { label: getUserRoleLabel(UserRole.ADMIN), value: UserRole.ADMIN },
-            { label: getUserRoleLabel(UserRole.MODERATOR), value: UserRole.MODERATOR },
-            { label: getUserRoleLabel(UserRole.USER), value: UserRole.USER },
+            { label: getUserRoleChineseName(UserRole.ADMIN), value: UserRole.ADMIN },
+            { label: getUserRoleChineseName(UserRole.MODERATOR), value: UserRole.MODERATOR },
+            { label: getUserRoleChineseName(UserRole.USER), value: UserRole.USER },
           ]}
           value={roleFilter}
           onChange={setRoleFilter}

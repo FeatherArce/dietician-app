@@ -3,7 +3,7 @@ export interface AuthFetchOptions extends RequestInit {
 }
 
 /**
- * 帶自動認證處理的 fetch
+ * TODO: 遷移至使用一般的 fetch
  */
 export async function authFetch(url: string, options: AuthFetchOptions = {}): Promise<Response> {
   const { skipRefresh = false, ...fetchOptions } = options;  

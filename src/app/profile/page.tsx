@@ -1,7 +1,7 @@
 "use client";
 import { UserRole } from "@/prisma-generated/postgres-client";
 import { useSession } from "next-auth/react";
-import { getUserRoleLabel } from "@/types/User";
+import { getUserRoleChineseName } from "@/types/User";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -87,7 +87,7 @@ export default function ProfilePage() {
             </label>
             <input
               type="text"
-              value={getUserRoleLabel(user?.role || UserRole.USER)}
+              value={getUserRoleChineseName(user?.role || UserRole.USER)}
               className="input input-bordered w-full"
               disabled
             />

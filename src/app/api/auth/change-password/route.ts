@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AuthService } from '@/services/server/auth';
 import { changePasswordSchema } from '@/services/server/auth/validation-schemas';
 import { auth } from "@/libs/auth";
-import { ApiResponse } from '../../utils';
+import { ApiMessage } from '../../utils';
+import { changePassword } from '@/services/server/auth/auth-services';
 
 export async function POST(request: NextRequest) {
     try {
         // 驗證用戶是否已登入
         const session = await auth();
         if (!session?.user?.id) {
-            return ApiResponse.error(401);
+            return ApiMessage.error(401);
         }
 
         const body = await request.json();
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
         const { currentPassword, newPassword, confirmPassword } = validation.data;
 
         // 更改密碼
-        const result = await AuthService.changePassword(session?.user?.id, {
+        const result = await changePassword(session?.user?.id, {
             currentPassword,
             newPassword,
             confirmPassword

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { userService, type CreateUserData, type UserFilters } from '@/services/server/user-services';
 import { UserRole } from '@/prisma-generated/postgres-client';
-import { PasswordService } from '@/services/server/auth';
+import { PasswordService } from '@/services/server/auth/password-service';
 
 export async function GET(request: NextRequest) {
     try {
