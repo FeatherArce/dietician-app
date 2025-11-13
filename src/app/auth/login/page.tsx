@@ -8,7 +8,7 @@ import { AuthError } from "next-auth";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { FaDiscord } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
@@ -57,76 +57,78 @@ export default function LoginPage() {
   }, [status, redirectToNextPage]);
 
   return (
-    <Card>
-      <h2 className="card-title justify-center text-2xl mb-2">
-        登入
-      </h2>
+    <Suspense fallback={<div>載入中...</div>}>
+      <Card>
+        <h2 className="card-title justify-center text-2xl mb-2">
+          登入
+        </h2>
 
-      <FormErrors errors={errors} />
+        <FormErrors errors={errors} />
 
-      <Form2 onFinish={handleFinish}>
-        <Form2.Item
-          label="Email"
-          name='email'
-          rules={[{
-            required: true,
-            validator(value, values) {
-              const emailRegex = /\S+@\S+\.\S+/;
-              const email = value as string;
-              if (!email || !emailRegex.test(email)) {
-                return '請輸入有效的 Email 格式';
-              }
-              return '';
-            },
-          }]}
-        >
-          <Input type="email" placeholder="請輸入 Email" required autoComplete="email" />
-        </Form2.Item>
-        <Form2.Item
-          label="密碼"
-          name='password'
-          rules={[{ required: true }]}
-        >
-          <PasswordInput
-            type="password"
-            placeholder="請輸入密碼"
-            required
-            autoComplete="current-password"
-            showPasswordToggle={true}
-          />
-        </Form2.Item>
-        <Form2.Button.Container>
-          <Form2.Button
-            type="submit"
-            loading={status === 'loading' || isLoading}
-            className="btn-primary w-full mt-6"
+        <Form2 onFinish={handleFinish}>
+          <Form2.Item
+            label="Email"
+            name='email'
+            rules={[{
+              required: true,
+              validator(value, values) {
+                const emailRegex = /\S+@\S+\.\S+/;
+                const email = value as string;
+                if (!email || !emailRegex.test(email)) {
+                  return '請輸入有效的 Email 格式';
+                }
+                return '';
+              },
+            }]}
           >
-            登入
-          </Form2.Button>
-        </Form2.Button.Container>
-      </Form2>
-      <div className="flex flex-col items-center justify-center gap-2">
-        <div className="divider">或</div>
+            <Input type="email" placeholder="請輸入 Email" required autoComplete="email" />
+          </Form2.Item>
+          <Form2.Item
+            label="密碼"
+            name='password'
+            rules={[{ required: true }]}
+          >
+            <PasswordInput
+              type="password"
+              placeholder="請輸入密碼"
+              required
+              autoComplete="current-password"
+              showPasswordToggle={true}
+            />
+          </Form2.Item>
+          <Form2.Button.Container>
+            <Form2.Button
+              type="submit"
+              loading={status === 'loading' || isLoading}
+              className="btn-primary w-full mt-6"
+            >
+              登入
+            </Form2.Button>
+          </Form2.Button.Container>
+        </Form2>
+        <div className="flex flex-col items-center justify-center gap-2">
+          <div className="divider">或</div>
 
-        <div className="w-full flex flex-col gap-2">
-          {/* Google */}
-          <button className="btn dark:btn-neutral" disabled>
-            <FcGoogle className="size-[1.2em]" size={20} />
-            Login with Google
-          </button>
-          <button className="btn dark:btn-neutral" disabled>
-            <FaDiscord className="size-[1.2em]" size={20} />
-            Login with Discord
-          </button>
+          <div className="w-full flex flex-col gap-2">
+            {/* Google */}
+            <button className="btn dark:btn-neutral" disabled>
+              <FcGoogle className="size-[1.2em]" size={20} />
+              Login with Google
+            </button>
+            <button className="btn dark:btn-neutral" disabled>
+              <FaDiscord className="size-[1.2em]" size={20} />
+              Login with Discord
+            </button>
+          </div>
+
+          <p className="text-sm mt-4">
+            還沒有帳號？
+            <Link href="/auth/register" className="link link-primary ml-1">
+              立即註冊
+            </Link>
+          </p>
         </div>
-
-        <p className="text-sm mt-4">
-          還沒有帳號？
-          <Link href="/auth/register" className="link link-primary ml-1">
-            立即註冊
-          </Link>
-        </p>
-      </div>
-    </Card>
+      </Card>
+    </Suspense>
   );
 }
