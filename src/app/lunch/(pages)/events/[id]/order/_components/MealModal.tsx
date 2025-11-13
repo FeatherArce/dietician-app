@@ -1,7 +1,7 @@
 import { Form2Ref } from '@/components/form2/types';
 import Modal, { ModalRef } from '@/components/Modal';
 import { EventMenuItem } from '@/types/LunchEvent';
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import MealForm, { MealFormMode, MenuFormValues } from './MealForm';
 import { EventOrderItem } from '@/app/lunch/types';
 
@@ -32,8 +32,9 @@ export default function MealModal({
   const modalRef = useRef<ModalRef>(null);
   const formRef = useRef<Form2Ref>(null);
 
-  const initialValues: MenuFormValues = useMemo(() => {
-    if (settings.mode === MealFormMode.EDIT && settings.values) {
+  const getValuesFromSettings = useCallback((): MenuFormValues => {
+    if (settings.mode === MealFormMode.EDIT && settings.from === 'custom' && settings.values) {
+      // 編輯: 使用傳入的值作為初始值
       return {
         menu_item_id: settings.values.menu_item_id || undefined,
         name: settings.values.name,
@@ -42,39 +43,41 @@ export default function MealModal({
         quantity: settings.values.quantity,
         note: settings.values.note || '',
       };
-    } else {
-      if (settings.from === 'menu' && settings.menu_item) {
-        return {
-          menu_item_id: settings.menu_item.id,
-          name: settings.menu_item.name,
-          // description: settings.menu_item.description || '',
-          price: settings.menu_item.price,
-          quantity: 1,
-          note: '',
-        };
-      }
+    }
+
+    if (settings.from === 'menu' && settings.menu_item) {
+      // 新增或編輯: 從菜單項目載入初始值
       return {
-        menu_item_id: undefined,
-        name: '',
-        // description: '',
-        price: 0,
+        menu_item_id: settings.menu_item.id,
+        name: settings.menu_item.name,
+        // description: settings.menu_item.description || '',
+        price: settings.menu_item.price,
         quantity: 1,
-        note: '',
+        note: (settings.mode === MealFormMode.EDIT && settings?.values?.note) ? settings.values.note : '',
       };
     }
+
+    // 新增: 初始載入預設值
+    return {
+      menu_item_id: undefined,
+      name: '',
+      // description: '',
+      price: 0,
+      quantity: 1,
+      note: '',
+    };
   }, [settings]);
 
   useEffect(() => {
     if (open) {
       modalRef.current?.open();
-      if (settings.mode === MealFormMode.EDIT && formRef.current) {
-        formRef.current.setFieldsValue(initialValues);
-      }
+      const newValues = getValuesFromSettings();
+      formRef.current?.setFieldsValue(newValues);
     } else {
       modalRef.current?.close();
       formRef.current?.reset();
     }
-  }, [open, settings, initialValues]);
+  }, [open, settings, getValuesFromSettings]);
 
   return (
     <Modal
@@ -92,7 +95,7 @@ export default function MealModal({
       <MealForm
         ref={formRef}
         mode={settings.mode}
-        initialValues={initialValues}
+        initialValues={getValuesFromSettings()}
         onSubmit={(values) => {
           onOk?.(values, settings);
           modalRef.current?.close();
