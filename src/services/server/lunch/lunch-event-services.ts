@@ -1,6 +1,6 @@
 import prisma from '@/services/prisma';
 import { LunchEvent, Prisma } from '@/prisma-generated/postgres-client';
-import { EventWithOrders } from '@/app/lunch/types';
+import { ILunchEvent } from '@/types/LunchEvent';
 
 // 類型定義
 export type CreateLunchEventData = {
@@ -73,7 +73,7 @@ export interface LunchEventFilters {
 // Lunch Event Service
 export const lunchEventService = {
     // 獲取事件列表（支援過濾）
-    async getEvents(filters: LunchEventFilters = {}): Promise<Array<EventWithOrders>> {
+    async getEvents(filters: LunchEventFilters = {}): Promise<Array<ILunchEvent>> {
         try {
             const where: Prisma.LunchEventWhereInput = {};
 
@@ -178,7 +178,7 @@ export const lunchEventService = {
     },
 
     // 獲取單一事件（包含詳細資訊）
-    async getEventById(id: string, filters: LunchEventFilters = {}): Promise<EventWithOrders | null> {
+    async getEventById(id: string, filters: LunchEventFilters = {}): Promise<ILunchEvent | null> {
         try {
             const where: Prisma.LunchEventWhereInput = {};
 
