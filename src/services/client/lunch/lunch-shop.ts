@@ -1,7 +1,5 @@
 import { FormValues } from "@/components/form2";
 import { authFetch } from "@/libs/auth-fetch";
-import { LunchEvent } from "@/prisma-generated/postgres-client";
-
 
 const shopsPath = '/api/lunch/shops';
 const menuPath = '/api/lunch/menus';

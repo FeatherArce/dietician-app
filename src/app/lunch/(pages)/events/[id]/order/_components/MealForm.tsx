@@ -2,7 +2,6 @@
 import { Form2, FormValues } from '@/components/form2';
 import Input from '@/components/form2/controls/Input';
 import NumberInput from '@/components/form2/controls/NumberInput';
-import TextArea from '@/components/form2/controls/TextArea';
 import { Form2Ref } from '@/components/form2/types';
 import React, { useCallback, useImperativeHandle, useMemo } from 'react';
 

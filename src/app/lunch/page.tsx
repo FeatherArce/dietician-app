@@ -292,12 +292,8 @@ export default function LunchPage() {
                     ref={statisticModalRef}
                     id='event-statistics-modal'
                     className='w-11/12 max-w-5xl'
-                    title='事件統計'
+                    title='訂餐統計'
                     closeText='關閉'
-                    onOk={() => {
-                        console.log('onOk');
-                        statisticModalRef.current?.open();
-                    }}
                     onClose={() => {
                         statisticModalRef.current?.close();
                         handleStatisticsModalClose();

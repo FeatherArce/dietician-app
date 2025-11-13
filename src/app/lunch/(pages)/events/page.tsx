@@ -383,7 +383,7 @@ export default function EventsPage() {
         <div>
           <h1 className="text-3xl font-bold">活動管理</h1>
           <p className="text-base-content/70 mt-1">
-            管理訂餐活動，查看訂單統計和參與狀況
+            管理訂餐活動，查看統計和參與狀況
           </p>
         </div>
         <div className="flex items-center space-x-3">

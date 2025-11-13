@@ -219,7 +219,7 @@ export default function ShopsPage() {
         <div>
           <h1 className="text-3xl font-bold">商店管理</h1>
           <p className="text-base-content/70 mt-1">
-            管理商店，查看菜單和訂單統計
+            管理商店與菜單
           </p>
         </div>
         <div className="self-end flex items-center space-x-3">

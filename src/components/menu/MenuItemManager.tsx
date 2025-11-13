@@ -1,17 +1,9 @@
 "use client";
-import React, { useState } from 'react';
-import Image from 'next/image';
-import { authFetch } from '@/libs/auth-fetch';
 import { DEFAULT_VALUES } from '@/constants/app-constants';
+import { authFetch } from '@/libs/auth-fetch';
+import React, { useState } from 'react';
 import {
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaSpinner,
-  FaSave,
-  FaTimes,
-  FaUtensils,
-  FaDollarSign
+  FaUtensils
 } from 'react-icons/fa';
 import { MenuCategory } from './MenuCategoryManager';
 import MenuItemTable from './MenuItemTable';

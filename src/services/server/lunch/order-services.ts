@@ -455,7 +455,7 @@ export const orderService = {
         }
     },
 
-    // 獲取事件的所有訂單統計
+    // 獲取事件的訂餐統計
     async getEventOrdersSummary(eventId: string) {
         try {
             const [orders, totalAmount, totalOrders] = await Promise.all([
@@ -498,7 +498,7 @@ export const orderService = {
                 orders: number;
             }>();
 
-            orders.forEach(order => {
+            (orders || []).forEach(order => {
                 order.items.forEach(item => {
                     const key = item.menu_item_id || item.name;
                     const existing = itemSummary.get(key);

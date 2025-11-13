@@ -207,7 +207,7 @@ export default function EventCard({
                             className="btn btn-ghost btn-sm"
                         >
                             <FaChartBar className="w-3 h-3" />
-                            訂單統計
+                            訂餐統計
                             <LoadingIndicator />
                         </button>
                     )}
