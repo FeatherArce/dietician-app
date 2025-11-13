@@ -49,9 +49,7 @@ export default function RootLayout({
             <NotificationProvider>
               <ToastProvider>
                 <Navbar />
-                <Suspense>
-                  {children}
-                </Suspense>
+                {children}
                 <NotificationContainer />
                 <ToastContainer />
               </ToastProvider>
