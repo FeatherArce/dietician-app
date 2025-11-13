@@ -22,6 +22,8 @@ import {
 } from "react-icons/fa";
 import EventOrderSummaryTable, { EventOrderSummaryTableRef } from "../../../_components/EventOrderSummaryTable";
 import type { EventOrder, EventWithDetails } from "../../../types";
+import { getLunchEventById, updateLunchEvent } from "@/services/client/lunch/lunch-event";
+import { toast } from "@/components/Toast";
 
 // interface EventWithSummary extends EventWithDetails {
 //   orderCount: number;
@@ -48,10 +50,10 @@ export default function EventDetailPage() {
 
   const fetchEvent = useCallback(async () => {
     try {
-      const response = await fetch(`/api/lunch/events/${eventId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setEvent(data.event);
+      if (!eventId) return;
+      const { response, result } = await getLunchEventById(eventId);
+      if (response.ok && result.success && result.data?.event) {
+        setEvent(result.data?.event);
       } else {
         router.push("/lunch/events");
       }
@@ -64,23 +66,18 @@ export default function EventDetailPage() {
   }, [eventId, router]);
 
   useEffect(() => {
-    if (eventId) {
-      fetchEvent();
-    }
-  }, [eventId, fetchEvent]);
+    fetchEvent();
+  }, [fetchEvent]);
 
-  const toggleEventStatus = async () => {
+  const toggleEventStatus = useCallback(async () => {
     if (!event) return;
 
     setUpdating(true);
     try {
-      const response = await fetch(`/api/lunch/events/${eventId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_active: !event.is_active }),
-      });
+      const { response, result } = await updateLunchEvent(eventId, { is_active: !event.is_active });
 
-      if (response.ok) {
+      if (response.ok && result.success) {
+        toast.success(`活動已${event.is_active ? '關閉' : '開啟'}！`);
         await fetchEvent();
       }
     } catch (error) {
@@ -88,7 +85,7 @@ export default function EventDetailPage() {
     } finally {
       setUpdating(false);
     }
-  };
+  }, [event, eventId, fetchEvent]);
 
   // 處理收款狀態變更
   const handlePaymentStatusChange = async (orderId: string, isPaid: boolean) => {
@@ -274,7 +271,7 @@ export default function EventDetailPage() {
                 {paidState.unpaidOrders}
               </span>
               <span> / </span>
-              <span>{paidState.totalOrders}</span>
+              <span>{paidState.paidOrders}</span>
             </>) : (<>
               <span className="text-green-500">全部已收款</span>
             </>)}

@@ -4,20 +4,7 @@ import { auth } from "@/libs/auth";
 import { LunchEventFilters, lunchEventService } from '@/services/server/lunch/lunch-event-services';
 import { NextRequest, NextResponse } from 'next/server';
 import { getEventDetails, getEventRequestFilters } from '../utils';
-
-interface UserOrderStatistic {
-    total: number;
-    order?: EventOrder;
-
-}
-
-interface LunchOrderItemStatistic {
-    name: string;
-    quantity: number;
-    price: number;
-    total: number;
-    items: EventOrderItem[];
-}
+import { GetEventResponse } from '@/types/api/lunch';
 
 export async function GET(
     request: NextRequest,
@@ -37,9 +24,14 @@ export async function GET(
 
         // 添加統計資料到事件物件
         const newEventWithOrders = getEventDetails(event);
+        const response: GetEventResponse = {
+            success: true,
+            data: {
+                event: newEventWithOrders
+            }
+        };
 
-        return NextResponse.json({ event: newEventWithOrders, success: true });
-
+        return NextResponse.json(response);
     } catch (error) {
         const resolvedParams = await params;
         console.error(`GET /api/lunch/events/${resolvedParams.id} error:`, error);
@@ -188,12 +180,13 @@ export async function PATCH(
             message: '事件已更新',
             success: true
         });
-
     } catch (error) {
         const resolvedParams = await params;
         console.error(`PUT /api/lunch/events/${resolvedParams.id} error:`, error);
+
+        const message = error instanceof Error ? error.message : String(error);
         return NextResponse.json(
-            { error: 'Failed to update event', success: false },
+            { message, success: false },
             { status: 500 }
         );
     }

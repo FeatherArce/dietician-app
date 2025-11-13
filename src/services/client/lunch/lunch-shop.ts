@@ -1,12 +1,19 @@
 import { FormValues } from "@/components/form2";
 import { authFetch } from "@/libs/auth-fetch";
+import { ShopFilters } from "@/services/server/lunch";
+import { GetShopsResponse, PostShopResponse } from "@/types/api/lunch";
 
 const shopsPath = '/api/lunch/shops';
 const menuPath = '/api/lunch/menus';
 
-export async function getLunchShops() {
-     const response = await authFetch(shopsPath);
-     const result = await response.json();
+
+export async function getLunchShops(filters: ShopFilters = {}) {
+     const query = new URLSearchParams();
+     if (filters.isActive !== undefined) {
+          query.append('is_active', String(filters.isActive));
+     }
+     const response = await authFetch(`${shopsPath}?${query.toString()}`);
+     const result: GetShopsResponse = await response.json();
      return { response, result };
 }
 
@@ -19,7 +26,19 @@ export async function createLunchShop(values: FormValues) {
           body: JSON.stringify(values),
      });
 
-     const result = await response.json();
+     const result: PostShopResponse = await response.json();
+     return { response, result };
+}
+
+export async function updateLunchShop(shopId: string, values: FormValues) {
+     const response = await authFetch(`${shopsPath}/${shopId}`, {
+          method: 'PATCH',
+          headers: {
+               'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(values),
+     });
+     const result: PostShopResponse = await response.json();
      return { response, result };
 }
 

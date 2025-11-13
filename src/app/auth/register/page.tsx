@@ -62,7 +62,7 @@ export default function RegisterPage() {
       }
     } catch (error) {
       console.error("Registration error:", error);
-      Notification.error({ title: "註冊失敗", message: error instanceof Error ? error.message : "請稍後再試" });
+      toast.error(`註冊失敗: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsLoading(false);
     }

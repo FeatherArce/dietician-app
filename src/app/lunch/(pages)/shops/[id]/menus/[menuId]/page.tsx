@@ -1,27 +1,23 @@
 "use client";
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
+import Breadcrumb from "@/components/Breadcrumb";
+import { MenuCategory } from "@/components/menu/MenuCategoryManager";
+import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
+import PageAuthBlocker from "@/components/page/PageAuthBlocker";
+import { ShopFormData } from "@/components/shop/ShopForm";
+import { authFetch } from "@/libs/auth-fetch";
+import { Menu } from "@/prisma-generated/postgres-client";
+import { getLunchShopById } from "@/services/client/lunch/lunch-shop";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FaArrowLeft,
-  FaUtensils,
-  FaPlus,
   FaEdit,
-  FaTrash,
+  FaToggleOff,
   FaToggleOn,
-  FaToggleOff
+  FaUtensils
 } from "react-icons/fa";
-import Breadcrumb from "@/components/Breadcrumb";
-import { authFetch } from "@/libs/auth-fetch";
-import { Select } from "@/components/SearchContainer/SearchFields";
-import { ShopFormData } from "@/components/shop/ShopForm";
-import MenuCategoryManager, { MenuCategory } from "@/components/menu/MenuCategoryManager";
-import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
-import { Menu } from "@/prisma-generated/postgres-client";
-import { ROUTE_CONSTANTS } from "@/constants/app-constants";
-import PageAuthBlocker from "@/components/page/PageAuthBlocker";
-import { getLunchShopById, getLunchShopMenuItems, getLunchShops } from "@/services/client/lunch/lunch-shop";
 
 interface MenuData extends Menu {
   categories?: Array<MenuCategory>;
