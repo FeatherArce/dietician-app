@@ -5,10 +5,10 @@ import { GetUserAccountsResponse } from "@/types/api/user";
 // GET /api/users/[id]/accounts
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: userId } = params;
+    const { id: userId } = await params;
     const accounts = await prisma.account.findMany({
       where: { userId },
       orderBy: { provider: "asc" },

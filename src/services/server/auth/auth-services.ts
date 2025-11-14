@@ -173,6 +173,7 @@ export async function registerOrConnectOAuthUser({
       include: { user: true },
     });
     if (account && account.user) {
+      await userService.updateLoginInfo(account.user.id);
       // 已有 Account 與 User，直接登入
       return { success: true, user: account.user };
     }
@@ -183,7 +184,11 @@ export async function registerOrConnectOAuthUser({
       return { success: false, message: "帳號已被停用或刪除，請聯絡管理員。" };
     }
 
-    if (!user) {
+    if (user) {
+      // 2a. User 存在但無 Account，繼續往下建立 Account 綁定
+      // 更新使用者資料（如果需要）
+      await userService.updateLoginInfo(user.id);
+    } else {
       // 3. 都不存在，建立 User
       user = await prisma.user.create({
         data: {
@@ -193,6 +198,8 @@ export async function registerOrConnectOAuthUser({
           email_verified: email_verified,
           is_active: true,
           role: UserRole.USER,
+          login_count: 0,
+          last_login: new Date(),
         },
       });
     }

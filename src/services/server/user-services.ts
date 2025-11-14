@@ -288,7 +288,7 @@ export const userService = {
 
   async restoreUser(id: string) {
     try {
-      const user = await prisma.user.update({ 
+      const user = await prisma.user.update({
         where: { id },
         data: { is_active: true, is_deleted: false },
         select: {

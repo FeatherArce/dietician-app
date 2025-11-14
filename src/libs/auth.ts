@@ -1,6 +1,7 @@
 import { UserRole } from "@/prisma-generated/postgres-client";
 import { getUserByEmail, registerOrConnectOAuthUser } from "@/services/server/auth/auth-services";
 import { PasswordService } from "@/services/server/auth/password-service";
+import userService from "@/services/server/user-services";
 import type { Session } from "next-auth";
 import NextAuth from "next-auth";
 import type { JWT } from "next-auth/jwt";
@@ -57,8 +58,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         if (!user || !user.password_hash) {
-          // No user found, so this is their first attempt to login
-          // Optionally, this is also the place you could do a user registration
           throw new Error("Invalid credentials.");
         }
 
@@ -71,6 +70,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!isValidPassword) {
           throw new Error("Invalid credentials");
         }
+
+        // 更新登入狀態        
+        await userService.updateLoginInfo(user.id);
+
         // return user object with their profile data
         return {
           id: user.id,
@@ -142,15 +145,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         session.user.role = token.role ? (token.role as UserRole) : undefined;
         session.user.email = token.email as string;
-        session.user.preferred_theme = session.user.preferred_theme || "light";
+        session.user.preferred_theme = token.preferred_theme as string || "light";
+        session.user.is_active = token.is_active as boolean | null;
+        session.user.is_deleted = token.is_deleted as boolean | null;
+        session.user.created_at = token.created_at
+          ? new Date(token.created_at as string)
+          : null;
+        session.user.last_login = token.last_login
+          ? new Date(token.last_login as string)
+          : null;
+        session.user.login_count = token.login_count
+          ? Number(token.login_count)
+          : null;        
       }
       return session;
     },
 
     // 登入時的回調
     async signIn({ profile, user, account, credentials }) {
-      console.log("SignIn account:", account);
-      console.log("SignIn profile:", profile);
       if (account?.provider === "discord") {
         const discordProfile = profile as DiscordProfile;
         if (!discordProfile?.email || discordProfile.email === null) {
