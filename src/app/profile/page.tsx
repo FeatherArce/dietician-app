@@ -19,18 +19,22 @@ import { getUserById } from "@/services/client/user";
 import { getAccountsByUserId } from "@/services/client/account-services";
 import { signIn } from "next-auth/react";
 import { FcBrokenLink, FcLink, FcOk } from "react-icons/fc";
+import { toast } from "@/components/Toast";
 
 type TabType = 'info' | 'profile' | 'password' | 'settings' | 'security' | 'third-party';
 
+// TODO: 解除綁定第三方帳號功能、設定密碼功能(僅有第三方帳號沒有預設登入方式的人需要)
 export default function ProfilePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const authLoading = status === 'loading';
   const isAuthenticated = status === 'authenticated';
+  const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<Partial<User> | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<TabType>('info');
 
   const fetchUserSelf = useCallback(async () => {
+    setLoading(true);
     try {
       const uid = session?.user?.id;
       if (!uid) {
@@ -41,10 +45,13 @@ export default function ProfilePage() {
       if (!response.ok || !result.success) {
         throw new Error(result.message || '無法取得使用者資料');
       }
-      
+
       setUser(result?.user || undefined);
     } catch (error) {
       console.error('Fetch user self error:', error);
+      toast.error('錯誤：無法取得使用者資料');
+    } finally {
+      setLoading(false);
     }
   }, [session?.user?.id]);
 
