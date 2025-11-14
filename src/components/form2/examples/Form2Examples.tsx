@@ -43,14 +43,14 @@ export function BasicFormExample() {
       >
         <Form2.Item
           name="username"
-          label="用戶名稱"
+          label="使用者名稱"
           required
           rules={[
-            { min: 3, message: '用戶名至少需要3個字符' },
-            { max: 20, message: '用戶名最多20個字符' }
+            { min: 3, message: '使用者名至少需要3個字符' },
+            { max: 20, message: '使用者名最多20個字符' }
           ]}
         >
-          <Input placeholder="請輸入用戶名稱" />
+          <Input placeholder="請輸入使用者名稱" />
         </Form2.Item>
 
         <Form2.Item
@@ -209,14 +209,14 @@ export function ComplexValidationExample() {
     console.log('複雜驗證表單提交值:', values);
   };
 
-  // 自定義驗證器 - 檢查用戶名是否已存在
+  // 自定義驗證器 - 檢查使用者名是否已存在
   const checkUsernameExists = async (username: any) => {
     // 模擬 API 調用
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     const existingUsernames = ['admin', 'user', 'test'];
     if (existingUsernames.includes(username.toLowerCase())) {
-      return '用戶名已存在';
+      return '使用者名已存在';
     }
     return '';
   };
@@ -234,14 +234,14 @@ export function ComplexValidationExample() {
       <Form2 onFinish={handleFinish}>
         <Form2.Item
           name="username"
-          label="用戶名稱"
+          label="使用者名稱"
           required
           rules={[
-            { min: 3, message: '用戶名至少需要3個字符' },
+            { min: 3, message: '使用者名至少需要3個字符' },
             { validator: checkUsernameExists }
           ]}
         >
-          <Input placeholder="請輸入用戶名稱" />
+          <Input placeholder="請輸入使用者名稱" />
         </Form2.Item>
 
         <Form2.Item

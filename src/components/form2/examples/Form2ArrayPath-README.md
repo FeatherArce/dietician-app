@@ -10,7 +10,7 @@ Form2 現在完全支援陣列路徑語法，讓你可以更靈活地處理嵌�
   <Input />
 </Form2.Item>
 
-<Form2.Item name="users.0.email" label="第一個用戶的電子郵件">
+<Form2.Item name="users.0.email" label="第一個使用者的電子郵件">
   <Input />
 </Form2.Item>
 ```
@@ -21,7 +21,7 @@ Form2 現在完全支援陣列路徑語法，讓你可以更靈活地處理嵌�
   <Input />
 </Form2.Item>
 
-<Form2.Item name={['users', 0, 'email']} label="第一個用戶的電子郵件">
+<Form2.Item name={['users', 0, 'email']} label="第一個使用者的電子郵件">
   <Input />
 </Form2.Item>
 ```
@@ -72,7 +72,7 @@ function ArrayPathForm() {
           <>
             {fields.map(({ key, name }, index) => (
               <div key={key}>
-                <h4>用戶 {index + 1}</h4>
+                <h4>使用者 {index + 1}</h4>
                 
                 {/* 基本字段 */}
                 <Form2.Item 
@@ -112,7 +112,7 @@ function ArrayPathForm() {
               name: '', 
               profile: { age: 18, city: '台北' } 
             })}>
-              新增用戶
+              新增使用者
             </button>
           </>
         )}
@@ -352,7 +352,7 @@ const handleFinish = (values: UserForm) => {
   rules={[
     {
       validator: async (value, allValues) => {
-        // 檢查當前用戶列表中是否有重複的電子郵件
+        // 檢查當前使用者列表中是否有重複的電子郵件
         const userEmails = allValues.users?.map(user => user.email) || [];
         const duplicates = userEmails.filter(email => email === value).length;
         

@@ -31,7 +31,7 @@ export default function LunchQuickActions() {
                     <li>
                         <Link href="/users" className="flex items-center space-x-2">
                             <FaUsers className="w-4 h-4" />
-                            <span>用戶管理</span>
+                            <span>使用者管理</span>
                         </Link>
                     </li>
                 </>)}

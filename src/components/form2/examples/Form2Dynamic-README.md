@@ -17,7 +17,7 @@ function DynamicForm() {
               <div key={key}>
                 <Form2.Item 
                   name={`users.${name}.name`} 
-                  label={`用戶 ${index + 1} 姓名`}
+                  label={`使用者 ${index + 1} 姓名`}
                   required
                 >
                   <Input placeholder="請輸入姓名" />
@@ -25,7 +25,7 @@ function DynamicForm() {
                 <button onClick={() => remove(name)}>刪除</button>
               </div>
             ))}
-            <button onClick={() => add({ name: '' })}>新增用戶</button>
+            <button onClick={() => add({ name: '' })}>新增使用者</button>
           </>
         )}
       </Form2.List>
@@ -78,7 +78,7 @@ name={`users.${name}.address.street`}
 
 ## 完整範例
 
-### 1. 用戶管理表單
+### 1. 使用者管理表單
 
 ```tsx
 function UserManagementForm() {
@@ -92,7 +92,7 @@ function UserManagementForm() {
           <>
             {fields.map(({ key, name }, index) => (
               <div key={key} className="border p-4 mb-4 rounded">
-                <h4>用戶 {index + 1}</h4>
+                <h4>使用者 {index + 1}</h4>
                 
                 <Form2.Item 
                   name={`users.${name}.name`} 
@@ -126,7 +126,7 @@ function UserManagementForm() {
                   onClick={() => remove(name)}
                   disabled={fields.length === 1}
                 >
-                  刪除用戶
+                  刪除使用者
                 </button>
               </div>
             ))}
@@ -135,7 +135,7 @@ function UserManagementForm() {
               type="button" 
               onClick={() => add({ name: '', email: '', age: 18 })}
             >
-              + 新增用戶
+              + 新增使用者
             </button>
           </>
         )}

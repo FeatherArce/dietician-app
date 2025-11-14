@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
         } else if (userId) {
             orders = await orderService.getOrders({ userId: userId });
         } else {
-            // 一般用戶只能看自己的訂單
+            // 一般使用者只能看自己的訂單
             orders = await orderService.getOrders({ userId: session.user?.id });
         }
 

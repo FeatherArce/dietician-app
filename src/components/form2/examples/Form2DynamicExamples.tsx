@@ -33,7 +33,7 @@ export function BasicDynamicForm() {
               {fields.map(({ key, name, fieldKey }, index) => (
                 <div key={key} className="border border-base-300 rounded-lg p-4 mb-4 bg-base-50">
                   <div className="flex justify-between items-center mb-4">
-                    <h4 className="font-semibold">用戶 {index + 1}</h4>
+                    <h4 className="font-semibold">使用者 {index + 1}</h4>
                     <button
                       type="button"
                       className="btn btn-sm btn-error"
@@ -84,7 +84,7 @@ export function BasicDynamicForm() {
                 className="btn btn-secondary btn-outline w-full"
                 onClick={() => add({ name: '', email: '', age: undefined })}
               >
-                + 新增用戶
+                + 新增使用者
               </button>
             </>
           )}

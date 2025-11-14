@@ -6,7 +6,7 @@ import { changePassword } from '@/services/server/auth/auth-services';
 
 export async function POST(request: NextRequest) {
     try {
-        // 驗證用戶是否已登入
+        // 驗證使用者是否已登入
         const session = await auth();
         if (!session?.user?.id) {
             return ApiMessage.error(401);

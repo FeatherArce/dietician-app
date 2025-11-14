@@ -27,9 +27,9 @@ export async function GET(request: NextRequest) {
             is_active?: boolean;
         } = {
             OR: [
-                // 用戶建立的活動
+                // 使用者建立的活動
                 { owner_id: userId },
-                // 用戶有訂單的活動
+                // 使用者有訂單的活動
                 {
                     orders: {
                         some: {

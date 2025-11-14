@@ -15,7 +15,7 @@ export function SimpleDynamicForm() {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6">動態用戶表單</h2>
+      <h2 className="text-2xl font-bold mb-6">動態使用者表單</h2>
 
       <Form2
         onFinish={handleFinish}
@@ -32,7 +32,7 @@ export function SimpleDynamicForm() {
               {fields.map(({ key, name }, index) => (
                 <div key={key} className="border border-base-300 rounded-lg p-4 mb-4 bg-base-50">
                   <div className="flex justify-between items-center mb-4">
-                    <h4 className="font-semibold">用戶 {index + 1}</h4>
+                    <h4 className="font-semibold">使用者 {index + 1}</h4>
                     <button
                       type="button"
                       className="btn btn-sm btn-error"
@@ -84,7 +84,7 @@ export function SimpleDynamicForm() {
                 className="btn btn-secondary btn-outline w-full"
                 onClick={() => add({ name: '', email: '', age: undefined })}
               >
-                + 新增用戶
+                + 新增使用者
               </button>
             </>
           )}

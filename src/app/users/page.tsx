@@ -1,7 +1,14 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
-import { FaPlus, FaEdit, FaEye, FaUserCheck, FaUserSlash, FaTrash } from "react-icons/fa";
+import {
+  FaPlus,
+  FaEdit,
+  FaEye,
+  FaUserCheck,
+  FaUserSlash,
+  FaTrash,
+} from "react-icons/fa";
 import { User, UserRole } from "@/prisma-generated/postgres-client";
 import Breadcrumb from "@/components/Breadcrumb";
 import DataTable, { Column } from "@/components/DataTable";
@@ -12,7 +19,9 @@ import { getUserRoleChineseName } from "@/types/User";
 import Modal, { ModalRef } from "@/components/Modal";
 import { deleteUser } from "@/services/client/admin/admin-user";
 import { toast } from "@/components/Toast";
-import { logicalDeleteUser } from "@/services/client/user";
+import { logicalDeleteUser, restoreUser } from "@/services/client/user";
+import { FcDataRecovery } from "react-icons/fc";
+import UserAccountTable from "./_components/UserAccountTable";
 
 interface UserWithStats extends User {
   orderCount?: number;
@@ -23,16 +32,28 @@ interface UserWithStats extends User {
 export default function UsersPage() {
   const [users, setUsers] = useState<UserWithStats[]>([]);
   const [loading, setLoading] = useState(false);
-  const [roleFilter, setRoleFilter] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [deleteModalSettings, setDeleteModalSettings] = useState<{ user: UserWithStats | null }>({ user: null });
+  const [deleteing, setDeleting] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+  const [roleFilter, setRoleFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [showDeleted, setShowDeleted] = useState<boolean>(false);
-  const modalRef = useRef<ModalRef>(null);
+  const deleteUserModalRef = useRef<ModalRef>(null);
+  const [deleteModalSettings, setDeleteModalSettings] = useState<{
+    user: UserWithStats | null;
+  }>({ user: null });
+  const restoreUserModalRef = useRef<ModalRef>(null);
+  const [restoreModalSettings, setRestoreModalSettings] = useState<{
+    user: UserWithStats | null;
+  }>({ user: null });
+  const userAccountsModalRef = useRef<ModalRef>(null);
+  const [userAccountModalSettings, setUserAccountModalSettings] = useState<{
+    user: UserWithStats | null;
+  }>({ user: null });
 
   // 統一的篩選邏輯
   const filteredUsers: UserWithStats[] = useMemo(() => {
-    return users?.filter(user => {
+    return users?.filter((user) => {
       // 已刪除篩選
       if (!showDeleted && user.is_deleted) {
         return false;
@@ -68,9 +89,9 @@ export default function UsersPage() {
 
   // 重置所有篩選條件
   const handleReset = useCallback(() => {
-    setRoleFilter('');
-    setStatusFilter('');
-    setSearchTerm('');
+    setRoleFilter("");
+    setStatusFilter("");
+    setSearchTerm("");
   }, []);
 
   const fetchUsers = useCallback(async () => {
@@ -93,68 +114,91 @@ export default function UsersPage() {
     fetchUsers();
   }, [fetchUsers]);
 
-  const toggleUserStatus = useCallback(async (userId: string, isActive: boolean) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/users/${userId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_active: !isActive }),
-      });
+  const toggleUserStatus = useCallback(
+    async (userId: string, isActive: boolean) => {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/users/${userId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ is_active: !isActive }),
+        });
 
-      if (response.ok) {
-        await fetchUsers(); // 重新載入資料
+        if (response.ok) {
+          await fetchUsers(); // 重新載入資料
+        }
+      } catch (error) {
+        console.error("Failed to update user status:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to update user status:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchUsers]);
+    },
+    [fetchUsers]
+  );
 
   const getRoleBadge = (role: UserRole) => {
     const styles: Record<UserRole, string> = {
       ADMIN: "badge-error",
       USER: "badge-info",
       MODERATOR: "badge-warning",
-      GUEST: "badge-secondary"
+      GUEST: "badge-secondary",
     };
 
     const labels: Record<UserRole, string> = {
       ADMIN: getUserRoleChineseName(UserRole.ADMIN),
       MODERATOR: getUserRoleChineseName(UserRole.MODERATOR),
       USER: getUserRoleChineseName(UserRole.USER),
-      GUEST: getUserRoleChineseName(UserRole.GUEST)
+      GUEST: getUserRoleChineseName(UserRole.GUEST),
     };
 
     return (
-      <span className={`badge ${styles[role]} badge-sm`}>
-        {labels[role]}
-      </span>
+      <span className={`badge ${styles[role]} badge-sm`}>{labels[role]}</span>
     );
   };
 
-  const handleOpenDeleteUserConfirm = useCallback(async (user: UserWithStats) => {
-    try {
-      setLoading(true);
-      await logicalDeleteUser(user.id);
-      toast.success(`使用者 ${user.name} 已成功刪除`);
-      modalRef.current?.close();
-      // 重新載入使用者列表
-      fetchUsers();
-    } catch (error) {
-      console.error("Failed to delete user:", error);
-      toast.error(`刪除使用者 ${user.name} 失敗`);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchUsers]);
+  const handleOpenDeleteUserConfirm = useCallback(
+    async (user: UserWithStats) => {
+      try {
+        setDeleting(true);
+        await logicalDeleteUser(user.id);
+        toast.success(`使用者 ${user.name} 已成功刪除`);
+        deleteUserModalRef.current?.close();
+        // 重新載入使用者列表
+        fetchUsers();
+      } catch (error) {
+        console.error("Failed to delete user:", error);
+        toast.error(`刪除使用者 ${user.name} 失敗`);
+      } finally {
+        setDeleting(false);
+      }
+    },
+    [fetchUsers]
+  );
+
+  const handleRestoreUser = useCallback(
+    async (user: UserWithStats) => {
+      try {
+        setRestoring(true);
+        const { response, result } = await restoreUser(user.id);
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || '復原使用者失敗');
+        }
+        toast.success(`使用者 ${user.name} 已成功復原`);
+        restoreUserModalRef.current?.close();
+        fetchUsers();
+      } catch (error) {
+        console.error("Failed to restore user:", error);
+        toast.error(`復原使用者 ${user.name} 失敗`);
+      } finally {
+        setRestoring(false);
+      }
+    }, [fetchUsers]);
 
   // DataTable 欄位定義
   const columns: Column<UserWithStats>[] = [
     {
-      key: 'user',
-      title: '使用者',
+      key: "user",
+      title: "使用者",
       render: (_, record) => (
         <div className="flex items-center space-x-3">
           <div className="avatar avatar-placeholder">
@@ -164,51 +208,53 @@ export default function UsersPage() {
               </span>
             </div>
           </div>
-          <div>
+          <Link
+            href={`/users/${record.id}`}
+            className="link link-primary link-hover flex flex-col"
+          >
             <div className="font-semibold">{record.name}</div>
-            <div className="text-sm text-base-content/70">
-              {record.email}
-            </div>
-          </div>
+            <div className="text-sm text-base-content/70">{record.email}</div>
+          </Link>
         </div>
-      )
+      ),
     },
     {
-      key: 'role',
-      title: '角色',
-      dataIndex: 'role',
+      key: "role",
+      title: "角色",
+      dataIndex: "role",
       sortable: true,
-      render: (_, record) => getRoleBadge(record.role)
+      render: (_, record) => getRoleBadge(record.role),
     },
     {
-      key: 'status',
-      title: '狀態',
-      dataIndex: 'is_active',
-      align: 'center',
+      key: "status",
+      title: "狀態",
+      dataIndex: "is_active",
+      align: "center",
       sortable: true,
       render: (_, record) => (
         <span
-          className={`badge ${record.is_active ? "badge-success" : "badge-error"} badge-sm`}
+          className={`badge ${record.is_active ? "badge-success" : "badge-error"
+            } badge-sm`}
         >
           {record.is_active ? "啟用" : "停用"}
         </span>
-      )
+      ),
     },
     {
-      key: 'created_at',
-      title: '加入時間',
-      dataIndex: 'created_at',
+      key: "created_at",
+      title: "加入時間",
+      dataIndex: "created_at",
       sortable: true,
       render: (value) => (
         <div className="text-sm">
           {new Date(value as string).toLocaleDateString("zh-TW")}
         </div>
-      )
+      ),
     },
     {
-      key: 'last_login',
-      title: '最後登入',
-      dataIndex: 'last_login',
+      key: "last_login",
+      title: "最後登入",
+      dataIndex: "last_login",
       sortable: true,
       render: (value) => (
         <div className="text-sm">
@@ -216,53 +262,60 @@ export default function UsersPage() {
             ? new Date(value as string).toLocaleDateString("zh-TW")
             : "從未登入"}
         </div>
-      )
+      ),
     },
     {
-      key: 'orderCount',
-      title: '訂單數量',
-      dataIndex: 'orderCount',
-      align: 'center',
-      sortable: true,
-      render: (value) => (
-        <div className="text-sm">
-          {(value as number) || 0} 筆
-        </div>
-      )
-    },
-    {
-      key: 'is_active',
-      title: '是否啟用',
+      key: "is_active",
+      title: "是否啟用",
       width: 120,
       render: (value) => (
         <span className={`${value ? "text-success" : "text-error"}`}>
           {value ? "是" : "否"}
         </span>
-      )
+      ),
     },
     {
-      key: 'is_deleted',
-      title: '已刪除',
+      key: "is_deleted",
+      title: "已刪除",
       width: 120,
       render: (value) => (
         <span className={`${value ? "text-error" : "text-base"}`}>
           {value ? "是" : "否"}
         </span>
-      )
+      ),
     },
     {
-      key: 'actions',
-      title: '操作',
-      align: 'center',
+      key: "thirdPartyAccounts",
+      title: "第三方帳號",
+      render: (_, record) => (
+        <button
+          className="btn btn-ghost btn-xs"
+          onClick={() => {
+            setUserAccountModalSettings({ user: record });
+            userAccountsModalRef.current?.open();
+          }}
+        >
+          <FaEye className="w-3 h-3 mr-1" />
+          檢視
+        </button>
+      ),
+    },
+    {
+      key: "orderCount",
+      title: "訂單數量",
+      dataIndex: "orderCount",
+      align: "center",
+      sortable: true,
+      render: (value) => (
+        <div className="text-sm">{(value as number) || 0} 筆</div>
+      ),
+    },
+    {
+      key: "actions",
+      title: "操作",
+      align: "center",
       render: (_, record) => (
         <div className="flex justify-center space-x-1">
-          <Link
-            href={`/users/${record.id}`}
-            className="btn btn-ghost btn-xs"
-            title="檢視詳細"
-          >
-            <FaEye className="w-3 h-3" />
-          </Link>
           <Link
             href={`/users/${record.id}/edit`}
             className="btn btn-ghost btn-xs"
@@ -284,41 +337,41 @@ export default function UsersPage() {
             )}
           </button>
           {/* 真刪除 */}
-          <button
-            className="btn btn-ghost btn-xs"
-            title="刪除使用者（不可復原）"
-            onClick={() => {
-              // if (confirm(`確定要刪除使用者 ${record.name} 嗎？此操作不可復原。`)) { }
-              setDeleteModalSettings({ user: record });
-              modalRef.current?.open();
-            }}
-            disabled={loading}
-          >
-            <FaTrash className="w-3 h-3 text-error" />
-          </button>
+          {record.is_deleted ? (
+            <button
+              className="btn btn-ghost btn-xs"
+              title="還原使用者"
+              onClick={async () => {
+                setRestoreModalSettings({ user: record });
+                restoreUserModalRef.current?.open();
+              }}
+              disabled={loading}
+            >
+              <FcDataRecovery className="w-3 h-3 text-success" />
+            </button>
+          ) : (
+            <button
+              className="btn btn-ghost btn-xs"
+              title="刪除使用者"
+              onClick={() => {
+                // if (confirm(`確定要刪除使用者 ${record.name} 嗎？此操作不可復原。`)) { }
+                setDeleteModalSettings({ user: record });
+                deleteUserModalRef.current?.open();
+              }}
+              disabled={loading}
+            >
+              <FaTrash className="w-3 h-3 text-error" />
+            </button>
+          )}
         </div>
-      )
-    }
+      ),
+    },
   ];
-
-  // if (loading) {
-  //   return (
-  //     <div className="container mx-auto px-4 py-8">
-  //       <div className="flex justify-center items-center h-64">
-  //         <span className="loading loading-spinner loading-lg"></span>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   return (
     <PageContainer>
       {/* 麵包屑導航 */}
-      <Breadcrumb
-        items={[
-          { label: '使用者管理', current: true }
-        ]}
-      />
+      <Breadcrumb items={[{ label: "使用者管理", current: true }]} />
 
       {/* 頁面標題 */}
       <div className="flex justify-between items-center mb-6">
@@ -335,11 +388,7 @@ export default function UsersPage() {
       </div>
 
       {/* 搜尋和篩選 */}
-      <SearchContainer
-        title="搜尋和篩選"
-        columns={3}
-        onReset={handleReset}
-      >
+      <SearchContainer title="搜尋和篩選" columns={3} onReset={handleReset}>
         <SearchInput
           label="搜尋使用者"
           placeholder="搜尋使用者名稱或電子信箱..."
@@ -351,9 +400,18 @@ export default function UsersPage() {
         <Select
           label="角色篩選"
           options={[
-            { label: getUserRoleChineseName(UserRole.ADMIN), value: UserRole.ADMIN },
-            { label: getUserRoleChineseName(UserRole.MODERATOR), value: UserRole.MODERATOR },
-            { label: getUserRoleChineseName(UserRole.USER), value: UserRole.USER },
+            {
+              label: getUserRoleChineseName(UserRole.ADMIN),
+              value: UserRole.ADMIN,
+            },
+            {
+              label: getUserRoleChineseName(UserRole.MODERATOR),
+              value: UserRole.MODERATOR,
+            },
+            {
+              label: getUserRoleChineseName(UserRole.USER),
+              value: UserRole.USER,
+            },
           ]}
           value={roleFilter}
           onChange={setRoleFilter}
@@ -363,8 +421,8 @@ export default function UsersPage() {
         <Select
           label="狀態篩選"
           options={[
-            { label: '啟用中', value: 'ACTIVE' },
-            { label: '已停用', value: 'INACTIVE' },
+            { label: "啟用中", value: "ACTIVE" },
+            { label: "已停用", value: "INACTIVE" },
           ]}
           value={statusFilter}
           onChange={setStatusFilter}
@@ -397,7 +455,7 @@ export default function UsersPage() {
           showSizeChanger: true,
           pageSizeOptions: [10, 20, 50, 100],
           showQuickJumper: true,
-          showTotal: true
+          showTotal: true,
         }}
         size="sm"
         hover={true}
@@ -407,18 +465,24 @@ export default function UsersPage() {
       />
 
       <Modal
-        ref={modalRef}
+        ref={deleteUserModalRef}
         id="delete-user-confirm-modal"
+        loading={deleteing}
         title="刪除使用者"
         okText="確定"
-        onOk={() => { handleOpenDeleteUserConfirm(deleteModalSettings.user!); }}
+        onOk={() => {
+          handleOpenDeleteUserConfirm(deleteModalSettings.user!);
+        }}
         closeText="取消"
         onClose={() => {
-          modalRef.current?.close();
+          deleteUserModalRef.current?.close();
         }}
       >
         <div className="relative">
-          <p>確定要刪除使用者 {deleteModalSettings.user?.name}({deleteModalSettings.user?.email}) 嗎？此操作不可復原。</p>
+          <p>
+            確定要刪除使用者 {deleteModalSettings.user?.name}(
+            {deleteModalSettings.user?.email}) 嗎？此操作不可復原。
+          </p>
           {loading && (
             <div className="container mx-auto px-4 py-8 z-50 absolute">
               <div className="flex justify-center items-center h-64">
@@ -427,6 +491,39 @@ export default function UsersPage() {
             </div>
           )}
         </div>
+      </Modal>
+
+      <Modal
+        ref={restoreUserModalRef}
+        id="restore-user-confirm-modal"
+        title="復原使用者"
+        loading={restoring}
+        okText="確定"
+        onOk={async () => {
+          if (restoreModalSettings.user) {
+            await handleRestoreUser(restoreModalSettings.user);
+          }
+        }}
+        closeText="取消"
+        onClose={() => {
+          restoreUserModalRef.current?.close();
+        }}
+      >
+        <p>
+          確定要復原使用者 {restoreModalSettings.user?.name} (
+          {restoreModalSettings.user?.email}) 嗎？
+        </p>
+      </Modal>
+      <Modal
+        ref={userAccountsModalRef}
+        id="user-accounts-modal"
+        title="使用者第三方帳號綁定資訊"
+        okText="關閉"
+        onOk={() => {
+          userAccountsModalRef.current?.close();
+        }}
+      >
+        <UserAccountTable userId={userAccountModalSettings.user?.id || ""} />
       </Modal>
     </PageContainer>
   );

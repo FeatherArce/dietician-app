@@ -64,15 +64,15 @@ Form2 支援多種驗證規則：
 ```tsx
 <Form2.Item
   name="username"
-  label="用戶名稱"
+  label="使用者名稱"
   rules={[
-    { required: true, message: '用戶名稱為必填' },
+    { required: true, message: '使用者名稱為必填' },
     { min: 3, message: '最少需要3個字符' },
     { max: 20, message: '最多允許20個字符' },
     { pattern: /^[a-zA-Z0-9_]+$/, message: '只能包含字母、數字和下劃線' }
   ]}
 >
-  <Input placeholder="請輸入用戶名稱" />
+  <Input placeholder="請輸入使用者名稱" />
 </Form2.Item>
 ```
 
@@ -85,20 +85,20 @@ const checkUsernameExists = async (value) => {
   const data = await response.json();
   
   if (data.exists) {
-    return '用戶名已存在';
+    return '使用者名已存在';
   }
   return '';
 };
 
 <Form2.Item
   name="username"
-  label="用戶名稱"
+  label="使用者名稱"
   rules={[
     { required: true },
     { validator: checkUsernameExists }
   ]}
 >
-  <Input placeholder="請輸入用戶名稱" />
+  <Input placeholder="請輸入使用者名稱" />
 </Form2.Item>
 ```
 

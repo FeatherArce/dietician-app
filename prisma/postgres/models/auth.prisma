@@ -7,35 +7,70 @@ enum UserRole {
 }
 
 model User {
-  id    String  @id @default(uuid())
-  name  String // 顯示名稱/使用者名稱
-  email String  @unique // 改為必填，用於登入
-  note  String?
+  id              String    @id @default(uuid())
+  password_hash   String? // bcrypt 加密密碼
+  name            String // 顯示名稱/使用者名稱
+  email           String    @unique // 改為必填，用於登入
+  email_verified  Boolean   @default(false) // Email 驗證狀態
+  role            UserRole  @default(USER) // 使用者角色
+  preferred_theme String    @default("light") // 偏好主題
+  image           String? // 頭像 URL
+  note            String? // 備註
+  last_login      DateTime? // 最後登入時間
+  login_count     Int       @default(0) // 登入次數
+  is_active       Boolean   @default(true) // 是否啟用
+  is_deleted      Boolean   @default(false) // 是否刪除（軟刪除）
 
-  // 認證相關欄位
-  password_hash       String // 改為必填，bcrypt 加密密碼
-  email_verified      Boolean   @default(false) // Email 驗證狀態
-  email_verify_token  String? // Email 驗證 token
-  reset_token         String? // 密碼重設 token
-  reset_token_expires DateTime? // 重設 token 過期時間
-
-  role       UserRole @default(USER) // 使用者角色
-  is_active  Boolean  @default(true) // 是否啟用
-  is_deleted Boolean  @default(false) // 是否刪除（軟刪除）
-
-  // 使用者偏好設定
-  preferred_theme String @default("light") // 偏好主題
-
-  // 審計欄位
-  created_at  DateTime  @default(now()) // 建立時間
-  updated_at  DateTime  @updatedAt // 更新時間
-  last_login  DateTime? // 最後登入時間
-  login_count Int       @default(0) // 登入次數
+  created_at DateTime @default(now()) // 建立時間
+  updated_at DateTime @updatedAt // 更新時間
 
   // 關聯
   joinedEvents LunchEvent[] @relation("LunchEventAttendees")
   ownedEvents  LunchEvent[] @relation("LunchEventOwner")
   orders       LunchOrder[]
+  accounts     Account[]
+  sessions     Session[]
 
   @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+// Session 模型: 目前僅用 JWT，不使用資料庫 Session，但保留模型以備未來擴充
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// 驗證 Token 模型: 用於 Email 驗證與密碼重設
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }

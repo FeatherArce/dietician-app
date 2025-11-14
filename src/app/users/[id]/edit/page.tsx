@@ -59,11 +59,11 @@ export default function EditUserPage() {
     { label: getUserRoleChineseName(UserRole.ADMIN), value: 'ADMIN' },
   ]), []);
 
-  // 取得用戶資料
+  // 取得使用者資料
   const getUser = useCallback(async () => {
     if (!userId) return;
     if (typeof userId !== 'string') {
-      setErrors({ general: '無效的用戶ID' });
+      setErrors({ general: '無效的使用者ID' });
       setInitialLoading(false);
       return;
     }
@@ -80,11 +80,11 @@ export default function EditUserPage() {
           is_active: user.is_active
         });
       } else {
-        throw new Error('用戶不存在');
+        throw new Error('使用者不存在');
       }
     } catch (error) {
       console.error('Failed to fetch user:', error);
-      setErrors({ general: '載入用戶資料失敗' });
+      setErrors({ general: '載入使用者資料失敗' });
     } finally {
       setInitialLoading(false);
     }
@@ -111,16 +111,16 @@ export default function EditUserPage() {
       const { response, result } = res;
       if (response.ok && result.success) {
         console.log('User updated successfully');
-        toast.success('用戶更新成功');
+        toast.success('使用者更新成功');
         // 使用瀏覽器返回上一頁，而不是強制跳轉到詳情頁面
         router.back();
       } else {
-        throw new Error(result.error || '更新用戶失敗');
+        throw new Error(result.error || '更新使用者失敗');
       }
     } catch (error) {
       console.error('Failed to update user:', error);
       setErrors({
-        general: error instanceof Error ? error.message : '更新用戶失敗'
+        general: error instanceof Error ? error.message : '更新使用者失敗'
       });
     } finally {
       setLoading(false);
@@ -141,7 +141,7 @@ export default function EditUserPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">找不到用戶</h2>
+          <h2 className="text-2xl font-bold mb-4">找不到使用者</h2>
           <button
             onClick={() => router.back()}
             className="btn btn-primary"
@@ -166,9 +166,9 @@ export default function EditUserPage() {
 
       {/* 頁面標題 */}
       <PageTitle
-        title="編輯用戶"
+        title="編輯使用者"
         size="xl"
-        description="修改用戶資料和權限設定"
+        description="修改使用者資料和權限設定"
       />
 
       {/* 表單 */}
@@ -201,7 +201,7 @@ export default function EditUserPage() {
               <Form2.Button.Container>
                 <Form2.Button type="submit" className="btn btn-primary w-full" disabled={loading}>
                   <FaSave className="h-4 w-4" />
-                  更新用戶
+                  更新使用者
                 </Form2.Button>
               </Form2.Button.Container>
             </Form2>

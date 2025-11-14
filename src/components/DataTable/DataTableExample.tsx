@@ -44,7 +44,7 @@ const sampleUsers: User[] = [
   // 更多範例資料...
   ...Array.from({ length: 47 }, (_, i) => ({
     id: `${i + 4}`,
-    name: `用戶${i + 4}`,
+    name: `使用者${i + 4}`,
     email: `user${i + 4}@example.com`,
     role: ['ADMIN', 'USER', 'MODERATOR'][i % 3] as 'ADMIN' | 'USER' | 'MODERATOR',
     is_active: Math.random() > 0.3,
@@ -98,7 +98,7 @@ export default function DataTableExample() {
         const roleConfig = {
           ADMIN: { text: '系統管理員', class: 'badge-error' },
           MODERATOR: { text: '管理者', class: 'badge-warning' },
-          USER: { text: '用戶', class: 'badge-info' }
+          USER: { text: '使用者', class: 'badge-info' }
         };
         const config = roleConfig[value as keyof typeof roleConfig];
         return (

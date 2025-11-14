@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { userService, type CreateUserData, type UserFilters } from '@/services/server/user-services';
+import { urlSearchParamsToUserFilters, userService, type CreateUserData, type UserFilters } from '@/services/server/user-services';
 import { UserRole } from '@/prisma-generated/postgres-client';
 import { PasswordService } from '@/services/server/auth/password-service';
 
@@ -8,32 +8,7 @@ export async function GET(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams;
         
         // 解析查詢參數
-        const filters: UserFilters = {};
-        
-        const roleParam = searchParams.get('role');
-        if (roleParam && Object.values(UserRole).includes(roleParam as UserRole)) {
-            filters.role = roleParam as UserRole;
-        }
-        
-        const isActiveParam = searchParams.get('is_active');
-        if (isActiveParam !== null) {
-            filters.isActive = isActiveParam === 'true';
-        }
-        
-        const searchNameParam = searchParams.get('search_name');
-        if (searchNameParam) {
-            filters.searchName = searchNameParam;
-        }
-        
-        const searchEmailParam = searchParams.get('search_email');
-        if (searchEmailParam) {
-            filters.searchEmail = searchEmailParam;
-        }
-
-        const emailVerifiedParam = searchParams.get('email_verified');
-        if (emailVerifiedParam !== null) {
-            filters.emailVerified = emailVerifiedParam === 'true';
-        }
+        const filters = urlSearchParamsToUserFilters(searchParams);
 
         const users = await userService.getUsers(filters);
         return NextResponse.json({ users, success: true });
@@ -86,7 +61,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 準備用戶資料
+        // 準備使用者資料
         const userData: CreateUserData = {
             name: data.name,
             email: data.email,

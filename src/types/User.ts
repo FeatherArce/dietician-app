@@ -7,7 +7,7 @@ export function getUserRoleChineseName(role: UserRole): string {
         case UserRole.MODERATOR:
             return '管理者';
         case UserRole.USER:
-            return '一般用戶';
+            return '一般使用者';
         case UserRole.GUEST:
             return '訪客';
         default:

@@ -1,6 +1,6 @@
 import { UserRole } from '../../prisma-generated/postgres-client';
 import prisma from '../../src/services/prisma';
-import { PasswordService, generateSecureToken } from '../../src/services/server/auth/password-service';
+import { PasswordService } from '../../src/services/server/auth/password-service';
 
 export const testUserData = {
     name: "TEST",
@@ -12,14 +12,12 @@ export const testUserData = {
 async function createTestAccount() {
     try {
         const passwordHash = await PasswordService.hash(testUserData.password);
-        const emailVerifyToken = generateSecureToken();
         const user = await prisma.user.create({
             data: {
                 name: testUserData.name,
                 email: testUserData.email,
                 password_hash: passwordHash,
                 email_verified: false, // Email 需要驗證
-                email_verify_token: emailVerifyToken,
                 role: UserRole.USER,
                 is_active: true,
                 login_count: 0

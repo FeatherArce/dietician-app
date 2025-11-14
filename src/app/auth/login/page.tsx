@@ -110,13 +110,13 @@ export default function LoginPage() {
 
         <div className="w-full flex flex-col gap-2">
           {/* Google */}
+          <button className="btn dark:btn-neutral" onClick={() => signIn("discord")}>
+            <FaDiscord className="size-[1.2em]" size={20} />
+            Login with Discord
+          </button>
           <button className="btn dark:btn-neutral" disabled>
             <FcGoogle className="size-[1.2em]" size={20} />
             Login with Google
-          </button>
-          <button className="btn dark:btn-neutral" disabled>
-            <FaDiscord className="size-[1.2em]" size={20} />
-            Login with Discord
           </button>
         </div>
 

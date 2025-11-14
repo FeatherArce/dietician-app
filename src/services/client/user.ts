@@ -52,3 +52,11 @@ export async function logicalDeleteUser(userId: string) {
     return { response, result };
 }
 
+export async function restoreUser(userId: string) {
+    const response = await authFetch(`${userApiBase}/${userId}/restore`, {
+        method: 'POST',
+    });
+    const result = await response.json();
+    return { response, result };
+    
+}

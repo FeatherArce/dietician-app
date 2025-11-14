@@ -111,12 +111,12 @@ export default function NewUserPage() {
       if (response.ok && data.success) {
         router.push('/users');
       } else {
-        throw new Error(data.error || '創建用戶失敗');
+        throw new Error(data.error || '創建使用者失敗');
       }
     } catch (error) {
       console.error('Failed to create user:', error);
       setErrors({
-        general: error instanceof Error ? error.message : '創建用戶失敗'
+        general: error instanceof Error ? error.message : '創建使用者失敗'
       });
     } finally {
       setLoading(false);
@@ -137,7 +137,7 @@ export default function NewUserPage() {
       <Breadcrumb 
         items={[
           { label: '使用者管理', href: '/users' },
-          { label: '新增用戶', current: true }
+          { label: '新增使用者', current: true }
         ]} 
       />
 
@@ -154,10 +154,10 @@ export default function NewUserPage() {
           </button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              新增用戶
+              新增使用者
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              創建新的系統用戶帳戶
+              創建新的系統使用者帳戶
             </p>
           </div>
         </div>
@@ -293,7 +293,7 @@ export default function NewUserPage() {
                   )}
                   <label className="label">
                     <span className="label-text-alt">
-                      一般用戶：基本權限 | 管理者：管理權限 | 系統管理員：完整權限
+                      一般使用者：基本權限 | 管理者：管理權限 | 系統管理員：完整權限
                     </span>
                   </label>
                 </div>
@@ -311,7 +311,7 @@ export default function NewUserPage() {
                   ) : (
                     <>
                       <FaSave className="h-4 w-4" />
-                      創建用戶
+                      創建使用者
                     </>
                   )}
                 </button>

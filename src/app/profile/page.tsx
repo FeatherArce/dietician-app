@@ -71,7 +71,7 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="form-control w-full">
             <label className="label">
-              <span className="label-text font-semibold">用戶 ID</span>
+              <span className="label-text font-semibold">使用者 ID</span>
             </label>
             <input
               type="text"

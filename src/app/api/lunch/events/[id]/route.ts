@@ -48,7 +48,7 @@ export async function PUT(
     try {
         const { id } = await params;
 
-        // 驗證用戶身份
+        // 驗證使用者身份
         const session = await auth();
         if (!session) {
             return NextResponse.json(
@@ -122,7 +122,7 @@ export async function PATCH(
     try {
         const { id } = await params;
 
-        // 驗證用戶身份
+        // 驗證使用者身份
         const session = await auth();
         if (!session) {
             return NextResponse.json(
@@ -198,7 +198,7 @@ export async function DELETE(
     try {
         const { id } = await params;
 
-        // 驗證用戶身份
+        // 驗證使用者身份
         const session = await auth();
         if (!session) {
             return NextResponse.json(

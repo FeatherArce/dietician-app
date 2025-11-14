@@ -48,11 +48,11 @@ export default function EventCard({
     onShowOrderDetail,
     onShowEventStats
 }: EventCardProps) {
-    // 檢查用戶是否為活動建立者
+    // 檢查使用者是否為活動建立者
     const isOwner = event.owner_id === user?.id;
     const hasManagePermission = isOwner || user?.role === UserRole.ADMIN || user?.role === UserRole.MODERATOR;
 
-    // 檢查用戶是否有此活動的訂單
+    // 檢查使用者是否有此活動的訂單
     const userOrder = getUserOrderForEvent?.(event.id);
     const hasOrder = !!userOrder;
 
@@ -139,7 +139,7 @@ export default function EventCard({
                         </div>
                     )}
 
-                    {/* 顯示用戶角色 */}
+                    {/* 顯示使用者角色 */}
                     {/* <div className="flex items-center space-x-2">
                         <FaUserFriends className="w-3 h-3 text-secondary" />
                         <span>我的角色：{isOwner ? '主辦人' : '參與者'}</span>
@@ -156,7 +156,7 @@ export default function EventCard({
                         </div>
                     </div>
 
-                    {/* 用戶訂單摘要 */}
+                    {/* 使用者訂單摘要 */}
                     {hasOrder && userOrder && (
                         <div className="mt-3 p-3 bg-base-200 rounded-lg">
                             <div className="flex justify-between items-center">

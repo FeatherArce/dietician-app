@@ -71,7 +71,7 @@ export default function LunchPage() {
     const fetchEvents = useCallback(async () => {
         try {
             setLoading(true);
-            // 獲取用戶已參與的活動（包含建立的和有訂單的）
+            // 獲取使用者已參與的活動（包含建立的和有訂單的）
             // const url = `/api/lunch/events/participated?userId=${user?.id}`;
             const url = `/api/lunch/events`;
             const response = await authFetch(url);
@@ -143,7 +143,7 @@ export default function LunchPage() {
         setSelectedEvent(undefined);
     };
 
-    // 檢查用戶是否有特定活動的訂單
+    // 檢查使用者是否有特定活動的訂單
     const handleEventCardGetUserOrderForEvent = (eventId: string): MyOrder | null => {
         return myOrders.find(order => order.event.id === eventId) || null;
     };

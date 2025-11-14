@@ -25,7 +25,7 @@ export async function GET(
             );
         }
 
-        // 使用過濾器獲取特定用戶在特定事件的訂單
+        // 使用過濾器獲取特定使用者在特定事件的訂單
         const orders = await orderService.getOrders({
             userId,
             eventId

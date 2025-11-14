@@ -11,7 +11,7 @@ const formatNumber = (value: string) => {
   if (!value) return '';
 
   // 確保使用您想要的地區設定 (例如 'en-US' 使用逗號作為千分位)
-  // 您也可以使用 navigator.language 來自動使用用戶的本地設定
+  // 您也可以使用 navigator.language 來自動使用使用者的本地設定
   const formatter = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0, // 不自動添加小數位數
     maximumFractionDigits: 20, // 允許較多的小數位數
