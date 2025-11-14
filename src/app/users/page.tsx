@@ -22,6 +22,7 @@ import { toast } from "@/components/Toast";
 import { logicalDeleteUser, restoreUser } from "@/services/client/user";
 import { FcDataRecovery } from "react-icons/fc";
 import UserAccountTable from "./_components/UserAccountTable";
+import { formatNumber } from "@/libs/formatter";
 
 interface UserWithStats extends User {
   orderCount?: number;
@@ -262,6 +263,14 @@ export default function UsersPage() {
             ? new Date(value as string).toLocaleDateString("zh-TW")
             : "從未登入"}
         </div>
+      ),
+    },
+    {
+      key: "login_count",
+      title: "登入次數",
+      dataIndex: "login_count",
+      render: (value) => (
+        <div className="text-sm">{formatNumber(value as number || 0)} 次</div>
       ),
     },
     {

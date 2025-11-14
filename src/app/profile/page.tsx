@@ -1,10 +1,10 @@
 "use client";
-import { UserRole } from "@/prisma-generated/postgres-client";
+import { User, UserRole } from "@/prisma-generated/postgres-client";
 import { useSession } from "next-auth/react";
 import { getUserRoleChineseName } from "@/types/User";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FaArrowLeft,
   FaCog,
@@ -15,16 +15,44 @@ import {
 import UserForm from "./_components/UserForm";
 import UserThemeForm from "./_components/UserThemeForm";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import { getUserById } from "@/services/client/user";
+import { getAccountsByUserId } from "@/services/client/account-services";
+import { signIn } from "next-auth/react";
+import { FcBrokenLink, FcLink, FcOk } from "react-icons/fc";
 
-type TabType = 'info' | 'profile' | 'password' | 'settings' | 'security';
+type TabType = 'info' | 'profile' | 'password' | 'settings' | 'security' | 'third-party';
 
 export default function ProfilePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const authLoading = status === 'loading';
   const isAuthenticated = status === 'authenticated';
-  const user = session?.user;
+  const [user, setUser] = useState<Partial<User> | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<TabType>('info');
+
+  const fetchUserSelf = useCallback(async () => {
+    try {
+      const uid = session?.user?.id;
+      if (!uid) {
+        return;
+      }
+      const { response, result } = await getUserById(uid);
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || '無法取得使用者資料');
+      }
+      
+      setUser(result?.user || undefined);
+    } catch (error) {
+      console.error('Fetch user self error:', error);
+    }
+  }, [session?.user?.id]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUserSelf();
+    }
+  }, [isAuthenticated, fetchUserSelf]);
 
   // 側邊欄選項
   const sidebarItems = useMemo(() => ([
@@ -39,6 +67,12 @@ export default function ProfilePage() {
       label: '編輯資料',
       icon: FaUser,
       description: '修改個人資料'
+    },
+    {
+      id: 'third-party' as TabType,
+      label: '第三方帳號',
+      icon: FaUser,
+      description: '管理第三方登入帳號'
     },
     {
       id: 'settings' as TabType,
@@ -57,6 +91,8 @@ export default function ProfilePage() {
         return renderProfileEdit();
       case 'settings':
         return renderSettings();
+      case 'third-party':
+        return renderThirdPartyAccounts();
       default:
         return renderAccountInfo();
     }
@@ -169,6 +205,71 @@ export default function ProfilePage() {
       </div>
     </div>
   );
+
+  // 第三方帳號綁定狀態與操作（僅顯示 Discord）
+  const [discordBound, setDiscordBound] = useState<boolean>(false);
+  const [discordAccountId, setDiscordAccountId] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
+
+  // 檢查是否已綁定 Discord
+  const checkDiscordBinding = useCallback(async () => {
+    if (!user?.id) return;
+    setChecking(true);
+    try {
+      const { result } = await getAccountsByUserId(user.id);
+      const discord = result?.data?.accounts?.find((a: any) => a.provider === "discord");
+      setDiscordBound(!!discord);
+      setDiscordAccountId(discord?.providerAccountId || null);
+    } catch (e) {
+      setDiscordBound(false);
+      setDiscordAccountId(null);
+    } finally {
+      setChecking(false);
+    }
+  }, [user?.id]);
+
+  // 綁定/解除後自動刷新
+  useEffect(() => {
+    if (activeTab === "third-party" && user?.id) {
+      checkDiscordBinding();
+    }
+  }, [activeTab, user?.id, checkDiscordBinding]);
+
+  // 處理 Discord 綁定 callback 回到本頁
+  const handleBindDiscord = () => {
+    signIn("discord", { callbackUrl: window.location.href });
+  };
+
+  const renderThirdPartyAccounts = () => {
+    if (!user?.id) return null;
+    return (
+      <div className="card bg-base-100 shadow-sm">
+        <div className="card-body">
+          <h2 className="card-title text-xl mb-4">第三方帳號綁定</h2>
+          <div className="flex items-center gap-4">
+            <span className="font-semibold">Discord：</span>
+            <button
+              className="btn btn-discord"
+              onClick={handleBindDiscord}
+              disabled={checking || discordBound}
+            >
+              {discordBound ? "已綁定" : "綁定 Discord"}
+            </button>
+
+            {checking ? (
+              <span className="loading loading-spinner loading-xs"></span>
+            ) : discordBound ? (
+              <FcOk className="w-6 h-6" />
+            ) : null
+            }
+          </div>
+          {discordBound && discordAccountId && (
+            <div className="mt-2 text-xs text-base-content/60">Discord 帳號 ID：{discordAccountId}</div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   if (authLoading) {
     return (

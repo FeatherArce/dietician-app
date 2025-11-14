@@ -1,12 +1,12 @@
 import { Form2, Input } from '@/components/form2'
 import { Form2Ref, FormValues } from '@/components/form2/types';
 import { toast } from '@/components/Toast';
+import { User } from '@/prisma-generated/postgres-client';
 import { updateUser } from '@/services/client/user';
-import type { User } from 'next-auth';
 import React, { forwardRef, useCallback, useImperativeHandle, useMemo } from 'react'
 
 interface UserFormProps {
-    user?: User;
+    user?: Partial<User>;
 }
 
 function UserForm({ user }: UserFormProps, ref: React.Ref<Form2Ref>) {
