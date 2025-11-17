@@ -114,7 +114,7 @@ export default function LoginPage() {
             <FaDiscord className="size-[1.2em]" size={20} />
             Login with Discord
           </button>
-          <button className="btn dark:btn-neutral" disabled>
+          <button className="btn dark:btn-neutral cursor-not-allowed" disabled>
             <FcGoogle className="size-[1.2em]" size={20} />
             Login with Google
           </button>
