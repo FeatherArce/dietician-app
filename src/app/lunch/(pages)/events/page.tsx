@@ -296,7 +296,7 @@ export default function EventsPage() {
     {
       key: 'orderCount',
       title: '訂單數',
-      dataIndex: 'orderCount',
+      dataIndex: '_count.orders',
       align: 'center',
       sortable: true,
       render: (value) => (
@@ -304,9 +304,9 @@ export default function EventsPage() {
       )
     },
     {
-      key: 'participantCount',
+      key: 'attendeeCount',
       title: '參與人數',
-      dataIndex: 'participantCount',
+      dataIndex: '_count.attendees',
       align: 'center',
       sortable: true,
       render: (value) => (
@@ -316,7 +316,7 @@ export default function EventsPage() {
     {
       key: 'totalAmount',
       title: '總金額',
-      dataIndex: 'totalAmount',
+      dataIndex: '_count.totalAmount',
       align: 'center',
       sortable: true,
       render: (value) => (
