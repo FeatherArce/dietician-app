@@ -20,6 +20,7 @@ import { getAccountsByUserId } from "@/services/client/account-services";
 import { signIn } from "next-auth/react";
 import { FcBrokenLink, FcLink, FcOk } from "react-icons/fc";
 import { toast } from "@/components/Toast";
+import Fieldset from "@/components/ui/Fieldset";
 
 type TabType = 'info' | 'profile' | 'password' | 'settings' | 'security' | 'third-party';
 
@@ -70,18 +71,6 @@ export default function ProfilePage() {
       description: '查看帳戶基本信息'
     },
     {
-      id: 'profile' as TabType,
-      label: '編輯資料',
-      icon: FaUser,
-      description: '修改個人資料'
-    },
-    {
-      id: 'third-party' as TabType,
-      label: '第三方帳號',
-      icon: FaUser,
-      description: '管理第三方登入帳號'
-    },
-    {
       id: 'settings' as TabType,
       label: '偏好設定',
       icon: FaCog,
@@ -93,13 +82,13 @@ export default function ProfilePage() {
   const renderContent = () => {
     switch (activeTab) {
       case 'info':
-        return renderAccountInfo();
-      case 'profile':
-        return renderProfileEdit();
+        return <>
+          {renderAccountInfo()}
+          {/* {renderProfileEdit()} */}
+          {renderThirdPartyAccounts()}
+        </>;
       case 'settings':
         return renderSettings();
-      case 'third-party':
-        return renderThirdPartyAccounts();
       default:
         return renderAccountInfo();
     }
@@ -109,80 +98,22 @@ export default function ProfilePage() {
   const renderAccountInfo = () => (
     <div className="card bg-base-100 shadow-sm">
       <div className="card-body">
-        <h2 className="card-title text-xl mb-4">帳戶資訊</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text font-semibold">使用者 ID</span>
-            </label>
-            <input
-              type="text"
-              value={user?.id || ''}
-              className="input input-bordered w-full"
-              disabled
-            />
-          </div>
-
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text font-semibold">角色</span>
-            </label>
-            <input
-              type="text"
-              value={getUserRoleChineseName(user?.role || UserRole.USER)}
-              className="input input-bordered w-full"
-              disabled
-            />
-          </div>
-
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text font-semibold">帳戶狀態</span>
-            </label>
-            <div className="flex items-center space-x-2">
-              <span className={`badge ${user?.is_active ? 'badge-success' : 'badge-error'}`}>
-                {user?.is_active ? '啟用' : '停用'}
-              </span>
-            </div>
-          </div>
-
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text font-semibold">註冊日期</span>
-            </label>
-            <input
-              type="text"
-              value={user?.created_at ? new Date(user.created_at).toLocaleDateString('zh-TW') : ''}
-              className="input input-bordered w-full"
-              disabled
-            />
-          </div>
-
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text font-semibold">上次登入</span>
-            </label>
-            <input
-              type="text"
-              value={user?.last_login ? new Date(user.last_login).toLocaleString('zh-TW') : '從未登入'}
-              className="input input-bordered w-full"
-              disabled
-            />
-          </div>
-
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text font-semibold">登入次數</span>
-            </label>
-            <input
-              type="text"
-              value={user?.login_count || 0}
-              className="input input-bordered w-full"
-              disabled
-            />
-          </div>
-        </div>
+        <Fieldset
+          legend="帳戶資訊"
+          colSpan={{
+            lg: 2
+          }}
+          items={[
+            { label: '使用者 ID', content: user?.id || '' },
+            { label: '角色', content: getUserRoleChineseName(user?.role || UserRole.USER) },
+            { label: '使用者名稱', content: user?.name || '' },
+            { label: '電子郵件', content: user?.email || '' },
+            // { label: '帳戶狀態', content: user?.is_active ? '啟用' : '停用' },
+            { label: '註冊日期', content: user?.created_at ? new Date(user.created_at).toLocaleDateString('zh-TW') : '' },
+            { label: '上次登入', content: user?.last_login ? new Date(user.last_login).toLocaleString('zh-TW') : '從未登入' },
+            // { label: '登入次數', content: String(user?.login_count || 0) }
+          ]}
+        />
       </div>
     </div>
   );
