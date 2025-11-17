@@ -6,7 +6,7 @@ export default function Dropdowns() {
       <button
         className="btn"
         popoverTarget="popover-1"
-        style={{ anchorName: "--anchor-1" } /* as React.CSSProperties */}
+      // style={{ anchorName: "--anchor-1" }}
       >
         Button
       </button>
@@ -15,7 +15,7 @@ export default function Dropdowns() {
         className="dropdown menu w-52 rounded-box bg-base-100 shadow-sm"
         popover="auto"
         id="popover-1"
-        style={{ positionAnchor: "--anchor-1" } /* as React.CSSProperties */}
+      // style={{ positionAnchor: "--anchor-1" }}
       >
         <li>
           <a>Item 1</a>
