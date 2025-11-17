@@ -30,13 +30,20 @@ export default function Navbar() {
         ) : session?.user ? (
           <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
-              <div className="avatar avatar-placeholder">
-                <div className="bg-neutral text-neutral-content w-10 h-10 rounded-full">
+
+              {session?.user?.image ? (
+                <div className="avatar">
+                  <div className="w-10 h-10 rounded-full">
+                    <img src={session.user.image} alt={session.user.name || "User avatar"} />
+                  </div>
+                </div>
+              ) : (
+                <div className="avatar avatar-placeholder">
                   <span className="text-xl">
                     {session?.user?.name?.charAt(0).toUpperCase()}
                   </span>
                 </div>
-              </div>
+              )}
             </div>
             <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
               <li className="">
