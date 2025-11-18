@@ -18,6 +18,7 @@ interface PageTitleProps {
         redirect_url?: string;
     };
     appendContent?: React.ReactNode;
+    marginBotton?: number;
 }
 
 export default function PageTitle({
@@ -27,7 +28,8 @@ export default function PageTitle({
     description,
     descriptionClassName,
     redirectButtonSettings,
-    appendContent
+    appendContent,
+    marginBotton = 6,
 }: PageTitleProps) {
     const router = useRouter();
 
@@ -40,7 +42,7 @@ export default function PageTitle({
     }, [redirectButtonSettings, router]);
 
     return (
-        <div className="flex justify-between items-start mb-6">
+        <div className={cn('flex justify-between items-start', marginBotton ? `mb-${marginBotton}` : '')}>
             <div className="flex items-center space-x-4">
                 <button
                     onClick={handleGoBack}
