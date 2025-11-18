@@ -462,10 +462,10 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
         title={
           <div className="flex items-center gap-3">
             <FaShoppingCart className="w-8 h-8 text-primary" />
-            <span>參與訂餐</span>
+            <span>{event.title} {existingOrder ? "修改訂單" : "新增訂單"}</span>
           </div>
         }
-        description={`${event.title} - ${existingOrder ? "修改訂單" : "新增訂單"}`}
+        description="請在下方選擇您想訂購的餐點，然後送出訂單"
       />
 
       {/* 活動資訊卡片 */}
@@ -491,7 +491,8 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       </div>
 
       {/* 菜單 */}
-      <div className="">
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-2">
+        {/* 菜單 */}
         <div className="card bg-base-100 shadow-sm">
           <div className="card-body">
             <div className="flex justify-between items-center">
@@ -534,118 +535,118 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
             )}
           </div>
         </div>
-      </div>
 
-      {/* 訂單摘要 */}
-      <div className="space-y-6">
-        <div className="card bg-base-100 shadow-sm sticky top-4">
-          <div className="card-body">
-            <h3 className="card-title">訂單摘要</h3>
+        {/* 訂單摘要 */}
+        <div className="space-y-6">
+          <div className="card bg-base-100 shadow-sm sticky top-4">
+            <div className="card-body">
+              <h3 className="card-title">訂單摘要</h3>
 
-            {/* 訂單項目 */}
-            <div className="space-y-3">
-              <div className="form-control vertical">
-                <label className="label">
-                  <span className="label-text">訂單項目</span>
-                </label>
+              {/* 訂單項目 */}
+              <div className="space-y-3">
+                <div className="form-control vertical">
+                  <label className="label">
+                    <span className="label-text">訂單項目</span>
+                  </label>
+                </div>
+                <div>
+                  <DataTable<ILunchOrderItem>
+                    dataSource={orderItems}
+                    pagination={false}
+                    columns={[
+                      {
+                        title: '',
+                        key: 'actions',
+                        width: 100,
+                        render: (_, record, index) => (<>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              className="btn btn-ghost btn-xs"
+                              onClick={() => {
+                                openEditMealModal(record, index);
+                              }}
+                            >
+                              <FaEdit className="w-3 h-3" />
+                            </button>
+                            <button
+                              className="btn btn-error btn-xs"
+                              onClick={() => removeItem(index)}
+                            >
+                              <RiDeleteBin6Line className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </>)
+                      },
+                      { title: '餐點', key: 'name' },
+                      { title: '備註', key: 'note', },
+                      {
+                        title: '單價',
+                        key: 'price',
+                        align: 'right',
+                        width: 100,
+                        render: (_, record) => formatCurrency(record.price)
+                      },
+                      {
+                        title: '數量',
+                        key: 'quantity',
+                        align: 'right',
+                        width: 100,
+                        render: (_, record, index) => formatNumber(record.quantity)
+                      },
+                      {
+                        title: '小計',
+                        key: 'subtotal',
+                        align: 'right',
+                        width: 100,
+                        render: (_, record) => {
+                          return formatCurrency(record.price * record.quantity);
+                        }
+                      },
+                    ]}
+                  // summary={{
+                  //   show: true,
+                  //   columns: [
+                  //     { key: 'subtotal-title', render: () => <span className="font-bold">總計</span> },
+                  //     {
+                  //       key: 'subtotal',
+                  //       render: (data, allData) => {
+                  //         const subtotal = allData.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+                  //         return (
+                  //           <div className="flex justify-end">
+                  //             <span className="font-bold">總計: {formatCurrency(subtotal)}</span>
+                  //           </div>
+                  //         )
+                  //       }
+                  //     },
+                  //   ]
+                  // }}
+                  />
+                </div>
               </div>
-              <div>
-                <DataTable<ILunchOrderItem>
-                  dataSource={orderItems}
-                  pagination={false}
-                  columns={[
-                    {
-                      title: '',
-                      key: 'actions',
-                      width: 100,
-                      render: (_, record, index) => (<>
-                        <div className="flex items-center space-x-2">
-                          <button
-                            className="btn btn-ghost btn-xs"
-                            onClick={() => {
-                              openEditMealModal(record, index);
-                            }}
-                          >
-                            <FaEdit className="w-3 h-3" />
-                          </button>
-                          <button
-                            className="btn btn-error btn-xs"
-                            onClick={() => removeItem(index)}
-                          >
-                            <RiDeleteBin6Line className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </>)
-                    },
-                    { title: '餐點', key: 'name' },
-                    { title: '備註', key: 'note', },
-                    {
-                      title: '單價',
-                      key: 'price',
-                      align: 'right',
-                      width: 100,
-                      render: (_, record) => formatCurrency(record.price)
-                    },
-                    {
-                      title: '數量',
-                      key: 'quantity',
-                      align: 'right',
-                      width: 100,
-                      render: (_, record, index) => formatNumber(record.quantity)
-                    },
-                    {
-                      title: '小計',
-                      key: 'subtotal',
-                      align: 'right',
-                      width: 100,
-                      render: (_, record) => {
-                        return formatCurrency(record.price * record.quantity);
-                      }
-                    },
-                  ]}
-                // summary={{
-                //   show: true,
-                //   columns: [
-                //     { key: 'subtotal-title', render: () => <span className="font-bold">總計</span> },
-                //     {
-                //       key: 'subtotal',
-                //       render: (data, allData) => {
-                //         const subtotal = allData.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-                //         return (
-                //           <div className="flex justify-end">
-                //             <span className="font-bold">總計: {formatCurrency(subtotal)}</span>
-                //           </div>
-                //         )
-                //       }
-                //     },
-                //   ]
-                // }}
-                />
+
+              {/* 總計 */}
+              {/* <div className="divider"></div> */}
+              <div className="flex justify-end items-center text-lg font-bold">
+                <span>總計：</span>
+                <span className="text-primary">{formatCurrency(calculateTotal())}</span>
               </div>
-            </div>
 
-            {/* 總計 */}
-            {/* <div className="divider"></div> */}
-            <div className="flex justify-end items-center text-lg font-bold">
-              <span>總計：</span>
-              <span className="text-primary">{formatCurrency(calculateTotal())}</span>
+              {/* 提交按鈕 */}
+              <button
+                className="btn btn-primary w-full"
+                onClick={submitOrder}
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <span className="loading loading-spinner loading-sm"></span>
+                ) : (
+                  <>
+                    <FaCheck className="w-4 h-4" />
+                    送出訂單
+                  </>
+                )}
+              </button>
             </div>
-
-            {/* 提交按鈕 */}
-            <button
-              className="btn btn-primary w-full"
-              onClick={submitOrder}
-              disabled={submitting}
-            >
-              {submitting ? (
-                <span className="loading loading-spinner loading-sm"></span>
-              ) : (
-                <>
-                  <FaCheck className="w-4 h-4" />
-                  {existingOrder ? "更新訂單" : "提交訂單"}
-                </>
-              )}
-            </button>
           </div>
         </div>
       </div>
