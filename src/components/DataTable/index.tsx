@@ -443,11 +443,6 @@ function DataTable<T extends Record<string, unknown>>({
           (summary.showDivider || summary.showDivider === undefined) ? 'border-t border-base-content/50' : ''
         )}
       >
-        {/* <tr>
-          <td colSpan={columns.length} className="text-left font-semibold">
-            總計
-          </td>
-        </tr> */}
         <tr className="font-semibold">
           {columns.map((column) => {
             const summaryColumn = summary.columns.find(sc => sc.key === column.key);

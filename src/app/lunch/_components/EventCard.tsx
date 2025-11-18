@@ -1,6 +1,7 @@
 "use client";
 import LoadingIndicator from '@/components/LoadingIndicator';
 import { toast } from '@/components/Toast';
+import { formatCurrency } from '@/libs/formatter';
 import { LunchEvent, UserRole } from '@/prisma-generated/postgres-client';
 import { ILunchEvent, MyOrder } from '@/types/LunchEvent';
 import type { User } from 'next-auth';
@@ -163,7 +164,7 @@ export default function EventCard({
                                 <div>
                                     <span className="text-sm font-medium">我的訂單</span>
                                     <div className="text-xs text-base-content/70">
-                                        {userOrder?.items?.length || 0} 項餐點，總計 ${userOrder.total}
+                                        {userOrder?.items?.length || 0} 項餐點，總計 ${formatCurrency(userOrder.total || 0)}
                                     </div>
                                 </div>
                                 <button
