@@ -141,7 +141,8 @@ export const orderService = {
                             event_date: true,
                             order_deadline: true,
                             is_active: true,
-                            allow_custom_items: true
+                            allow_custom_items: true,
+                            owner_id: true
                         }
                     },
                     items: {
