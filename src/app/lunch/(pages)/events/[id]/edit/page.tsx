@@ -10,7 +10,7 @@ import { getLunchEventById, updateLunchEvent } from "@/services/client/lunch/lun
 import { ILunchEvent } from "@/types/LunchEvent";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import {
   FaArrowLeft,
   FaEdit
@@ -28,6 +28,14 @@ export default function EditEventPage() {
   const [isPending, startTransition] = useTransition();
   const [loading, setLoading] = useState(false);
   const [eventData, setEventData] = useState<ILunchEvent | undefined>();
+
+  const hasEditPermission = useMemo(() => {
+    return (
+      eventData?.owner_id === user?.id ||
+      user?.role === UserRole.ADMIN ||
+      user?.role === UserRole.MODERATOR
+    );
+  }, [eventData, user]);
 
   const getLunchEvent = useCallback(async () => {
     try {
@@ -54,6 +62,14 @@ export default function EditEventPage() {
   }, [getLunchEvent]);
 
   const handleSubmit = useCallback(async (values: FormValues) => {
+    if (!eventId) {
+      toast.error('活動ID不存在，無法更新活動');
+      return;
+    }
+    if (!hasEditPermission) {
+      toast.error('您沒有權限編輯此活動');
+      return;
+    }
     setLoading(true);
     try {
       const { response, result } = await updateLunchEvent(eventId, values);
@@ -70,7 +86,7 @@ export default function EditEventPage() {
     } finally {
       setLoading(false);
     }
-  }, [eventId, router]);
+  }, [eventId, router, hasEditPermission]);
 
   if (authLoading || isPending) {
     return (
@@ -87,20 +103,6 @@ export default function EditEventPage() {
       <PageAuthBlocker
         description='您需要登入才能編輯訂餐活動'
         loading={authLoading}
-      />
-    );
-  }
-
-  const hasEditPermission =
-    eventData?.owner_id === user?.id ||
-    user?.role === UserRole.ADMIN ||
-    user?.role === UserRole.MODERATOR;
-
-  if (!hasEditPermission) {
-    return (
-      <UnauthorizedView
-        title="權限不足"
-        message="只有活動擁有者或管理者可以編輯此活動"
       />
     );
   }

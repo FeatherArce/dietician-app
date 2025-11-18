@@ -114,9 +114,11 @@ export default function EventDetailPage() {
       } else {
         console.error("Failed to update payment status");
         // 可以加入錯誤提示
+        toast.error("更新收款狀態失敗，請稍後再試。");
       }
     } catch (error) {
       console.error("Error updating payment status:", error);
+      toast.error("更新收款狀態發生錯誤，請稍後再試。" + error);
     } finally {
       startPaymentTransition(false);
     }
