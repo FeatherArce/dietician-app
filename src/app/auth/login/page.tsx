@@ -58,74 +58,76 @@ export default function LoginPage() {
 
   return (
     <Card>
-      <h2 className="card-title justify-center text-2xl mb-2">
-        登入
-      </h2>
-
-      <FormErrors errors={errors} />
-
-      <Form2 onFinish={handleFinish}>
-        <Form2.Item
-          label="Email"
-          name='email'
-          rules={[{
-            required: true,
-            validator(value, values) {
-              const emailRegex = /\S+@\S+\.\S+/;
-              const email = value as string;
-              if (!email || !emailRegex.test(email)) {
-                return '請輸入有效的 Email 格式';
-              }
-              return '';
-            },
-          }]}
-        >
-          <Input type="email" placeholder="請輸入 Email" required autoComplete="email" />
-        </Form2.Item>
-        <Form2.Item
-          label="密碼"
-          name='password'
-          rules={[{ required: true }]}
-        >
-          <PasswordInput
-            type="password"
-            placeholder="請輸入密碼"
-            required
-            autoComplete="current-password"
-            showPasswordToggle={true}
-          />
-        </Form2.Item>
-        <Form2.Button.Container>
-          <Form2.Button
-            type="submit"
-            loading={status === 'loading' || isLoading}
-            className="btn-primary w-full mt-6"
-          >
-            登入
-          </Form2.Button>
-        </Form2.Button.Container>
-      </Form2>
+      <div className="mb-2 space-y-2">
+        <h2 className="card-title justify-center text-2xl">
+          登入
+        </h2>
+      </div>
       <div className="flex flex-col items-center justify-center gap-2">
-        <div className="divider">或</div>
-
         <div className="w-full flex flex-col gap-2">
           {/* Google */}
           <button className="btn dark:btn-neutral" onClick={() => signIn("discord")}>
-            <FaDiscord className="size-[1.2em]" size={20} />
+            <FaDiscord className="size-[1.2em] text-black dark:text-[#E0E3FF]" size={20} />
             Login with Discord
           </button>
-          <button className="btn dark:btn-neutral cursor-not-allowed" disabled>
+          {/* <button className="btn dark:btn-neutral cursor-not-allowed" disabled>
             <FcGoogle className="size-[1.2em]" size={20} />
             Login with Google
-          </button>
+          </button> */}
         </div>
 
-        <p className="text-sm mt-4">
+        <div className="divider">或</div>
+
+        <FormErrors errors={errors} />
+
+        <Form2 onFinish={handleFinish}>
+          <Form2.Item
+            label="Email"
+            name='email'
+            rules={[{
+              required: true,
+              validator(value, values) {
+                const emailRegex = /\S+@\S+\.\S+/;
+                const email = value as string;
+                if (!email || !emailRegex.test(email)) {
+                  return '請輸入有效的 Email 格式';
+                }
+                return '';
+              },
+            }]}
+          >
+            <Input type="email" placeholder="請輸入 Email" required autoComplete="email" />
+          </Form2.Item>
+          <Form2.Item
+            label="密碼"
+            name='password'
+            rules={[{ required: true }]}
+          >
+            <PasswordInput
+              type="password"
+              placeholder="請輸入密碼"
+              required
+              autoComplete="current-password"
+              showPasswordToggle={true}
+            />
+          </Form2.Item>
+          <Form2.Button.Container>
+            <Form2.Button
+              type="submit"
+              loading={status === 'loading' || isLoading}
+              className="btn-primary w-full mt-6"
+            >
+              登入
+            </Form2.Button>
+          </Form2.Button.Container>
+        </Form2>
+
+        {/* <p className="text-sm text-center text-black/60">
           還沒有帳號？
           <Link href="/auth/register" className="link link-primary ml-1">
             立即註冊
           </Link>
-        </p>
+        </p> */}
       </div>
     </Card>
   );
