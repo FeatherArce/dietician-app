@@ -101,7 +101,9 @@ export default function Fieldset({
                             <label className="label text-base font-bold text-black">
                                 {item.label}
                             </label>
-                            {item.content}
+                            <div className="text-sm">
+                                {item.content}
+                            </div>
                         </div>
                     ))}
                 </div>)}
