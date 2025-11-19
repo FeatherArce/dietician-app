@@ -341,7 +341,7 @@ function DataTable<T extends Record<string, unknown>>({
     const endPage = Math.min(totalPages, startPage + 4);
 
     return (
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 min-w-0">
         <div className="flex items-center gap-2">
           {pagination.showSizeChanger && (
             <div className="flex items-center gap-2">
@@ -465,7 +465,7 @@ function DataTable<T extends Record<string, unknown>>({
     <div className={`w-full text-base md:text-sm ${className}`}>
       {/* 表格容器 - 使用 overflow-x-auto 處理水平滾動 */}
       <div className="card bg-base-100 shadow-sm">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full max-w-full">
           <table className={getTableClassName()}>
             <colgroup>
               {columns.map((column) => (
