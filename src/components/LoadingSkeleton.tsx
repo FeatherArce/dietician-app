@@ -1,8 +1,11 @@
 import React from 'react'
 
-export default function LoadingSkeleton() {
+interface LoadingSkeletonProps {
+    height?: number | string;
+}
+export default function LoadingSkeleton({ height = '5rem' }: LoadingSkeletonProps) {
     return (
-        <div className='w-full h-full'>
+        <div className='w-full animate-pulse' style={{ height: height }}>
             <div className="skeleton w-full h-full" />
         </div>
     )
