@@ -15,6 +15,7 @@ import {
   FaArrowLeft,
   FaEdit
 } from "react-icons/fa";
+import moment from "moment-timezone";
 
 export default function EditEventPage() {
   const router = useRouter();
@@ -70,6 +71,18 @@ export default function EditEventPage() {
       toast.error('您沒有權限編輯此活動');
       return;
     }
+
+    // 把時間字串補充成完整的 ISO 8601 並帶有時區資訊
+    if (values.order_deadline) {
+      const rawOrderDeadline = values.order_deadline as string;
+      const orderDeadlineWithTZ = moment(rawOrderDeadline).tz('Asia/Taipei').format();
+      console.log('Converted order_deadline with timezone:', {
+        before: rawOrderDeadline,
+        after: orderDeadlineWithTZ
+      });
+      values.order_deadline = orderDeadlineWithTZ;
+    }
+
     setLoading(true);
     try {
       const { response, result } = await updateLunchEvent(eventId, values);

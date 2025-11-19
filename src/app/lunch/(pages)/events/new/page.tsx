@@ -5,6 +5,7 @@ import { Notification } from "@/components/Notification";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import { toast } from "@/components/Toast";
 import { createLunchEvent } from "@/services/client/lunch/lunch-event";
+import moment from "moment-timezone";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
@@ -35,17 +36,20 @@ export default function NewEventPage() {
   const handleFinish = useCallback(async (values: any) => {
     console.log('handleFinish > Form submitted with values:', values);
     setLoading(true);
-
     try {
       // 自動計算活動日期：取截止時間的日期部分
       const orderDeadline = parseDatetimeLocalString(values.order_deadline);
-      const eventDate = orderDeadline ? new Date(orderDeadline.getFullYear(), orderDeadline.getMonth(), orderDeadline.getDate()) : null;
 
+      const timezone = moment.tz.guess();
+      const momentOrderDeadline = values.order_deadline ? moment.tz(orderDeadline, timezone) : null;
+      const eventDate = momentOrderDeadline ? momentOrderDeadline.format('YYYY-MM-DD') : null;
+      const iso8601OrderDeadline = momentOrderDeadline ? momentOrderDeadline.toISOString() : null;
+      
       const requestData = {
         ...values,
         owner_id: user?.id,
-        event_date: eventDate ? eventDate.toISOString() : null,
-        order_deadline: orderDeadline ? orderDeadline.toISOString() : null,
+        event_date: eventDate,
+        order_deadline: iso8601OrderDeadline,
         // 確保空的 shop_id 不會被發送
         shop_id: values.shop_id && values.shop_id.trim() !== '' ? values.shop_id : undefined,
       };
@@ -55,7 +59,7 @@ export default function NewEventPage() {
       if (!res.response.ok || !res.result.success) {
         throw new Error(res.result.error || `狀態碼 ${res.response.status}`);
       }
-      
+
       toast.success('活動建立成功！');
       router.back();
     } catch (error) {
