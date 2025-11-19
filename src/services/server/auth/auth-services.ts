@@ -186,7 +186,8 @@ export async function registerOrConnectOAuthUser({
 
     if (user) {
       // 2a. User 存在但無 Account，繼續往下建立 Account 綁定
-      // 更新使用者資料（如果需要）
+
+      // 更新使用者資料
       await userService.updateLoginInfo(user.id);
     } else {
       // 3. 都不存在，建立 User
