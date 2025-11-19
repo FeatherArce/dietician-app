@@ -1,9 +1,10 @@
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { cn } from "@/libs/utils";
 import React, { useMemo } from "react";
 
 export interface FieldsetItem {
     label: string;
-    content?: string;
+    content?: React.ReactNode;
     type?: React.HTMLInputTypeAttribute; // e.g. 'text', 'number', 'password', etc.
     inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
 }
@@ -20,6 +21,7 @@ export interface FieldsetProps extends React.FieldsetHTMLAttributes<HTMLFieldSet
     legend?: string;
     items: FieldsetItem[];
     colSpan?: FieldsetColSpan;
+    loading?: boolean;
 }
 
 const defaultColSpanSettings: { [key: string]: string } = {
@@ -34,10 +36,11 @@ export default function Fieldset({
     legend,
     items = [],
     colSpan,
+    loading,
     ...fieldsetProps
 }: FieldsetProps) {
     const mixedColClasses = useMemo(() => {
-        if(!colSpan) {
+        if (!colSpan) {
             return Object.values(defaultColSpanSettings).join(' ');
         }
         const newSettings = {
@@ -55,23 +58,27 @@ export default function Fieldset({
             {legend && <legend className="fieldset-legend text-xl font-semibold mb-2">
                 {legend}
             </legend>}
-
-            <div className={cn("grid gap-4 grid-cols-1", mixedColClasses)}>
-                {items.map((item, idx) => (
-                    <div key={idx} className="flex flex-col gap-1.5">
-                        <label className="label text-base">
-                            {item.label}
-                        </label>
-                        <input
-                            type={item.type || 'text'}
-                            className={cn("input w-full", item.type ? "input-bordered" : "border-none px-0")}
-                            value={item.content ?? ""}
-                            readOnly
-                            {...item.inputProps}
-                        />
-                    </div>
-                ))}
-            </div>
+            {loading ? (<>
+                <LoadingSkeleton />
+            </>) : (
+                <div className={cn("grid gap-4 grid-cols-1", mixedColClasses)}>
+                    {items.map((item, idx) => (
+                        <div key={idx} className="flex flex-col gap-1.5">
+                            <label className="label text-base">
+                                {item.label}
+                            </label>
+                            {typeof item.content === 'string' ? (
+                                <input
+                                    type={item.type || 'text'}
+                                    className={cn("input w-full", item.type ? "input-bordered" : "border-none px-0")}
+                                    value={item.content ?? ""}
+                                    readOnly
+                                    {...item.inputProps}
+                                />
+                            ) : item.content}
+                        </div>
+                    ))}
+                </div>)}
         </fieldset>
     );
 }
