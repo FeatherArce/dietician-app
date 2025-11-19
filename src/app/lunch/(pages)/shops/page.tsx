@@ -3,11 +3,14 @@ import Breadcrumb from "@/components/Breadcrumb";
 import DataTable, { Column } from "@/components/DataTable";
 import SearchContainer from "@/components/SearchContainer";
 import { SearchInput, Select } from "@/components/SearchContainer/SearchFields";
+import { toast } from "@/components/Toast";
 import PageContainer from "@/components/page/PageContainer";
 import { Shop } from "@/prisma-generated/postgres-client";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaEdit, FaEye, FaPlus, FaStore, FaUtensils } from "react-icons/fa";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { FaEdit, FaEye, FaPause, FaPlay, FaPlus, FaStore, FaTrash, FaUtensils } from "react-icons/fa";
+import { MENU_DEFAULT_ID } from "./[id]/menus/[menuId]/page";
+import PageLink from "@/components/ui/PageLink";
 
 interface ShopWithStats extends Shop {
   menuCount?: number;
@@ -17,38 +20,46 @@ interface ShopWithStats extends Shop {
   [key: string]: unknown; // 添加索引簽章以符合 DataTable 要求
 }
 
-enum activeStatus { 
+enum activeStatus {
   ACTIVE = "ACTIVE",
   INACTIVE = "INACTIVE"
 }
 
 export default function ShopsPage() {
   const [shops, setShops] = useState<ShopWithStats[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isFetching, startFetchTransition] = useTransition();
+  const [isUpdating, startUpdateTransition] = useTransition();
+  const [isDeleting, startDeleteTransition] = useTransition();
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const filteredShops: ShopWithStats[] = useMemo(() => {
-    return (shops || []).filter(shop => {
+    const searchLower = (searchTerm || '').toLowerCase();
+
+    const newShops = (shops || []).filter(shop => {
       // 狀態篩選
       if (statusFilter === activeStatus.ACTIVE && !shop.is_active) return false;
       if (statusFilter === activeStatus.INACTIVE && shop.is_active) return false;
-      
+
       // 文字搜尋篩選
-      if (searchTerm) {
-        const searchLower = searchTerm.toLowerCase();
-        const matchName = shop.name?.toLowerCase().includes(searchLower);
-        const matchAddress = shop.address?.toLowerCase().includes(searchLower);
-        const matchPhone = shop.phone?.toLowerCase().includes(searchLower);
-        const matchDescription = shop.description?.toLowerCase().includes(searchLower);
-        
-        if (!matchName && !matchAddress && !matchPhone && !matchDescription) {
-          return false;
-        }
+      const shopInfo = {
+        name: (shop?.name || '').toLowerCase(),
+        address: (shop?.address || '').toLowerCase(),
+        phone: (shop?.phone || '').toLowerCase(),
+        description: (shop?.description || '').toLowerCase(),
+      };
+      if (searchTerm && !(
+        shopInfo.name.includes(searchLower) ||
+        shopInfo.address.includes(searchLower) ||
+        shopInfo.phone.includes(searchLower) ||
+        shopInfo.description.includes(searchLower)
+      )) {
+        return false;
       }
-      
+
       return true;
     });
+    return newShops;
   }, [shops, statusFilter, searchTerm]);
 
   // 重置所有篩選條件
@@ -58,17 +69,18 @@ export default function ShopsPage() {
   }, []);
 
   const fetchShops = useCallback(async () => {
-    try {
-      const response = await fetch("/api/lunch/shops");
-      if (response.ok) {
-        const data = await response.json();
-        setShops(data.shops || []);
+    startFetchTransition(async () => {
+      try {
+        const response = await fetch("/api/lunch/shops");
+        if (response.ok) {
+          const result = await response.json();
+          setShops(result.data?.shops || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch shops:", error);
+        toast.error("無法載入商店資料，請稍後再試。");
       }
-    } catch (error) {
-      console.error("Failed to fetch shops:", error);
-    } finally {
-      setLoading(false);
-    }
+    });
   }, []);
 
   // 載入商店資料
@@ -77,19 +89,43 @@ export default function ShopsPage() {
   }, [fetchShops]);
 
   const toggleShopStatus = useCallback(async (shopId: string, isActive: boolean) => {
-    try {
-      const response = await fetch(`/api/lunch/shops/${shopId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_active: !isActive }),
-      });
+    startUpdateTransition(async () => {
+      try {
+        const response = await fetch(`/api/lunch/shops/${shopId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ is_active: !isActive }),
+        });
 
-      if (response.ok) {
-        await fetchShops(); // 重新載入資料
+        if (response.ok) {
+          toast.success(`商店已${isActive ? "暫停營業" : "恢復營業"}`);
+          await fetchShops(); // 重新載入資料
+        }
+      } catch (error) {
+        console.error("Failed to update shop status:", error);
+        toast.error("更新商店狀態失敗，請稍後再試。");
       }
-    } catch (error) {
-      console.error("Failed to update shop status:", error);
-    }
+    });
+  }, [fetchShops]);
+
+  const deleteShop = useCallback(async (shopId: string) => {
+    startDeleteTransition(async () => {
+      try {
+        const response = await fetch(`/api/lunch/shops/${shopId}`, {
+          method: "DELETE",
+        });
+        if (response.ok) {
+          toast.success("商店已刪除");
+          await fetchShops(); // 重新載入資料
+        } else {
+          toast.error("刪除商店失敗，請稍後再試。");
+          throw new Error('Failed to delete shop');
+        }
+      } catch (error) {
+        console.error("Failed to delete shop:", error);
+        toast.error("刪除商店失敗，請稍後再試。");
+      }
+    });
   }, [fetchShops]);
 
   // DataTable 欄位定義
@@ -99,10 +135,14 @@ export default function ShopsPage() {
       dataIndex: 'name',
       title: '商店名稱',
       render: (value, record) => (
-        <div className="flex items-center space-x-2">
+        <Link
+          href={`/lunch/shops/${record.id}`}
+          className="btn btn-link"
+          title="檢視詳細"
+        >
           <FaStore className="w-4 h-4 text-primary" />
           <div className="font-bold">{(value as string) || '-'}</div>
-        </div>
+        </Link>
       )
     },
     {
@@ -169,13 +209,6 @@ export default function ShopsPage() {
       render: (_, record) => (
         <div className="flex justify-center space-x-1">
           <Link
-            href={`/lunch/shops/${record.id}`}
-            className="btn btn-ghost btn-xs"
-            title="檢視詳細"
-          >
-            <FaEye className="w-3 h-3" />
-          </Link>
-          <Link
             href={`/lunch/shops/${record.id}/edit`}
             className="btn btn-ghost btn-xs"
             title="編輯資料"
@@ -184,18 +217,40 @@ export default function ShopsPage() {
           </Link>
           {/* 編輯菜單 */}
           <Link
-            href={`/lunch/shops/${record.id}/menus`}
+            href={`/lunch/shops/${record.id}/menus/${MENU_DEFAULT_ID}`}
             className="btn btn-ghost btn-xs"
             title="編輯菜單"
           >
             <FaUtensils className="w-3 h-3" />
           </Link>
+          <button
+            className="btn btn-ghost btn-xs"
+            title={record.is_active ? "暫停營業" : "恢復營業"}
+            onClick={() => toggleShopStatus(record.id, record.is_active)}
+            disabled={isUpdating}
+          >
+            {isUpdating && <span className="loading loading-spinner loading-xs mr-1"></span>}
+            {record.is_active ? <FaPause className="w-3 h-3" /> : <FaPlay className="w-3 h-3" />}
+          </button>
+          <button
+            className="btn btn-ghost btn-xs"
+            title="刪除商店"
+            onClick={() => {
+              if (confirm(`確定要刪除商店 "${record.name}" 嗎？此操作無法復原。`)) {
+                deleteShop(record.id);
+              }
+            }}
+            disabled={isDeleting}
+          >
+            {isDeleting && <span className="loading loading-spinner loading-xs mr-1"></span>}
+            <FaTrash className="w-3 h-3" />
+          </button>
         </div>
       )
     }
   ];
 
-  if (loading) {
+  if (isFetching) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-center items-center h-64">
@@ -243,7 +298,7 @@ export default function ShopsPage() {
           onChange={setSearchTerm}
           allowClear={true}
         />
-        
+
         <Select
           label="狀態篩選"
           options={[
@@ -260,7 +315,7 @@ export default function ShopsPage() {
       <DataTable<ShopWithStats>
         columns={columns}
         dataSource={filteredShops}
-        loading={loading}
+        loading={isFetching}
         pagination={{
           current: 1,
           pageSize: 20,
@@ -276,10 +331,10 @@ export default function ShopsPage() {
         emptyText="沒有找到符合條件的商店"
       />
 
-      {filteredShops.length === 0 && !loading && (
+      {filteredShops.length === 0 && !isFetching && (
         <div className="text-center py-12">
           <FaStore className="w-16 h-16 mx-auto text-base-content/30 mb-4" />
-          <h3 className="text-lg font-semibold mb-2">沒有找到商店</h3>          
+          <h3 className="text-lg font-semibold mb-2">沒有找到商店</h3>
         </div>
       )}
     </PageContainer>
