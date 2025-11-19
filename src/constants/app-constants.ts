@@ -2,6 +2,9 @@
  * 應用程式共用常數
  */
 
+export const APP_NAME = 'Dietician App';
+export const APP_DESCRIPTION = '企業訂餐管理平台';
+
 // ==================== 認證相關 ====================
 export const AUTH_CONSTANTS = {
   // LocalStorage Keys

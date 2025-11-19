@@ -9,7 +9,7 @@ import "@/components/Toast/toast.css";
 import ThemeProvider from "@/components/ThemeProvider";
 import { SessionProvider } from "next-auth/react";
 import { cn } from "@/libs/utils";
-import { Suspense } from "react";
+import { APP_DESCRIPTION, APP_NAME } from "@/constants/app-constants";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,8 +22,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "訂餐管理系統",
-  description: "企業訂餐管理平台",
+  title: APP_NAME,
+  description: APP_DESCRIPTION,
 };
 
 export default function RootLayout({
