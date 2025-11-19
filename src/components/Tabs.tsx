@@ -50,7 +50,7 @@ export default function Tabs({
     }, [onTabChange, activeTab]);
 
     return (
-        <div className="w-full grid grid-rows-[auto_1fr]">
+        <div className="w-full grid grid-rows-[auto_1fr] min-w-0">
             <div role="tablist" className={styles}>
                 {(items || []).map((item) => (
                     <a
@@ -66,7 +66,7 @@ export default function Tabs({
                     </a>
                 ))}
             </div>
-            <div className="tab-content-container">
+            <div className="tab-content-container max-w-full w-full min-w-0 overflow-auto">
                 {(items || []).map((item) => (
                     <div
                         key={`tab-content-${item.id}`}
