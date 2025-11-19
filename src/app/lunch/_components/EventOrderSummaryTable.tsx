@@ -105,7 +105,7 @@ function EventOrderSummaryTable(
     }
 
     return (
-        <div className={`flex flex-col ${className}`}>
+        <div className={`flex flex-col ${className} min-w-0 w-full`}>
             {/* 統計摘要 */}
             {showStatistics && (<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
                 {renderStat(<FaShoppingCart size={24} />, '訂單數量', event?._count?.orders || 0, '筆訂單')}               
