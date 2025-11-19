@@ -29,6 +29,8 @@ interface ShopData extends ShopFormData {
   menus?: Array<MenuData>;
 }
 
+export const MENU_DEFAULT_ID = 'default';
+
 export default function MenuDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -57,7 +59,12 @@ export default function MenuDetailPage() {
       const { response, result } = await getLunchShopById(shopId);
       console.log("Shop Response:", response, result);
       setShopData(result.shop);
-      const selectedMenu = result?.shop?.menus?.find((m: Menu) => m.id === menuId);
+      let selectedMenu: MenuData | null = null;
+      if (menuId === MENU_DEFAULT_ID) {        
+        selectedMenu = (result?.shop?.menus || [])?.[0] || null;
+      } else {
+        selectedMenu = (result?.shop?.menus || [])?.find((m: Menu) => m.id === menuId);
+      }
       if (selectedMenu) {
         setMenu(selectedMenu);
         setSelectedMenuId(selectedMenu.id);
