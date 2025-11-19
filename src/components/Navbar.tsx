@@ -1,14 +1,54 @@
 "use client";
 import Link from "next/link";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
-import { useCallback, useTransition } from "react";
+import { useCallback, useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import { cn } from "@/libs/utils";
+import { UserRole } from "@/prisma-generated/postgres-client";
+
+export interface MenuItem {
+  label: string;
+  href: string;
+  icon?: React.ReactNode;
+  disabled?: boolean;
+}
+
+export function NavbarMenu({ device, items }: { device?: 'mobile' | 'desktop'; items?: Array<MenuItem> }) {
+  return (
+    <ul
+      tabIndex={-1}
+      className={cn(
+        "menu menu-md",
+        device === 'mobile' ? "dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow" : "menu-horizontal px-1"
+      )}>
+      {items?.map((item) => (
+        <li key={item.href} className={cn(item.disabled && "opacity-50 pointer-events-none")}>
+          <Link href={item.href} className="flex items-center gap-2">
+            {item.icon}
+            {item.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export default function Navbar() {
   const [isPending, startTransition] = useTransition();
   const { data: session, status } = useSession();
   const router = useRouter();
+
+  const user = useMemo(() => session?.user, [session]);
+
+  const menuItems: MenuItem[] = useMemo(() => {
+    const newItems: MenuItem[] = [];
+    if (user?.role === UserRole.ADMIN) {
+      newItems.push({ label: "使用者管理", href: "/users" });
+    }
+    newItems.push({ label: "訂餐系統", href: "/lunch" });
+    return newItems;
+  }, [user?.role]);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -21,26 +61,42 @@ export default function Navbar() {
 
   return (
     <div className="navbar bg-base-100 border-b border-base-300">
-      <div className="flex-1">
-        <Link href="/" className="btn btn-ghost text-xl normal-case">訂餐管理系統</Link>
+      <div className="navbar-start">
+        <div className="dropdown md:hidden">
+          <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" /> </svg>
+          </div>
+          <NavbarMenu device="mobile" items={menuItems} />
+        </div>
+        <div className="hidden md:block">
+          <Link href="/" className="btn btn-ghost text-xl normal-case">訂餐管理系統</Link>
+        </div>
       </div>
-      <div className="flex-none gap-2 grid grid-flow-col items-center">
+      <div className="navbar-center">
+        <div className="block md:hidden">
+          <Link href="/" className="btn btn-ghost text-xl normal-case">訂餐管理系統</Link>
+        </div>
+        <div className="hidden md:block">
+          <NavbarMenu device="desktop" items={menuItems} />
+        </div>
+      </div>
+      <div className="navbar-end">
         {status === 'loading' ? (
           <div className="skeleton w-20 h-8"></div>
-        ) : session?.user ? (
+        ) : user ? (
           <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
 
-              {session?.user?.image ? (
+              {user.image ? (
                 <div className="avatar">
                   <div className="w-10 h-10 rounded-full">
-                    <img src={session.user.image} alt={session.user.name || "User avatar"} />
+                    <img src={user.image} alt={user.name || "User avatar"} />
                   </div>
                 </div>
               ) : (
                 <div className="avatar avatar-placeholder">
                   <span className="text-xl">
-                    {session?.user?.name?.charAt(0).toUpperCase()}
+                    {user?.name?.charAt(0).toUpperCase()}
                   </span>
                 </div>
               )}
@@ -48,8 +104,8 @@ export default function Navbar() {
             <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
               <li className="">
                 <div className="justify-between">
-                  <span>{session?.user?.name}</span>
-                  <span className="badge badge-sm badge-outline">{session?.user?.role}</span>
+                  <span>{user?.name}</span>
+                  <span className="badge badge-sm badge-outline">{user?.role}</span>
                 </div>
               </li>
               <div className="divider my-1"></div>
