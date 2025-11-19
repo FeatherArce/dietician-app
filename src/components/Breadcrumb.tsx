@@ -11,12 +11,13 @@ export interface BreadcrumbItem {
   current?: boolean;
 }
 
-interface BreadcrumbProps {
+interface BreadcrumbProps extends React.HTMLAttributes<HTMLDivElement> {
   homeItem?: BreadcrumbItem;
   items: BreadcrumbItem[];
+  className?: string;
 }
 
-export default function Breadcrumb({ homeItem, items }: BreadcrumbProps) {
+export default function Breadcrumb({ homeItem, items , className, ...props}: BreadcrumbProps) {
 
   const renderItem = (item: BreadcrumbItem) => {
     if (item.href && !item.current) {
@@ -38,7 +39,7 @@ export default function Breadcrumb({ homeItem, items }: BreadcrumbProps) {
   };
 
   return (
-    <div className="breadcrumbs text-sm mb-6">
+    <div className={`breadcrumbs max-w-screen text-sm mb-6 ${className || ''}`} {...props}>
       <ul>
         {/* 首頁 */}
         <li>
