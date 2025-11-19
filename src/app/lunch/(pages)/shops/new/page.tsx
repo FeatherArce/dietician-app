@@ -3,6 +3,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import { FormValues } from "@/components/form2";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import FullShopForm from "@/components/shop/ShopForm";
+import { toast } from "@/components/Toast";
 import { createLunchShop } from "@/services/client/lunch/lunch-shop";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -29,9 +30,11 @@ export default function NewShopPage() {
       console.log('Response:', response);
 
       if (response.ok && result.success && result?.data?.shop?.id) {
+        toast.success('商店建立成功');
         router.push(`/lunch/shops/${result?.data?.shop?.id}`);
       } else {
         console.error('API Error:', response);
+        toast.error(`建立商店失敗: ${result.message || '未知錯誤'}`);
         throw new Error(result.message || `建立商店失敗 (狀態碼: ${response.status})`);
       }
     } catch (error) {
@@ -84,6 +87,7 @@ export default function NewShopPage() {
           initialValues={{
             is_active: true
           }}
+          mode="create"
           loading={loading}
           onFinish={handleSubmit}
         />
