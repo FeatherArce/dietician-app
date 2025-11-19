@@ -25,6 +25,8 @@ import { getLunchEventById, updateLunchEvent } from "@/services/client/lunch/lun
 import { toast } from "@/components/Toast";
 import { ILunchEvent, ILunchOrder } from "@/types/LunchEvent";
 import { UserRole } from "@/prisma-generated/postgres-client";
+import Fieldset from "@/components/ui/Fieldset";
+import { cn } from "@/libs/utils";
 
 // interface EventWithSummary extends EventWithDetails {
 //   orderCount: number;
@@ -124,6 +126,15 @@ export default function EventDetailPage() {
     }
   };
 
+  const getEventStatus = () => {
+    if (!event) return "未知";
+    const now = new Date();
+    const orderDeadline = new Date(event.order_deadline);
+    if (!event.is_active) return "已關閉";
+    if (orderDeadline < now) return "訂餐結束";
+    return "進行中";
+  };
+
   const getStatusBadge = () => {
     if (!event) return null;
 
@@ -161,7 +172,7 @@ export default function EventDetailPage() {
 
   if (!event) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">找不到活動</h2>
           <button
@@ -176,17 +187,18 @@ export default function EventDetailPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 grid gap-6">
+    <div className="container mx-auto space-y-6 w-full">
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
           { label: '活動管理', href: '/lunch/events' },
           { label: event.title, current: true }
         ]}
+        className="mb-0"
       />
 
       {/* 頁面標題和操作 */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col lg:flex-row lg:justify-between items-start">
         <div className="flex items-center space-x-4">
           <button
             onClick={() => router.back()}
@@ -195,10 +207,8 @@ export default function EventDetailPage() {
             <FaArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold flex items-center space-x-3">
-              <FaCalendarAlt className="w-8 h-8 text-primary" />
+            <h1 className="text-xl lg:text-3xl font-bold flex items-center space-x-3">
               <span>{event.title}</span>
-              {getStatusBadge()}
             </h1>
             <p className="text-base-content/70 mt-1">
               活動詳細資料與訂單管理
@@ -236,10 +246,20 @@ export default function EventDetailPage() {
                   </>
                 )}
               </button>
+              <button
+                className="btn btn-outline btn-primary"
+                onClick={() => {
+                  eventTableRef.current?.download();
+                }}
+              >
+                <FaDownload />
+                匯出訂單
+              </button>
             </>
           )}
         </div>
       </div>
+
 
       {/* 統計 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -296,102 +316,40 @@ export default function EventDetailPage() {
       </div>
 
       {/* 活動資訊 */}
-      <div className="space-y-2">
+      <div className="space-y-2 p-2">
         <h3 className="text-xl font-bold">活動資訊</h3>
-
-        <div className="grid grid-cols-2 gap-4">
-          {/* <div>
-            <label className="text-sm text-base-content/70">活動名稱</label>
-            <div className="font-semibold">{event.title}</div>
-          </div>
-
-          {event.description && (
-            <div>
-              <label className="text-sm text-base-content/70">活動描述</label>
-              <div className="text-base-content/80">{event.description}</div>
-            </div>
-          )} */}
-
-          <div>
-            <label className="text-sm text-base-content/70">主辦人</label>
-            <div>
-              {event.owner ? (
-                <span className="font-medium">{event.owner.name}</span>
-              ) : (
-                "未知"
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="text-xl font-bold">商店資訊</h3>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <FaStore className="w-5 h-5 text-primary" />
-                <div>
-                  <span className="font-semibold">{event.shop?.name}</span>
-                </div>
-              </div>
-
-              {event.shop?.address && (
-                <div>
-                  <label className="text-sm text-base-content/70">地址</label>
-                  <div className="text-base-content/80">{event.shop.address}</div>
-                </div>
-              )}
-
-              {event.shop?.phone && (
-                <div>
-                  <label className="text-sm text-base-content/70">電話</label>
-                  <div className="text-base-content/80">{event.shop.phone}</div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm text-base-content/70">活動日期</label>
-            <div className="flex items-center space-x-2">
-              <FaCalendarAlt className="w-4 h-4 text-primary" />
-              <span>{new Date(event.event_date).toLocaleDateString("zh-TW")}</span>
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm text-base-content/70">訂餐截止</label>
-            <div className="flex items-center space-x-2">
-              <FaClock className="w-4 h-4 text-warning" />
-              <span>{new Date(event.order_deadline).toLocaleString("zh-TW")}</span>
-            </div>
-          </div>
-
-          {event.location && (
-            <div>
-              <label className="text-sm text-base-content/70">取餐地點</label>
-              <div className="flex items-center space-x-2">
-                <FaMapMarkerAlt className="w-4 h-4 text-secondary" />
-                <span>{event.location}</span>
-              </div>
-            </div>
-          )}
-
-        </div>
+        <Fieldset
+          colSpan={{
+            xs: 1,
+            md: 2,
+            lg: 3,
+            xl: 4
+          }}
+          direction={{
+            xs: 'row',
+          }}
+          items={[
+            { label: '主辦人', content: <>{event.owner ? event.owner.name : '未知'}</> },
+            { label: '狀態', content: getEventStatus() },
+            { label: '活動日期', content: <>{new Date(event.event_date).toLocaleDateString("zh-TW")}</> },
+            { label: '訂餐截止時間', content: <>{new Date(event.order_deadline).toLocaleString("zh-TW")}</> },
+            { label: '商店', content: <>{event.shop ? event.shop.name : '未指定'}</> },
+            { label: '商店地址', content: <>{event.shop?.address || '-'}</> },
+            { label: '商店電話', content: <>{event.shop?.phone || '-'}</> },
+          ]}
+        />
       </div>
 
       {/* divider */}
       <hr className=" border-gray-500" />
 
       {/* 訂單 */}
-      <div className="space-y-6">
+      <div className="space-y-6 w-full">
         <div className="flex justify-between items-center">
           <h3 className="text-xl font-bold">訂單</h3>
-          <button className="btn btn-ghost">
-            <FaDownload className="w-4 h-4" />
-            匯出
-          </button>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full max-w-screen">
           <DataTable<ILunchOrder>
             dataSource={event.orders || []}
             columns={[
@@ -467,21 +425,11 @@ export default function EventDetailPage() {
       </div>
 
       {/* divider */}
-      <hr className=" border-gray-500" />
+      <hr className="border-gray-500" />
 
-      <div className="space-y-6">
+      <div className="space-y-6 w-full">
         <div className="flex justify-between items-center">
           <h3 className="text-xl font-bold">訂單明細</h3>
-
-          <button
-            title="下載統計報告"
-            className="btn btn-sm btn-outline btn-primary"
-            onClick={() => {
-              eventTableRef.current?.download();
-            }}
-          >
-            <FaDownload />
-          </button>
         </div>
 
         <EventOrderSummaryTable
