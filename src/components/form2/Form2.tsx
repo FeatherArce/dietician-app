@@ -198,20 +198,21 @@ function Form2(
   }, [values, errors, onFinish, onFinishFailed, validateFields]);
 
   // 更新初始值時同步到字段
-  // useEffect(() => {
-  //   console.log('Initial values changed:', stableInitialValues);
-  //   setValues(prev => {
-  //     // 檢查是否真的有變化，避免不必要的更新
-  //     const hasChanges = Object.keys(stableInitialValues).some(key =>
-  //       prev[key] !== stableInitialValues[key]
-  //     ) || Object.keys(prev).length !== Object.keys(stableInitialValues).length;
+  useEffect(() => {
+    console.log('Initial values changed:', stableInitialValues);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setValues(prev => {
+      // 檢查是否真的有變化，避免不必要的更新
+      const hasChanges = Object.keys(stableInitialValues).some(key =>
+        prev[key] !== stableInitialValues[key]
+      ) || Object.keys(prev).length !== Object.keys(stableInitialValues).length;
 
-  //     if (hasChanges) {
-  //       return { ...prev, ...stableInitialValues };
-  //     }
-  //     return prev;
-  //   });
-  // }, [stableInitialValues]);
+      if (hasChanges) {
+        return { ...prev, ...stableInitialValues };
+      }
+      return prev;
+    });
+  }, [stableInitialValues]);
 
   const contextValue = {
     values,
