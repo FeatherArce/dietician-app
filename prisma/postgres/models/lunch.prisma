@@ -108,7 +108,7 @@ model Menu {
 
   // 關聯
   shop_id    String // 修正：明確指定關聯
-  shop       Shop           @relation(fields: [shop_id], references: [id])
+  shop       Shop           @relation(fields: [shop_id], references: [id], onDelete: Cascade)
   categories MenuCategory[]
   items      MenuItem[]
 
@@ -126,7 +126,7 @@ model MenuCategory {
 
   // 關聯
   menu_id String // 修正欄位名稱
-  menu    Menu       @relation(fields: [menu_id], references: [id])
+  menu    Menu       @relation(fields: [menu_id], references: [id], onDelete: Cascade)
   items   MenuItem[] // 修正關聯名稱
 
   @@map("menu_categories")
@@ -145,9 +145,9 @@ model MenuItem {
 
   // 關聯
   menu_id     String
-  menu        Menu          @relation(fields: [menu_id], references: [id])
+  menu        Menu          @relation(fields: [menu_id], references: [id], onDelete: Cascade)
   category_id String?
-  category    MenuCategory? @relation(fields: [category_id], references: [id])
+  category    MenuCategory? @relation(fields: [category_id], references: [id], onDelete: Cascade)
 
   // 反向關聯（修復 LunchOrderItem 關聯問題）
   order_items LunchOrderItem[] // 新增：被訂購的項目
