@@ -1,26 +1,30 @@
 "use client";
+import { toast } from "@/components/Toast";
+import Fieldset from "@/components/ui/Fieldset";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 import { User, UserRole } from "@/prisma-generated/postgres-client";
-import { useSession } from "next-auth/react";
+import { getAccountsByUserId } from "@/services/client/account-services";
+import { getUserById } from "@/services/client/user";
 import { getUserRoleChineseName } from "@/types/User";
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FaArrowLeft,
   FaCog,
+  FaEdit,
   FaInfo,
   FaPalette,
   FaUser
 } from "react-icons/fa";
+import { MdModeEdit } from "react-icons/md";
+import { FcOk } from "react-icons/fc";
 import UserForm from "./_components/UserForm";
 import UserThemeForm from "./_components/UserThemeForm";
-import { ROUTE_CONSTANTS } from "@/constants/app-constants";
-import { getUserById } from "@/services/client/user";
-import { getAccountsByUserId } from "@/services/client/account-services";
-import { signIn } from "next-auth/react";
-import { FcBrokenLink, FcLink, FcOk } from "react-icons/fc";
-import { toast } from "@/components/Toast";
-import Fieldset from "@/components/ui/Fieldset";
+import Modal, { ModalRef } from "@/components/Modal";
+import { Form2Ref } from "@/components/form2/types";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 type TabType = 'info' | 'profile' | 'password' | 'settings' | 'security' | 'third-party';
 
@@ -31,8 +35,11 @@ export default function ProfilePage() {
   const authLoading = status === 'loading';
   const isAuthenticated = status === 'authenticated';
   const [loading, setLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [user, setUser] = useState<Partial<User> | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<TabType>('info');
+  const userModalRef = useRef<ModalRef>(null);
+  const userFormRef = useRef<Form2Ref>(null);
 
   const fetchUserSelf = useCallback(async () => {
     setLoading(true);
@@ -82,11 +89,10 @@ export default function ProfilePage() {
   const renderContent = () => {
     switch (activeTab) {
       case 'info':
-        return <>
+        return <div className="space-y-6">
           {renderAccountInfo()}
-          {/* {renderProfileEdit()} */}
           {renderThirdPartyAccounts()}
-        </>;
+        </div>;
       case 'settings':
         return renderSettings();
       default:
@@ -99,6 +105,7 @@ export default function ProfilePage() {
     <div className="card bg-base-100 shadow-sm">
       <div className="card-body">
         <Fieldset
+          loading={loading}
           legend="帳戶資訊"
           colSpan={{
             lg: 2
@@ -106,7 +113,22 @@ export default function ProfilePage() {
           items={[
             { label: '使用者 ID', content: user?.id || '' },
             { label: '角色', content: getUserRoleChineseName(user?.role || UserRole.USER) },
-            { label: '使用者名稱', content: user?.name || '' },
+            {
+              label: '使用者名稱', content: (<div className="flex items-center gap-2">
+                <span>
+                  {user?.name || ''}
+                </span>
+                <button
+                  className="btn btn-xs btn-circle"
+                  onClick={() => {
+                    userModalRef.current?.open();
+                    userFormRef.current?.setFieldsValue({ name: user?.name, email: user?.email });
+                  }}
+                >
+                  <MdModeEdit className="w-3 h-3" />
+                </button>
+              </div>)
+            },
             { label: '電子郵件', content: user?.email || '' },
             // { label: '帳戶狀態', content: user?.is_active ? '啟用' : '停用' },
             { label: '註冊日期', content: user?.created_at ? new Date(user.created_at).toLocaleDateString('zh-TW') : '' },
@@ -114,16 +136,27 @@ export default function ProfilePage() {
             // { label: '登入次數', content: String(user?.login_count || 0) }
           ]}
         />
-      </div>
-    </div>
-  );
-
-  // 編輯個人資料組件
-  const renderProfileEdit = () => (
-    <div className="card bg-base-100 shadow-sm">
-      <div className="card-body">
-        <h2 className="card-title text-xl mb-4">編輯個人資料</h2>
-        <UserForm user={user} />
+        <Modal
+          ref={userModalRef}
+          id="user-modal"
+          title="編輯個人資料"
+          okText="儲存變更"
+          onOk={() => { userFormRef.current?.submit(); }}
+          closeText="取消"
+          onClose={() => { userModalRef.current?.close(); }}
+          loading={isUpdating}
+        >
+          <UserForm
+            ref={userFormRef}
+            user={user}
+            onFinished={() => {
+              userModalRef?.current?.close();
+              userFormRef.current?.reset();
+              fetchUserSelf();
+            }}
+            onLoadingChange={(loading) => { setIsUpdating(loading); }}
+          />
+        </Modal>
       </div>
     </div>
   );
@@ -168,9 +201,7 @@ export default function ProfilePage() {
 
   // 綁定/解除後自動刷新
   useEffect(() => {
-    if (activeTab === "third-party" && user?.id) {
-      checkDiscordBinding();
-    }
+    checkDiscordBinding();
   }, [activeTab, user?.id, checkDiscordBinding]);
 
   // 處理 Discord 綁定 callback 回到本頁
