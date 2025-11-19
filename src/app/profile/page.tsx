@@ -24,7 +24,6 @@ import UserForm from "./_components/UserForm";
 import UserThemeForm from "./_components/UserThemeForm";
 import Modal, { ModalRef } from "@/components/Modal";
 import { Form2Ref } from "@/components/form2/types";
-import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 type TabType = 'info' | 'profile' | 'password' | 'settings' | 'security' | 'third-party';
 

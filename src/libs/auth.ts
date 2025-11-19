@@ -180,7 +180,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: discordProfile.global_name || discordProfile.username,
           image: discordProfile.image_url || image || undefined,
         });
-        console.log("OAuth register/connect result:", result);
         if (!result.success || !result.user) {
           return false;
         }
