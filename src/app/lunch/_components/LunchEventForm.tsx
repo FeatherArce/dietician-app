@@ -1,8 +1,10 @@
 'use client';
 import { Checkbox, Form2, Form2Props, Input, Select } from '@/components/form2';
 import { Form2Ref } from '@/components/form2/types';
+import LoadingSkeleton from '@/components/LoadingSkeleton';
 import { Shop } from '@/prisma-generated/postgres-client';
 import { getLunchShops } from '@/services/client/lunch/lunch-shop';
+import moment from 'moment-timezone';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useState, useTransition } from 'react'
 import { FaSave, FaSpinner } from 'react-icons/fa';
@@ -25,13 +27,8 @@ export function parseDatetimeLocalString(dateStr: string): Date {
 }
 
 function convertIsoToDateTimeLocalString(dateString: string) {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
+  const datatimeLocal = moment(dateString).tz('Asia/Taipei').format('YYYY-MM-DDTHH:mm');
+  return datatimeLocal;
 };
 
 export default function LunchEventForm({
@@ -49,35 +46,53 @@ export default function LunchEventForm({
   const [shops, setShops] = useState<Shop[]>([]);
 
   const getShops = useCallback(async () => {
-    try {
-      const { result } = await getLunchShops({ isActive: true });
-      if (result.success && result.data?.shops) {
-        setShops(result.data?.shops);
+    startTransition(async () => {
+      try {
+        const { result } = await getLunchShops({ isActive: true });
+        if (result.success && result.data?.shops) {
+          setShops(result.data?.shops);
+        }
+      } catch (error) {
+        console.error('Failed to fetch shops:', error);
       }
-    } catch (error) {
-      console.error('Failed to fetch shops:', error);
-    }
+    });
   }, []);
 
   // 獲取商店列表
   useEffect(() => {
-    startTransition(() => {
-      getShops();
-    });
+    getShops();
   }, [getShops]);
 
-  useEffect(() => {
+  const formatedInitialValues = React.useMemo(() => {
     if (initialValues) {
       const orderDeadline = initialValues.order_deadline as string | undefined;
+      console.log('Initial order_deadline:', orderDeadline);
+      const dateTimeLocal = orderDeadline ? convertIsoToDateTimeLocalString(orderDeadline) : '';
+      console.log('Converted order_deadline to datetime-local:', dateTimeLocal);
       const newValues = {
         ...initialValues,
-        order_deadline: orderDeadline ? convertIsoToDateTimeLocalString(orderDeadline) : '',
-      }
-      formRef.current?.setFieldsValue(newValues);
-    } else {
-      formRef.current?.reset();
+        order_deadline: dateTimeLocal,
+      };
+      return newValues;
     }
+    return undefined;
   }, [initialValues]);
+
+  // useEffect(() => {
+  //   if (initialValues) {
+  //     const orderDeadline = initialValues.order_deadline as string | undefined;
+  //     console.log('Initial order_deadline:', orderDeadline);
+  //     const dateTimeLocal = orderDeadline ? convertIsoToDateTimeLocalString(orderDeadline) : '';
+  //     console.log('Converted order_deadline to datetime-local:', dateTimeLocal);
+  //     const newValues = {
+  //       ...initialValues,
+  //       order_deadline: dateTimeLocal,
+  //     };
+  //     formRef.current?.setFieldsValue(newValues);
+  //   } else {
+  //     formRef.current?.reset();
+  //   }
+  // }, [initialValues]);
 
   const handleCancel = useCallback(() => {
     if (onCancel) {
@@ -87,10 +102,14 @@ export default function LunchEventForm({
     }
   }, [onCancel, router]);
 
+  if (isPending) {
+    return (<LoadingSkeleton height="20rem" />);
+  }
+
   return (
     <Form2
       ref={formRef}
-      initialValues={initialValues}
+      initialValues={formatedInitialValues}
       onFinish={onFinish}
       {...props}
     >
@@ -108,18 +127,18 @@ export default function LunchEventForm({
         name="order_deadline"
         rules={[
           { required: true, message: '訂餐截止時間為必填' },
-          {
-            validator: async (value) => {
-              if (value) {
-                const selectedDate = parseDatetimeLocalString(String(value));
-                const now = new Date();
-                if (selectedDate <= now) {
-                  return '訂餐截止時間必須在未來';
-                }
-              }
-              return '';
-            }
-          }
+          // {
+          //   validator: async (value) => {
+          //     if (value) {
+          //       const selectedDate = parseDatetimeLocalString(String(value));
+          //       const now = new Date();
+          //       if (selectedDate <= now) {
+          //         return '訂餐截止時間必須在未來';
+          //       }
+          //     }
+          //     return '';
+          //   }
+          // }
         ]
         }
       >
