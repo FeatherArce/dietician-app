@@ -80,7 +80,7 @@ export default function OrderDetailTable({ event, ...props }: OrderDetailTablePr
     // #endregion
 
     return (
-        <div className='grid grid-rows-[auto_1fr] w-full overflow-x-auto space-y-4' {...props}>
+        <div className='grid grid-rows-[auto_1fr] w-full min-w-0 space-y-4' {...props}>
             <Tabs
                 activeTab={displayMode}
                 onTabChange={(tabId) => setDisplayMode(tabId as DisplayMode)}
@@ -90,12 +90,12 @@ export default function OrderDetailTable({ event, ...props }: OrderDetailTablePr
                         label: '依使用者',
                         icon: <FaUserFriends className="mr-1" />,
                         content: (<>
-                            <div className='w-full max-w-full overflow-auto'>
-                                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                                    <FaUserFriends className="text-info" />
-                                    使用者訂單明細
-                                </h4>
-                                <div className="space-y-3">
+                            <h4 className="font-semibold mb-3 flex items-center gap-2">
+                                <FaUserFriends className="text-info" />
+                                使用者訂單明細
+                            </h4>
+                            <div className="space-y-3">
+                                <div className='w-full max-w-full overflow-auto'>
                                     <UserOrderDetailTable event={event} />
                                 </div>
                             </div>
@@ -106,12 +106,12 @@ export default function OrderDetailTable({ event, ...props }: OrderDetailTablePr
                         label: '依餐點',
                         icon: <FaClipboardList className="mr-1" />,
                         content: (<>
-                            <div className='w-full max-w-full overflow-auto'>
-                                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                                    <FaClipboardList className="text-info" />
-                                    餐點統計明細
-                                </h4>
-                                <div className="space-y-3">
+                            <h4 className="font-semibold mb-3 flex items-center gap-2">
+                                <FaClipboardList className="text-info" />
+                                餐點統計明細
+                            </h4>
+                            <div className="space-y-3">
+                                <div className='w-full max-w-full overflow-auto'>
                                     <MenuOrderDetailTable event={event} />
                                 </div>
                             </div>
