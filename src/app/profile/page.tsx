@@ -23,7 +23,7 @@ import { FcOk } from "react-icons/fc";
 import UserForm from "./_components/UserForm";
 import UserThemeForm from "./_components/UserThemeForm";
 import Modal, { ModalRef } from "@/components/Modal";
-import { Form2Ref } from "@/components/form2/types";
+import { FormRef } from "@/components/form/types";
 
 type TabType = 'info' | 'profile' | 'password' | 'settings' | 'security' | 'third-party';
 
@@ -38,7 +38,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState<Partial<User> | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<TabType>('info');
   const userModalRef = useRef<ModalRef>(null);
-  const userFormRef = useRef<Form2Ref>(null);
+  const userFormRef = useRef<FormRef>(null);
 
   const fetchUserSelf = useCallback(async () => {
     setLoading(true);

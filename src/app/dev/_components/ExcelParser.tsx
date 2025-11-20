@@ -1,6 +1,6 @@
 "use client";
 import DataTable, { type Column } from '@/components/DataTable';
-import { Form2, FormItem, Input } from '@/components/form2';
+import { Form, FormItem, Input } from '@/components/form';
 import React, { useCallback, useEffect, useState } from 'react'
 import { read, utils } from "xlsx";
 import wordlist from '../../../../public/en-word-list.json';
@@ -126,7 +126,7 @@ export default function ExcelParser() {
 
     return (
         <div className='grid gap-4 p-4'>
-            <Form2
+            <Form
                 onValuesChange={(changedValues, allValues) => {
                     console.log('Changed values:', changedValues);
                     if (changedValues.excelFile && changedValues.excelFile instanceof FileList) {
@@ -140,7 +140,7 @@ export default function ExcelParser() {
                 <FormItem label="上傳檔案" name="excelFile">
                     <Input type="file" accept=".xlsx, .xls" />
                 </FormItem>
-            </Form2>
+            </Form>
             <div className='space-y-2'>
                 <h2 className="text-lg font-bold">偵測到的疑似亂碼信箱列表：</h2>
                 <p>

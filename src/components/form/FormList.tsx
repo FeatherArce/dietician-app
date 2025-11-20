@@ -16,8 +16,8 @@ export interface ListField {
   fieldKey: number;
 }
 
-// Form2.List 組件屬性
-export interface Form2ListProps {
+// Form.List 組件屬性
+export interface FormListProps {
   name: string | (string | number)[];
   children: (fields: ListField[], operations: ListOperations, meta: { errors?: string[] }) => React.ReactNode;
   initialValue?: any[];
@@ -26,7 +26,7 @@ export interface Form2ListProps {
 // 生成唯一 key 的計數器
 let globalKeyCounter = 0;
 
-export default function Form2List({ name, children, initialValue = [] }: Form2ListProps) {
+export default function FormList({ name, children, initialValue = [] }: FormListProps) {
   const { values, setFieldValue, errors } = useFormContext();
   
   // 獲取當前列表值
@@ -110,7 +110,7 @@ export default function Form2List({ name, children, initialValue = [] }: Form2Li
   const listErrors = getNestedValue(errors, name) as string[] | undefined;
 
   return (
-    <div className="form2-list">
+    <div className="Form-list">
       {children(fields, operations, { errors: listErrors })}
     </div>
   );

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Form2 } from '@/components/form2';
-import Input from '@/components/form2/controls/Input';
-import Select from '@/components/form2/controls/Select';
-import NumberInput from '@/components/form2/controls/NumberInput';
+import { Form } from '@/components/form';
+import Input from '@/components/form/controls/Input';
+import Select from '@/components/form/controls/Select';
+import NumberInput from '@/components/form/controls/NumberInput';
 
 // 使用陣列路徑的動態表單範例
 export function ArrayPathDynamicForm() {
@@ -18,7 +18,7 @@ export function ArrayPathDynamicForm() {
     <div className="max-w-2xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">陣列路徑動態表單</h2>
 
-      <Form2
+      <Form
         onFinish={handleFinish}
         onValuesChange={handleValuesChange}
         initialValues={{
@@ -27,7 +27,7 @@ export function ArrayPathDynamicForm() {
           ]
         }}
       >
-        <Form2.List name="users">
+        <Form.List name="users">
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name }, index) => (
@@ -46,16 +46,16 @@ export function ArrayPathDynamicForm() {
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* 使用陣列路徑語法 */}
-                    <Form2.Item
+                    <Form.Item
                       name={['users', name, 'name']}
                       label="姓名"
                       required
                       rules={[{ required: true, message: '請輸入姓名' }]}
                     >
                       <Input placeholder="請輸入姓名" />
-                    </Form2.Item>
+                    </Form.Item>
 
-                    <Form2.Item
+                    <Form.Item
                       name={['users', name, 'email']}
                       label="電子郵件"
                       required
@@ -65,9 +65,9 @@ export function ArrayPathDynamicForm() {
                       ]}
                     >
                       <Input type="email" placeholder="請輸入電子郵件" />
-                    </Form2.Item>
+                    </Form.Item>
 
-                    <Form2.Item
+                    <Form.Item
                       name={['users', name, 'age']}
                       label="年齡"
                       rules={[
@@ -76,7 +76,7 @@ export function ArrayPathDynamicForm() {
                       ]}
                     >
                       <NumberInput min={1} max={150} />
-                    </Form2.Item>
+                    </Form.Item>
                   </div>
                 </div>
               ))}
@@ -90,14 +90,14 @@ export function ArrayPathDynamicForm() {
               </button>
             </>
           )}
-        </Form2.List>
+        </Form.List>
 
         <div className="mt-6 flex gap-4">
           <button type="submit" className="btn btn-primary">
             提交表單
           </button>
         </div>
-      </Form2>
+      </Form>
     </div>
   );
 }
@@ -112,7 +112,7 @@ export function NestedDynamicForm() {
     <div className="max-w-4xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">嵌套動態表單 - 專案管理</h2>
 
-      <Form2
+      <Form
         onFinish={handleFinish}
         initialValues={{
           projectName: '',
@@ -128,16 +128,16 @@ export function NestedDynamicForm() {
           ]
         }}
       >
-        <Form2.Item
+        <Form.Item
           name="projectName"
           label="專案組名稱"
           required
           rules={[{ required: true, message: '請輸入專案組名稱' }]}
         >
           <Input placeholder="請輸入專案組名稱" />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.List name="projects">
+        <Form.List name="projects">
           {(projectFields, projectOps) => (
             <>
               {projectFields.map(({ key: projectKey, name: projectName }, projectIndex) => (
@@ -174,16 +174,16 @@ export function NestedDynamicForm() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <Form2.Item
+                    <Form.Item
                       name={['projects', projectName, 'name']}
                       label="專案名稱"
                       required
                       rules={[{ required: true, message: '請輸入專案名稱' }]}
                     >
                       <Input placeholder="請輸入專案名稱" />
-                    </Form2.Item>
+                    </Form.Item>
 
-                    <Form2.Item
+                    <Form.Item
                       name={['projects', projectName, 'status']}
                       label="專案狀態"
                     >
@@ -196,20 +196,20 @@ export function NestedDynamicForm() {
                           { label: '已暫停', value: 'paused' }
                         ]}
                       />
-                    </Form2.Item>
+                    </Form.Item>
                   </div>
 
-                  <Form2.Item
+                  <Form.Item
                     name={['projects', projectName, 'description']}
                     label="專案描述"
                   >
                     <Input placeholder="請輸入專案描述" />
-                  </Form2.Item>
+                  </Form.Item>
 
                   {/* 嵌套的任務列表 */}
                   <div className="mt-6">
                     <h4 className="text-lg font-medium mb-4">任務列表</h4>
-                    <Form2.List name={['projects', projectName, 'tasks']}>
+                    <Form.List name={['projects', projectName, 'tasks']}>
                       {(taskFields, taskOps) => (
                         <>
                           {taskFields.map(({ key: taskKey, name: taskName }, taskIndex) => (
@@ -226,22 +226,22 @@ export function NestedDynamicForm() {
                               </div>
 
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <Form2.Item
+                                <Form.Item
                                   name={['projects', projectName, 'tasks', taskName, 'title']}
                                   label="任務標題"
                                   required
                                   rules={[{ required: true, message: '請輸入任務標題' }]}
                                 >
                                   <Input placeholder="請輸入任務標題" size="sm" />
-                                </Form2.Item>
+                                </Form.Item>
 
-                                <Form2.Item
+                                <Form.Item
                                   name={['projects', projectName, 'tasks', taskName, 'hours']}
                                   label="預估時數"
                                   rules={[{ min: 0.5, message: '時數必須大於0.5' }]}
                                 >
                                   <NumberInput min={0.5} step={0.5} size="sm" />
-                                </Form2.Item>
+                                </Form.Item>
                               </div>
                             </div>
                           ))}
@@ -255,7 +255,7 @@ export function NestedDynamicForm() {
                           </button>
                         </>
                       )}
-                    </Form2.List>
+                    </Form.List>
                   </div>
                 </div>
               ))}
@@ -274,7 +274,7 @@ export function NestedDynamicForm() {
               </button>
             </>
           )}
-        </Form2.List>
+        </Form.List>
 
         <div className="mt-8 flex gap-4">
           <button type="submit" className="btn btn-primary">
@@ -284,7 +284,7 @@ export function NestedDynamicForm() {
             重置表單
           </button>
         </div>
-      </Form2>
+      </Form>
     </div>
   );
 }
@@ -299,7 +299,7 @@ export function MixedPathForm() {
     <div className="max-w-3xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">混合路徑表單</h2>
 
-      <Form2
+      <Form
         onFinish={handleFinish}
         initialValues={{
           basicInfo: {
@@ -315,15 +315,15 @@ export function MixedPathForm() {
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-4">基本資料</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Form2.Item
+            <Form.Item
               name="basicInfo.name"
               label="姓名"
               required
             >
               <Input placeholder="請輸入姓名" />
-            </Form2.Item>
+            </Form.Item>
 
-            <Form2.Item
+            <Form.Item
               name="basicInfo.email"
               label="電子郵件"
               rules={[{
@@ -332,20 +332,20 @@ export function MixedPathForm() {
               }]}
             >
               <Input type="email" placeholder="請輸入電子郵件" />
-            </Form2.Item>
+            </Form.Item>
           </div>
         </div>
 
         {/* 使用陣列路徑 */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-4">聯絡方式</h3>
-          <Form2.List name="contacts">
+          <Form.List name="contacts">
             {(fields, { add, remove }) => (
               <>
                 {fields.map(({ key, name }, index) => (
                   <div key={key} className="flex gap-3 items-end mb-3">
                     <div className="flex-1">
-                      <Form2.Item
+                      <Form.Item
                         name={['contacts', name, 'type']}
                         label="類型"
                       >
@@ -357,17 +357,17 @@ export function MixedPathForm() {
                             { label: 'Telegram', value: 'telegram' }
                           ]}
                         />
-                      </Form2.Item>
+                      </Form.Item>
                     </div>
 
                     <div className="flex-2">
-                      <Form2.Item
+                      <Form.Item
                         name={['contacts', name, 'value']}
                         label="值"
                         required
                       >
                         <Input placeholder="請輸入聯絡方式" />
-                      </Form2.Item>
+                      </Form.Item>
                     </div>
 
                     <button
@@ -390,7 +390,7 @@ export function MixedPathForm() {
                 </button>
               </>
             )}
-          </Form2.List>
+          </Form.List>
         </div>
 
         <div className="mt-6">
@@ -398,7 +398,7 @@ export function MixedPathForm() {
             提交表單
           </button>
         </div>
-      </Form2>
+      </Form>
     </div>
   );
 }

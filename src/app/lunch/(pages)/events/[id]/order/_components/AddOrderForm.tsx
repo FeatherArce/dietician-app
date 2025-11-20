@@ -1,4 +1,4 @@
-import { Form2, Input, NumberInput } from '@/components/form2'
+import { Form, Input, NumberInput } from '@/components/form'
 import React, { useCallback } from 'react'
 
 export default function AddOrderForm() {
@@ -8,25 +8,25 @@ export default function AddOrderForm() {
 
     return (
         <div>
-            <Form2 onFinish={handleFinish}>
-                <Form2.List name="items">
+            <Form onFinish={handleFinish}>
+                <Form.List name="items">
                     {(fields, { add, remove }) => (
                         <>
                             {fields.map(({ key, name, fieldKey }, index) => (
                                 <div key={key} className="border border-base-300 rounded-lg p-4 mb-4 bg-base-50 grid grid-cols-[1fr_auto] gap-4">
                                     <div className="grid grid-cols-4 gap-4">
-                                        <Form2.Item name={[name, 'name']} required={true}>
+                                        <Form.Item name={[name, 'name']} required={true}>
                                             <Input placeholder='餐點名稱' />
-                                        </Form2.Item>
-                                        <Form2.Item name={[name, 'quantity']} required={true}>
+                                        </Form.Item>
+                                        <Form.Item name={[name, 'quantity']} required={true}>
                                             <NumberInput placeholder='數量' />
-                                        </Form2.Item>
-                                        <Form2.Item name={[name, 'price']} required={true}>
+                                        </Form.Item>
+                                        <Form.Item name={[name, 'price']} required={true}>
                                             <NumberInput placeholder='價格' />
-                                        </Form2.Item>
-                                        <Form2.Item name={[name, 'note']}>
+                                        </Form.Item>
+                                        <Form.Item name={[name, 'note']}>
                                             <Input placeholder='備註' />
-                                        </Form2.Item>
+                                        </Form.Item>
                                     </div>
                                     <div className="flex justify-end items-center mb-4">
                                         <button
@@ -49,8 +49,8 @@ export default function AddOrderForm() {
                             </button>
                         </>
                     )}
-                </Form2.List>
-            </Form2>
+                </Form.List>
+            </Form>
         </div>
     )
 }

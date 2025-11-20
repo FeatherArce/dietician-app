@@ -10,7 +10,7 @@ export const FormContext = createContext<FormContextType | null>(null);
 export const useFormContext = () => {
   const context = useContext(FormContext);
   if (!context) {
-    throw new Error('useFormContext must be used within a Form2 component');
+    throw new Error('useFormContext must be used within a Form component');
   }
   return context;
 };

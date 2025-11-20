@@ -1,8 +1,8 @@
 "use client";
-import { Form2, FormValues } from '@/components/form2';
-import Input from '@/components/form2/controls/Input';
-import NumberInput from '@/components/form2/controls/NumberInput';
-import { Form2Ref } from '@/components/form2/types';
+import { Form, FormValues } from '@/components/form';
+import Input from '@/components/form/controls/Input';
+import NumberInput from '@/components/form/controls/NumberInput';
+import { FormRef } from '@/components/form/types';
 import React, { useCallback, useImperativeHandle, useMemo } from 'react';
 
 export enum MealFormMode {
@@ -33,7 +33,7 @@ function MealForm({
 }: CustomMealFormProps,
   ref: React.Ref<any>
 ) {
-  const formRef = React.useRef<Form2Ref>(null);
+  const formRef = React.useRef<FormRef>(null);
 
   useImperativeHandle(ref, () => ({
     submit: () => {
@@ -55,7 +55,7 @@ function MealForm({
   // TODO: 待優化，目前已知會引發錯誤: 
   // const [currentQuantity, setCurrentQuantity] = useState(1);
   // const [currentPrice, setCurrentPrice] = useState(0);
-  // MealForm.tsx: Cannot update a component (ForwardRef(MealForm)) while rendering a different component (ForwardRef(Form2)). To locate the bad setState() call inside ForwardRef(Form2), follow the stack trace as described in https://react.dev/link/setstate-in-render
+  // MealForm.tsx: Cannot update a component (ForwardRef(MealForm)) while rendering a different component (ForwardRef(Form)). To locate the bad setState() call inside ForwardRef(Form), follow the stack trace as described in https://react.dev/link/setstate-in-render
   // const subtotal = useMemo(() => {
   //   return currentPrice * currentQuantity;
   // }, [currentPrice, currentQuantity]);
@@ -77,7 +77,7 @@ function MealForm({
   }, []);
 
   return (
-    <Form2
+    <Form
       ref={formRef}
       onFinish={handleFinish}
       initialValues={initialValues}
@@ -86,7 +86,7 @@ function MealForm({
     // }}
     >
       {/* 餐點名稱 */}
-      <Form2.Item
+      <Form.Item
         name="name"
         label="餐點名稱"
         required
@@ -96,10 +96,10 @@ function MealForm({
         help={initialValues?.description}
       >
         <Input placeholder="例：牛肉麵" disabled={isFromMenu} />
-      </Form2.Item>
+      </Form.Item>
 
       {/* 餐點說明 */}
-      {/* <Form2.Item
+      {/* <Form.Item
         name="description"
         label="餐點說明"
       >
@@ -108,10 +108,10 @@ function MealForm({
           rows={2}
           disabled={isFromMenu}
         />
-      </Form2.Item> */}
+      </Form.Item> */}
 
       {/* 價格 */}
-      <Form2.Item
+      <Form.Item
         name="price"
         label="價格"
         required
@@ -127,10 +127,10 @@ function MealForm({
           placeholder="請輸入價格"
           disabled={isFromMenu}
         />
-      </Form2.Item>
+      </Form.Item>
 
       {/* 數量設定 */}
-      <Form2.Item
+      <Form.Item
         name="quantity"
         label="數量"
         required
@@ -144,10 +144,10 @@ function MealForm({
           precision={0}
           placeholder="請輸入數量"
         />
-      </Form2.Item>
+      </Form.Item>
 
       {/* 餐點備註 */}
-      <Form2.Item
+      <Form.Item
         name="note"
         label="餐點備註"
         help={<div className='flex'>
@@ -156,7 +156,7 @@ function MealForm({
         </div>}
       >
         <Input placeholder="例：不要辣、加蛋、去冰..." />
-      </Form2.Item>
+      </Form.Item>
 
       {/* 小計顯示 */}
       {/* <div className="bg-primary/10 rounded-lg p-3 mb-4">
@@ -185,7 +185,7 @@ function MealForm({
           加入訂單
         </button>
       </div> */}
-    </Form2>
+    </Form>
   );
 }
 

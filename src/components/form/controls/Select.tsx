@@ -24,7 +24,7 @@ export interface SelectProps<T = string> extends Omit<React.SelectHTMLAttributes
     label?: string;
     placeholder?: string;
     allowClear?: boolean; // 是否顯示清除按鈕
-    // for Form2 integration
+    // for Form integration
     error?: string | string[];
 }
 

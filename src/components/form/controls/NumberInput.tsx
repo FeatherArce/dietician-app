@@ -31,7 +31,7 @@ const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(({
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const stringValue = e.target.value;
 
-        // 如果輸入為空，傳遞空字串給 Form2（讓它處理驗證）
+        // 如果輸入為空，傳遞空字串給 Form（讓它處理驗證）
         if (stringValue === '') {
             onChange?.('' as any);
             return;

@@ -1,15 +1,15 @@
 "use client";
 import React, { useState, useCallback, useRef, FormEvent, useEffect, useMemo, useImperativeHandle } from 'react';
-import type { Form2Props, FormValues, FormErrors, FormItemInstance, Form2Ref, FormValidateResult } from './types';
+import type { FormProps, FormValues, FormErrors, FormItemInstance, FormRef, FormValidateResult } from './types';
 import { FormContext, useFormContext } from './context';
 import FormItem from './FormItem';
-import Form2List from './Form2List';
+import FormList from './FormList';
 import { pathToString, setNestedValue, getNestedValue } from './utils';
-import './Form2.css';
+import './Form.css';
 import FormButton from './FormButton';
 
 // 主要表單組件
-function Form2(
+function Form(
   {
     children,
     initialValues = {},
@@ -17,8 +17,8 @@ function Form2(
     onFinishFailed,
     onValuesChange,
     className = '',
-  }: Form2Props,
-  ref: React.Ref<Form2Ref>) {
+  }: FormProps,
+  ref: React.Ref<FormRef>) {
   const formRef = useRef<HTMLFormElement>(null);
   // 使用 useMemo 來穩定 initialValues，避免不必要的重新渲染
   const stableInitialValues = useMemo(() => initialValues, [initialValues]);
@@ -252,7 +252,7 @@ function Form2(
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className={`form2 ${className}`}
+        className={`Form ${className}`}
         noValidate
       >
         {children}
@@ -262,14 +262,14 @@ function Form2(
 }
 
 // 使用 forwardRef 以支持外部引用
-const ForwardForm2 = React.forwardRef(Form2);
+const ForwardForm = React.forwardRef(Form);
 
-// 將 Form2 和 FormItem 組合成一個複合組件
-const Form2Compound = Object.assign(ForwardForm2, {
+// 將 Form 和 FormItem 組合成一個複合組件
+const FormCompound = Object.assign(ForwardForm, {
   Item: FormItem,
-  List: Form2List,
+  List: FormList,
   Button: FormButton,
   useForm: useFormContext,
 });
 
-export default Form2Compound;
+export default FormCompound;

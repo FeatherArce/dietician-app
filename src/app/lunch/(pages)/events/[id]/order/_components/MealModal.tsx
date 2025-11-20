@@ -1,4 +1,4 @@
-import { Form2Ref } from '@/components/form2/types';
+import { FormRef } from '@/components/form/types';
 import Modal, { ModalRef } from '@/components/Modal';
 import { ILunchOrderItem, IShopMenuItem } from '@/types/LunchEvent';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
@@ -29,7 +29,7 @@ export default function MealModal({
   onClose
 }: AddMealModalProps) {
   const modalRef = useRef<ModalRef>(null);
-  const formRef = useRef<Form2Ref>(null);
+  const formRef = useRef<FormRef>(null);
 
   const getValuesFromSettings = useCallback((): MenuFormValues => {
     if (settings.mode === MealFormMode.EDIT && settings.from === 'custom' && settings.values) {

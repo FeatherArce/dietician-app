@@ -1,16 +1,14 @@
 "use client";
-import { FormErrors } from "@/components/form";
-import { Form2, Input } from "@/components/form2";
-import PasswordInput from "@/components/form2/controls/PasswordInput";
+import { Form, Input } from "@/components/form";
+import PasswordInput from "@/components/form/controls/PasswordInput";
+import { FormErrors } from "@/components/form/FormErrors";
 import { Card } from "@/components/ui/Card";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 import { AuthError } from "next-auth";
 import { signIn, useSession } from "next-auth/react";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { FaDiscord } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -80,8 +78,8 @@ export default function LoginPage() {
 
         <FormErrors errors={errors} />
 
-        <Form2 onFinish={handleFinish}>
-          <Form2.Item
+        <Form onFinish={handleFinish}>
+          <Form.Item
             label="Email"
             name='email'
             rules={[{
@@ -97,8 +95,8 @@ export default function LoginPage() {
             }]}
           >
             <Input type="email" placeholder="請輸入 Email" required autoComplete="email" />
-          </Form2.Item>
-          <Form2.Item
+          </Form.Item>
+          <Form.Item
             label="密碼"
             name='password'
             rules={[{ required: true }]}
@@ -110,17 +108,17 @@ export default function LoginPage() {
               autoComplete="current-password"
               showPasswordToggle={true}
             />
-          </Form2.Item>
-          <Form2.Button.Container>
-            <Form2.Button
+          </Form.Item>
+          <Form.Button.Container>
+            <Form.Button
               type="submit"
               loading={status === 'loading' || isLoading}
               className="btn-primary w-full mt-6"
             >
               登入
-            </Form2.Button>
-          </Form2.Button.Container>
-        </Form2>
+            </Form.Button>
+          </Form.Button.Container>
+        </Form>
 
         {/* <p className="text-sm text-center text-black/60">
           還沒有帳號？

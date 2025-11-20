@@ -1,6 +1,6 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumb";
-import { FormValues } from "@/components/form2";
+import { FormValues } from "@/components/form";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import FullShopForm from "@/components/shop/ShopForm";
 import { toast } from "@/components/Toast";

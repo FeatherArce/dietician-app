@@ -6,7 +6,7 @@ import { FaEdit, FaPlus, FaSpinner, FaTrash } from 'react-icons/fa';
 import { getLunchShopMenuItems } from '@/services/client/lunch/lunch-shop';
 import Modal, { ModalRef } from '../Modal';
 import MenuItemForm from './MenuItemForm';
-import { Form2Ref, FormValues } from '../form2/types';
+import { FormRef, FormValues } from '../form/types';
 import { createLunchShopMenuItem, updateLunchShopMenuItem, deleteLunchShopMenuItem } from '@/services/client/lunch/lunch-shop';
 import { toast } from '../Toast';
 
@@ -22,7 +22,7 @@ interface MenuItemTableModalSettings {
 export default function MenuItemTable({
     menuId
 }: MenuItemTableProps) {
-    const formRef = useRef<Form2Ref>(null);
+    const formRef = useRef<FormRef>(null);
     const modalRef = useRef<ModalRef>(null);
     const [isPending, startTransition] = useTransition();
     const [menuItems, setMenuItems] = useState<IShopMenuItem[]>([]);

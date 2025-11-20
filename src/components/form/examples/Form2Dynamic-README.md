@@ -1,42 +1,42 @@
-# Form2 動態表單使用指南
+# Form 動態表單使用指南
 
-Form2 支援類似 Ant Design Form.List 的動態表單功能，可以讓你輕鬆實現動態增減表單項目。
+Form 支援類似 Ant Design Form.List 的動態表單功能，可以讓你輕鬆實現動態增減表單項目。
 
 ## 基本使用
 
 ```tsx
-import Form2, { Input } from '@/components/form2';
+import Form, { Input } from '@/components/Form';
 
 function DynamicForm() {
   return (
-    <Form2 onFinish={(values) => console.log(values)}>
-      <Form2.List name="users">
+    <Form onFinish={(values) => console.log(values)}>
+      <Form.List name="users">
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name }, index) => (
               <div key={key}>
-                <Form2.Item 
+                <Form.Item 
                   name={`users.${name}.name`} 
                   label={`使用者 ${index + 1} 姓名`}
                   required
                 >
                   <Input placeholder="請輸入姓名" />
-                </Form2.Item>
+                </Form.Item>
                 <button onClick={() => remove(name)}>刪除</button>
               </div>
             ))}
             <button onClick={() => add({ name: '' })}>新增使用者</button>
           </>
         )}
-      </Form2.List>
-    </Form2>
+      </Form.List>
+    </Form>
   );
 }
 ```
 
 ## API 參考
 
-### Form2.List
+### Form.List
 
 | 屬性 | 類型 | 說明 | 默認值 |
 |------|------|------|--------|
@@ -83,27 +83,27 @@ name={`users.${name}.address.street`}
 ```tsx
 function UserManagementForm() {
   return (
-    <Form2 
+    <Form 
       onFinish={(values) => console.log('提交:', values)}
       initialValues={{ users: [{ name: '', email: '', age: 18 }] }}
     >
-      <Form2.List name="users">
+      <Form.List name="users">
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name }, index) => (
               <div key={key} className="border p-4 mb-4 rounded">
                 <h4>使用者 {index + 1}</h4>
                 
-                <Form2.Item 
+                <Form.Item 
                   name={`users.${name}.name`} 
                   label="姓名" 
                   required
                   rules={[{ required: true, message: '請輸入姓名' }]}
                 >
                   <Input placeholder="請輸入姓名" />
-                </Form2.Item>
+                </Form.Item>
                 
-                <Form2.Item 
+                <Form.Item 
                   name={`users.${name}.email`} 
                   label="電子郵件"
                   rules={[{ 
@@ -112,14 +112,14 @@ function UserManagementForm() {
                   }]}
                 >
                   <Input type="email" placeholder="請輸入電子郵件" />
-                </Form2.Item>
+                </Form.Item>
                 
-                <Form2.Item 
+                <Form.Item 
                   name={`users.${name}.age`} 
                   label="年齡"
                 >
                   <NumberInput min={1} max={120} />
-                </Form2.Item>
+                </Form.Item>
                 
                 <button 
                   type="button" 
@@ -139,10 +139,10 @@ function UserManagementForm() {
             </button>
           </>
         )}
-      </Form2.List>
+      </Form.List>
       
       <button type="submit">提交表單</button>
-    </Form2>
+    </Form>
   );
 }
 ```
@@ -152,7 +152,7 @@ function UserManagementForm() {
 ```tsx
 function ShoppingCartForm() {
   return (
-    <Form2 
+    <Form 
       onFinish={(values) => {
         const total = values.items?.reduce((sum, item) => 
           sum + (item.price * item.quantity || 0), 0
@@ -169,11 +169,11 @@ function ShoppingCartForm() {
         }
       }}
     >
-      <Form2.Item name="customerName" label="客戶姓名" required>
+      <Form.Item name="customerName" label="客戶姓名" required>
         <Input placeholder="請輸入客戶姓名" />
-      </Form2.Item>
+      </Form.Item>
       
-      <Form2.List name="items">
+      <Form.List name="items">
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name }, index) => (
@@ -184,29 +184,29 @@ function ShoppingCartForm() {
                 </div>
                 
                 <div className="grid grid-cols-3 gap-4">
-                  <Form2.Item 
+                  <Form.Item 
                     name={`items.${name}.name`} 
                     label="商品名稱" 
                     required
                   >
                     <Input placeholder="請輸入商品名稱" />
-                  </Form2.Item>
+                  </Form.Item>
                   
-                  <Form2.Item 
+                  <Form.Item 
                     name={`items.${name}.price`} 
                     label="單價" 
                     required
                   >
                     <NumberInput min={0.01} step={0.01} precision={2} />
-                  </Form2.Item>
+                  </Form.Item>
                   
-                  <Form2.Item 
+                  <Form.Item 
                     name={`items.${name}.quantity`} 
                     label="數量" 
                     required
                   >
                     <NumberInput min={1} precision={0} />
-                  </Form2.Item>
+                  </Form.Item>
                 </div>
               </div>
             ))}
@@ -218,8 +218,8 @@ function ShoppingCartForm() {
             </button>
           </>
         )}
-      </Form2.List>
-    </Form2>
+      </Form.List>
+    </Form>
   );
 }
 ```
@@ -229,15 +229,15 @@ function ShoppingCartForm() {
 ```tsx
 function TagManagerForm() {
   return (
-    <Form2 initialValues={{ tags: ['React', 'TypeScript'] }}>
-      <Form2.List name="tags">
+    <Form initialValues={{ tags: ['React', 'TypeScript'] }}>
+      <Form.List name="tags">
         {(fields, { add, remove, move }) => (
           <>
             {fields.map(({ key, name }, index) => (
               <div key={key} className="flex items-center gap-2 p-2">
-                <Form2.Item name={`tags.${name}`} className="flex-1">
+                <Form.Item name={`tags.${name}`} className="flex-1">
                   <Input placeholder="請輸入標籤" />
-                </Form2.Item>
+                </Form.Item>
                 
                 {/* 排序按鈕 */}
                 {index > 0 && (
@@ -254,8 +254,8 @@ function TagManagerForm() {
             <button onClick={() => add('')}>+ 新增標籤</button>
           </>
         )}
-      </Form2.List>
-    </Form2>
+      </Form.List>
+    </Form>
   );
 }
 ```
@@ -285,7 +285,7 @@ remove(2)
 ### 動態驗證
 
 ```tsx
-<Form2.Item
+<Form.Item
   name={`items.${name}.email`}
   rules={[
     { required: true },
@@ -303,7 +303,7 @@ remove(2)
   ]}
 >
   <Input type="email" />
-</Form2.Item>
+</Form.Item>
 ```
 
 ### 條件顯示
@@ -311,17 +311,17 @@ remove(2)
 ```tsx
 {fields.map(({ key, name }, index) => (
   <div key={key}>
-    <Form2.Item name={`items.${name}.type`} label="類型">
+    <Form.Item name={`items.${name}.type`} label="類型">
       <Select options={[
         { label: '普通商品', value: 'normal' },
         { label: '特殊商品', value: 'special' }
       ]} />
-    </Form2.Item>
+    </Form.Item>
     
     {/* 根據類型條件顯示額外字段 */}
-    <Form2.Item name={`items.${name}.isSpecial`}>
+    <Form.Item name={`items.${name}.isSpecial`}>
       <Checkbox label="是否為特殊商品" />
-    </Form2.Item>
+    </Form.Item>
   </div>
 ))}
 ```
@@ -348,7 +348,7 @@ remove(2)
 ## 注意事項
 
 1. **字段命名**: 必須使用點號分隔的路徑格式 (`list.index.field`)
-2. **key 屬性**: React 需要唯一的 key，Form2.List 自動處理
+2. **key 屬性**: React 需要唯一的 key，Form.List 自動處理
 3. **初始值**: 如果需要預設項目，在 `initialValues` 中設定陣列
 4. **驗證**: 可以對單個字段或整個列表進行驗證
 5. **性能**: 大量項目時建議使用虛擬滾動或分頁

@@ -1,4 +1,4 @@
-import { FormValues } from "@/components/form2";
+import { FormValues } from "@/components/form";
 import { authFetch } from "@/libs/auth-fetch";
 import { ShopFilters } from "@/services/server/lunch";
 import { GetShopsResponse, PostShopResponse } from "@/types/api/lunch";

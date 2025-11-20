@@ -1,6 +1,6 @@
-# Form2 組件使用指南
+# Form 組件使用指南
 
-Form2 是一個類似 Ant Design Form 的表單組件系統，提供了強大的表單驗證、狀態管理和事件處理功能。
+Form 是一個類似 Ant Design Form 的表單組件系統，提供了強大的表單驗證、狀態管理和事件處理功能。
 
 ## 特色功能
 
@@ -15,7 +15,7 @@ Form2 是一個類似 Ant Design Form 的表單組件系統，提供了強大的
 ## 基本使用
 
 ```tsx
-import { Form2, Input, Select } from '@/components/form';
+import { Form, Input, Select } from '@/components/form';
 
 function MyForm() {
   const handleFinish = (values) => {
@@ -27,16 +27,16 @@ function MyForm() {
   };
 
   return (
-    <Form2
+    <Form
       onFinish={handleFinish}
       onValuesChange={handleValuesChange}
       initialValues={{ name: '', email: '' }}
     >
-      <Form2.Item name="name" label="姓名" required>
+      <Form.Item name="name" label="姓名" required>
         <Input placeholder="請輸入姓名" />
-      </Form2.Item>
+      </Form.Item>
 
-      <Form2.Item
+      <Form.Item
         name="email"
         label="電子郵件"
         required
@@ -45,24 +45,24 @@ function MyForm() {
         ]}
       >
         <Input type="email" placeholder="請輸入電子郵件" />
-      </Form2.Item>
+      </Form.Item>
 
       <button type="submit" className="btn btn-primary">
         提交
       </button>
-    </Form2>
+    </Form>
   );
 }
 ```
 
 ## 驗證規則
 
-Form2 支援多種驗證規則：
+Form 支援多種驗證規則：
 
 ### 基本驗證規則
 
 ```tsx
-<Form2.Item
+<Form.Item
   name="username"
   label="使用者名稱"
   rules={[
@@ -73,7 +73,7 @@ Form2 支援多種驗證規則：
   ]}
 >
   <Input placeholder="請輸入使用者名稱" />
-</Form2.Item>
+</Form.Item>
 ```
 
 ### 自定義驗證器
@@ -90,7 +90,7 @@ const checkUsernameExists = async (value) => {
   return '';
 };
 
-<Form2.Item
+<Form.Item
   name="username"
   label="使用者名稱"
   rules={[
@@ -99,7 +99,7 @@ const checkUsernameExists = async (value) => {
   ]}
 >
   <Input placeholder="請輸入使用者名稱" />
-</Form2.Item>
+</Form.Item>
 ```
 
 ### 跨字段驗證
@@ -112,7 +112,7 @@ const confirmPasswordValidator = async (value, allValues) => {
   return '';
 };
 
-<Form2.Item
+<Form.Item
   name="confirmPassword"
   label="確認密碼"
   rules={[
@@ -121,7 +121,7 @@ const confirmPasswordValidator = async (value, allValues) => {
   ]}
 >
   <Input type="password" placeholder="請再次輸入密碼" />
-</Form2.Item>
+</Form.Item>
 ```
 
 ## 內建控制項
@@ -129,31 +129,31 @@ const confirmPasswordValidator = async (value, allValues) => {
 ### Input - 文字輸入框
 
 ```tsx
-<Form2.Item name="name" label="姓名">
+<Form.Item name="name" label="姓名">
   <Input 
     placeholder="請輸入姓名"
     size="md"
     variant="bordered"
   />
-</Form2.Item>
+</Form.Item>
 ```
 
 ### TextArea - 文字區域
 
 ```tsx
-<Form2.Item name="description" label="描述">
+<Form.Item name="description" label="描述">
   <TextArea 
     placeholder="請輸入描述"
     rows={4}
     size="md"
   />
-</Form2.Item>
+</Form.Item>
 ```
 
 ### Select - 下拉選擇
 
 ```tsx
-<Form2.Item name="country" label="國家">
+<Form.Item name="country" label="國家">
   <Select
     placeholder="請選擇國家"
     options={[
@@ -162,33 +162,33 @@ const confirmPasswordValidator = async (value, allValues) => {
       { label: '日本', value: 'jp' }
     ]}
   />
-</Form2.Item>
+</Form.Item>
 ```
 
 ### NumberInput - 數字輸入
 
 ```tsx
-<Form2.Item name="age" label="年齡">
+<Form.Item name="age" label="年齡">
   <NumberInput 
     min={0}
     max={120}
     precision={0}
   />
-</Form2.Item>
+</Form.Item>
 ```
 
 ### Checkbox - 複選框
 
 ```tsx
-<Form2.Item name="agree" label="同意條款">
+<Form.Item name="agree" label="同意條款">
   <Checkbox label="我同意使用條款和隱私政策" />
-</Form2.Item>
+</Form.Item>
 ```
 
 ### RadioGroup - 單選按鈕組
 
 ```tsx
-<Form2.Item name="gender" label="性別">
+<Form.Item name="gender" label="性別">
   <RadioGroup
     options={[
       { label: '男性', value: 'male' },
@@ -197,7 +197,7 @@ const confirmPasswordValidator = async (value, allValues) => {
     ]}
     direction="horizontal"
   />
-</Form2.Item>
+</Form.Item>
 ```
 
 ## 自定義控制項
@@ -227,9 +227,9 @@ function CustomControl({ value, onChange, onBlur, error }: CustomControlProps) {
 }
 
 // 使用自定義控制項
-<Form2.Item name="custom" label="自定義欄位">
+<Form.Item name="custom" label="自定義欄位">
   <CustomControl />
-</Form2.Item>
+</Form.Item>
 ```
 
 ## 事件處理
@@ -242,9 +242,9 @@ const handleFinish = (values) => {
   // 處理提交邏輯
 };
 
-<Form2 onFinish={handleFinish}>
+<Form onFinish={handleFinish}>
   {/* 表單內容 */}
-</Form2>
+</Form>
 ```
 
 ### onFinishFailed - 表單提交失敗
@@ -255,9 +255,9 @@ const handleFinishFailed = ({ values, errors }) => {
   // 處理錯誤邏輯
 };
 
-<Form2 onFinishFailed={handleFinishFailed}>
+<Form onFinishFailed={handleFinishFailed}>
   {/* 表單內容 */}
-</Form2>
+</Form>
 ```
 
 ### onValuesChange - 值變更監聽
@@ -273,43 +273,43 @@ const handleValuesChange = (changedValues, allValues) => {
   }
 };
 
-<Form2 onValuesChange={handleValuesChange}>
+<Form onValuesChange={handleValuesChange}>
   {/* 表單內容 */}
-</Form2>
+</Form>
 ```
 
 ## 驗證觸發時機
 
 ```tsx
-<Form2 validateTrigger="onChange"> {/* 'onChange' | 'onBlur' | 'onSubmit' */}
-  <Form2.Item
+<Form validateTrigger="onChange"> {/* 'onChange' | 'onBlur' | 'onSubmit' */}
+  <Form.Item
     name="email"
     validateTrigger="onBlur" {/* 覆蓋全局設定 */}
   >
     <Input type="email" />
-  </Form2.Item>
-</Form2>
+  </Form.Item>
+</Form>
 ```
 
 ## 網格佈局
 
 ```tsx
-<Form2 className="form-grid form-grid-cols-2">
-  <Form2.Item name="firstName" label="姓">
+<Form className="form-grid form-grid-cols-2">
+  <Form.Item name="firstName" label="姓">
     <Input />
-  </Form2.Item>
+  </Form.Item>
   
-  <Form2.Item name="lastName" label="名">
+  <Form.Item name="lastName" label="名">
     <Input />
-  </Form2.Item>
+  </Form.Item>
   
   {/* 跨列項目 */}
   <div className="col-span-1 md:col-span-2">
-    <Form2.Item name="address" label="地址">
+    <Form.Item name="address" label="地址">
       <TextArea />
-    </Form2.Item>
+    </Form.Item>
   </div>
-</Form2>
+</Form>
 ```
 
 ## 進階功能
@@ -326,14 +326,14 @@ function DynamicForm() {
   };
 
   return (
-    <Form2>
+    <Form>
       {items.map(item => (
-        <Form2.Item key={item.id} name={item.name} label={`項目 ${item.id}`}>
+        <Form.Item key={item.id} name={item.name} label={`項目 ${item.id}`}>
           <Input />
-        </Form2.Item>
+        </Form.Item>
       ))}
       <button type="button" onClick={addItem}>新增項目</button>
-    </Form2>
+    </Form>
   );
 }
 ```
@@ -359,7 +359,7 @@ function CustomFormComponent() {
 
 ## 樣式自定義
 
-Form2 基於 DaisyUI 設計，你可以使用以下 CSS 類別進行自定義：
+Form 基於 DaisyUI 設計，你可以使用以下 CSS 類別進行自定義：
 
 ```css
 /* 表單項目間距 */

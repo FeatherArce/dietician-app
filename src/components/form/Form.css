@@ -1,10 +1,10 @@
-/* Form2 組件的基礎樣式 */
+/* Form 組件的基礎樣式 */
 
 :root {
   --border-b3: #cccccc;
 }
 
-.form2 {
+.Form {
   width: 100%;
 }
 

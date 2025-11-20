@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { FaEdit, FaStore } from 'react-icons/fa';
-import { Form2, FormItem, Input, Checkbox, TextArea, Form2Props } from '../form2';
+import { Form, FormItem, Input, Checkbox, TextArea, FormProps } from '../form';
 import { useRouter } from 'next/navigation';
 
 export interface ShopFormData {
@@ -235,7 +235,7 @@ export function ShopForm({
   );
 }
 
-interface FullShopFormProps extends Partial<Form2Props> {
+interface FullShopFormProps extends Partial<FormProps> {
   loading?: boolean;
   mode?: 'create' | 'edit';
 }
@@ -252,7 +252,7 @@ export default function FullShopForm({
 
   const router = useRouter();
   return (
-    <Form2
+    <Form
       initialValues={initialValues}
       onValuesChange={onValuesChange}
       onFinish={onFinish}
@@ -351,7 +351,7 @@ export default function FullShopForm({
           )}
         </button>
       </div>
-    </Form2>
+    </Form>
   );
 }
 

@@ -1,11 +1,11 @@
 "use client";
-import Link from "next/link";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 import { useCallback, useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/libs/utils";
 import { UserRole } from "@/prisma-generated/postgres-client";
+import PageLink from "./ui/PageLink";
 
 export interface MenuItem {
   label: string;
@@ -24,10 +24,10 @@ export function NavbarMenu({ device, items }: { device?: 'mobile' | 'desktop'; i
       )}>
       {items?.map((item) => (
         <li key={item.href} className={cn(item.disabled && "opacity-50 pointer-events-none")}>
-          <Link href={item.href} className="flex items-center gap-2">
+          <PageLink href={item.href} className="flex items-center gap-2">
             {item.icon}
             {item.label}
-          </Link>
+          </PageLink>
         </li>
       ))}
     </ul>
@@ -69,12 +69,12 @@ export default function Navbar() {
           <NavbarMenu device="mobile" items={menuItems} />
         </div>
         <div className="hidden md:block">
-          <Link href="/" className="btn btn-ghost text-xl normal-case">訂餐管理系統</Link>
+          <PageLink href="/" className="btn btn-ghost text-xl normal-case">訂餐管理系統</PageLink>
         </div>
       </div>
       <div className="navbar-center">
         <div className="block md:hidden">
-          <Link href="/" className="btn btn-ghost text-xl normal-case">訂餐管理系統</Link>
+          <PageLink href="/" className="btn btn-ghost text-xl normal-case">訂餐管理系統</PageLink>
         </div>
         <div className="hidden md:block">
           <NavbarMenu device="desktop" items={menuItems} />
@@ -109,7 +109,7 @@ export default function Navbar() {
                 </div>
               </li>
               <div className="divider my-1"></div>
-              <li><Link href="/profile">個人設定</Link></li>
+              <li><PageLink href="/profile">個人設定</PageLink></li>
               <li>
                 <a
                   onClick={() => {
@@ -127,12 +127,12 @@ export default function Navbar() {
           </div>
         ) : (
           <div className="flex gap-2">
-            <Link href={ROUTE_CONSTANTS.LOGIN} className="btn btn-sm btn-ghost">
+            <PageLink href={ROUTE_CONSTANTS.LOGIN} className="btn btn-sm btn-ghost">
               登入
-            </Link>
-            {/* <Link href="/auth/register" className="btn btn-sm btn-primary">
+            </PageLink>
+            {/* <PageLink href="/auth/register" className="btn btn-sm btn-primary">
               註冊
-            </Link> */}
+            </PageLink> */}
           </div>
         )}
       </div>

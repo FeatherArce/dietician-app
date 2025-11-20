@@ -1,10 +1,10 @@
 "use client";
 
 import React from 'react';
-import { Form2 } from '@/components/form2';
-import Input from '@/components/form2/controls/Input';
-import Select from '@/components/form2/controls/Select';
-import NumberInput from '@/components/form2/controls/NumberInput';
+import { Form } from '@/components/form';
+import Input from '@/components/form/controls/Input';
+import Select from '@/components/form/controls/Select';
+import NumberInput from '@/components/form/controls/NumberInput';
 
 // 基本動態表單範例
 export function BasicDynamicForm() {
@@ -16,7 +16,7 @@ export function BasicDynamicForm() {
     <div className="max-w-2xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">基本動態表單</h2>
 
-      <Form2
+      <Form
         onFinish={handleFinish}
         initialValues={{
           users: [
@@ -27,7 +27,7 @@ export function BasicDynamicForm() {
           console.log('Form errors', errorInfos)
         }}
       >
-        <Form2.List name="users">
+        <Form.List name="users">
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, fieldKey }, index) => (
@@ -44,16 +44,16 @@ export function BasicDynamicForm() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Form2.Item
+                    <Form.Item
                       name={[name, 'name']}
                       label="姓名"
                       required
                       rules={[{ required: true, message: '請輸入姓名' }]}
                     >
                       <Input placeholder="請輸入姓名" />
-                    </Form2.Item>
+                    </Form.Item>
 
-                    <Form2.Item
+                    <Form.Item
                       name={[name, 'email']}
                       label="電子郵件"
                       required
@@ -63,9 +63,9 @@ export function BasicDynamicForm() {
                       ]}
                     >
                       <Input type="email" placeholder="請輸入電子郵件" />
-                    </Form2.Item>
+                    </Form.Item>
 
-                    <Form2.Item
+                    <Form.Item
                       name={[name, 'age']}
                       label="年齡"
                       rules={[
@@ -74,7 +74,7 @@ export function BasicDynamicForm() {
                       ]}
                     >
                       <NumberInput min={1} max={150} />
-                    </Form2.Item>
+                    </Form.Item>
                   </div>
                 </div>
               ))}
@@ -88,14 +88,14 @@ export function BasicDynamicForm() {
               </button>
             </>
           )}
-        </Form2.List>
+        </Form.List>
 
         <div className="mt-6 flex gap-4">
           <button type="submit" className="btn btn-primary">
             提交表單
           </button>
         </div>
-      </Form2>
+      </Form>
     </div>
   );
 }
@@ -110,7 +110,7 @@ export function AdvancedDynamicForm() {
     <div className="max-w-4xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">進階動態表單 - 專案管理</h2>
 
-      <Form2
+      <Form
         onFinish={handleFinish}
         initialValues={{
           projectName: '',
@@ -126,16 +126,16 @@ export function AdvancedDynamicForm() {
           ]
         }}
       >
-        <Form2.Item
+        <Form.Item
           name="projectName"
           label="專案組名稱"
           required
           rules={[{ required: true, message: '請輸入專案組名稱' }]}
         >
           <Input placeholder="請輸入專案組名稱" />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.List name="projects">
+        <Form.List name="projects">
           {(projectFields, projectOps) => (
             <>
               {projectFields.map(({ key: projectKey, name: projectName }, projectIndex) => (
@@ -172,16 +172,16 @@ export function AdvancedDynamicForm() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <Form2.Item
+                    <Form.Item
                       name={[projectName, 'name']}
                       label="專案名稱"
                       required
                       rules={[{ required: true, message: '請輸入專案名稱' }]}
                     >
                       <Input placeholder="請輸入專案名稱" />
-                    </Form2.Item>
+                    </Form.Item>
 
-                    <Form2.Item
+                    <Form.Item
                       name={[projectName, 'status']}
                       label="專案狀態"
                     >
@@ -194,20 +194,20 @@ export function AdvancedDynamicForm() {
                           { label: '已暫停', value: 'paused' }
                         ]}
                       />
-                    </Form2.Item>
+                    </Form.Item>
                   </div>
 
-                  <Form2.Item
+                  <Form.Item
                     name={[projectName, 'description']}
                     label="專案描述"
                   >
                     <Input placeholder="請輸入專案描述" />
-                  </Form2.Item>
+                  </Form.Item>
 
                   {/* 嵌套的任務列表 */}
                   <div className="mt-6">
                     <h4 className="text-lg font-medium mb-4">任務列表</h4>
-                    <Form2.List name={[projectName, 'tasks']}>
+                    <Form.List name={[projectName, 'tasks']}>
                       {(taskFields, taskOps) => (
                         <>
                           {taskFields.map(({ key: taskKey, name: taskName }, taskIndex) => (
@@ -224,22 +224,22 @@ export function AdvancedDynamicForm() {
                               </div>
 
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <Form2.Item
+                                <Form.Item
                                   name={[taskName, 'title']}
                                   label="任務標題"
                                   required
                                   rules={[{ required: true, message: '請輸入任務標題' }]}
                                 >
                                   <Input placeholder="請輸入任務標題" size="sm" />
-                                </Form2.Item>
+                                </Form.Item>
 
-                                <Form2.Item
+                                <Form.Item
                                   name={[taskName, 'hours']}
                                   label="預估時數"
                                   rules={[{ min: 0.5, message: '時數必須大於0.5' }]}
                                 >
                                   <NumberInput min={0.5} step={0.5} size="sm" />
-                                </Form2.Item>
+                                </Form.Item>
                               </div>
                             </div>
                           ))}
@@ -253,7 +253,7 @@ export function AdvancedDynamicForm() {
                           </button>
                         </>
                       )}
-                    </Form2.List>
+                    </Form.List>
                   </div>
                 </div>
               ))}
@@ -272,7 +272,7 @@ export function AdvancedDynamicForm() {
               </button>
             </>
           )}
-        </Form2.List>
+        </Form.List>
 
         <div className="mt-8 flex gap-4">
           <button type="submit" className="btn btn-primary">
@@ -282,7 +282,7 @@ export function AdvancedDynamicForm() {
             重置表單
           </button>
         </div>
-      </Form2>
+      </Form>
     </div>
   );
 }
@@ -302,7 +302,7 @@ export function ShoppingCartForm() {
     <div className="max-w-3xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">購物車表單</h2>
 
-      <Form2
+      <Form
         onFinish={handleFinish}
         onValuesChange={(changed, all) => {
           // 自動計算總金額
@@ -320,18 +320,18 @@ export function ShoppingCartForm() {
           ]
         }}
       >
-        <Form2.Item
+        <Form.Item
           name="customerName"
           label="客戶姓名"
           required
           rules={[{ required: true, message: '請輸入客戶姓名' }]}
         >
           <Input placeholder="請輸入客戶姓名" />
-        </Form2.Item>
+        </Form.Item>
 
         <div className="divider">商品列表</div>
 
-        <Form2.List name="items">
+        <Form.List name="items">
           {(fields, { add, remove }) => (
             <>
               <div className="space-y-4">
@@ -351,17 +351,17 @@ export function ShoppingCartForm() {
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                       <div className="md:col-span-2">
-                        <Form2.Item
+                        <Form.Item
                           name={[name, 'name']}
                           label="商品名稱"
                           required
                           rules={[{ required: true, message: '請輸入商品名稱' }]}
                         >
                           <Input placeholder="請輸入商品名稱" />
-                        </Form2.Item>
+                        </Form.Item>
                       </div>
 
-                      <Form2.Item
+                      <Form.Item
                         name={[name, 'price']}
                         label="單價"
                         required
@@ -371,9 +371,9 @@ export function ShoppingCartForm() {
                         ]}
                       >
                         <NumberInput min={0.01} step={0.01} precision={2} />
-                      </Form2.Item>
+                      </Form.Item>
 
-                      <Form2.Item
+                      <Form.Item
                         name={[name, 'quantity']}
                         label="數量"
                         required
@@ -383,7 +383,7 @@ export function ShoppingCartForm() {
                         ]}
                       >
                         <NumberInput min={1} precision={0} />
-                      </Form2.Item>
+                      </Form.Item>
                     </div>
                   </div>
                 ))}
@@ -408,14 +408,14 @@ export function ShoppingCartForm() {
               </div>
             </>
           )}
-        </Form2.List>
+        </Form.List>
 
         <div className="mt-6 flex gap-4">
           <button type="submit" className="btn btn-primary">
             確認訂單
           </button>
         </div>
-      </Form2>
+      </Form>
     </div>
   );
 }

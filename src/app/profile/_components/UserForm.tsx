@@ -1,5 +1,5 @@
-import { Form2, Input } from '@/components/form2'
-import { Form2Ref, FormValues } from '@/components/form2/types';
+import { Form, Input } from '@/components/form'
+import { FormRef, FormValues } from '@/components/form/types';
 import { toast } from '@/components/Toast';
 import { User } from '@/prisma-generated/postgres-client';
 import { updateUser } from '@/services/client/user';
@@ -11,8 +11,8 @@ interface UserFormProps {
     onFinished?: () => void;
 }
 
-function UserForm({ user, onLoadingChange, onFinished }: UserFormProps, ref: React.Ref<Form2Ref>) {
-    const formRef = React.useRef<Form2Ref>(null);
+function UserForm({ user, onLoadingChange, onFinished }: UserFormProps, ref: React.Ref<FormRef>) {
+    const formRef = React.useRef<FormRef>(null);
 
     const handleSubmit = useCallback(async (values: FormValues) => {
         if (!user?.id) {
@@ -54,22 +54,22 @@ function UserForm({ user, onLoadingChange, onFinished }: UserFormProps, ref: Rea
     }), []);
 
     return (
-        <Form2
+        <Form
             ref={formRef}
             onFinish={handleSubmit}
         >
-            <Form2.Item label="電子郵件" name="email" required>
+            <Form.Item label="電子郵件" name="email" required>
                 <Input type="email" placeholder="請輸入電子郵件" disabled />
-            </Form2.Item>
-            <Form2.Item label="使用者名稱" name="name" required>
+            </Form.Item>
+            <Form.Item label="使用者名稱" name="name" required>
                 <Input placeholder="請輸入使用者名稱" />
-            </Form2.Item>
-            {/* <Form2.Button.Container>
-                <Form2.Button type='submit' loading={loading}>
+            </Form.Item>
+            {/* <Form.Button.Container>
+                <Form.Button type='submit' loading={loading}>
                     儲存
-                </Form2.Button>
-            </Form2.Button.Container> */}
-        </Form2 >
+                </Form.Button>
+            </Form.Button.Container> */}
+        </Form >
     )
 }
 

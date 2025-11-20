@@ -1,9 +1,9 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react'
-import { Checkbox, Form2, Form2Props, Input, NumberInput, TextArea } from '../form2'
+import { Checkbox, Form, FormProps, Input, NumberInput, TextArea } from '../form'
 import { FaEdit } from 'react-icons/fa';
-import { Form2Ref } from '../form2/types';
+import { FormRef } from '../form/types';
 
-interface MenuItemFormProps extends Partial<Form2Props> {
+interface MenuItemFormProps extends Partial<FormProps> {
     loading?: boolean;
     mode?: 'create' | 'edit';
     onCancel?: () => void;
@@ -19,7 +19,7 @@ function MenuItemForm({
     onValuesChange,
     ...props
 }: MenuItemFormProps, ref: React.Ref<any>) {
-    const formRef = useRef<Form2Ref>(null);
+    const formRef = useRef<FormRef>(null);
 
     useImperativeHandle(ref, () => ({
         setFieldsValue: (values: Partial<any>) => {
@@ -31,7 +31,7 @@ function MenuItemForm({
     }), []);
 
     return (
-        <Form2
+        <Form
             ref={formRef}
             initialValues={initialValues}
             onFinish={onFinish}
@@ -39,11 +39,11 @@ function MenuItemForm({
             onValuesChange={onValuesChange}
             {...props}
         >
-            {/* <Form2.Item name='category_id' label='項目分類'></Form2.Item> */}
-            {/* <Form2.Item name='sort_order' label='排序順序'>
+            {/* <Form.Item name='category_id' label='項目分類'></Form.Item> */}
+            {/* <Form.Item name='sort_order' label='排序順序'>
                 <NumberInput placeholder='請輸入排序順序' />
-            </Form2.Item> */}
-            <Form2.Item
+            </Form.Item> */}
+            <Form.Item
                 name='name'
                 label='項目名稱'
                 rules={[
@@ -51,8 +51,8 @@ function MenuItemForm({
                 ]}
             >
                 <Input placeholder='請輸入項目名稱' />
-            </Form2.Item>
-            <Form2.Item
+            </Form.Item>
+            <Form.Item
                 name='price'
                 label='價格'
                 rules={[
@@ -60,13 +60,13 @@ function MenuItemForm({
                 ]}
             >
                 <NumberInput placeholder='請輸入價格' />
-            </Form2.Item>
-            <Form2.Item name='description' label='項目描述'>
+            </Form.Item>
+            <Form.Item name='description' label='項目描述'>
                 <TextArea placeholder='請輸入項目描述' rows={4} />
-            </Form2.Item>
-            <Form2.Item name='is_available' label='是否可用' valuePropName='checked'>
+            </Form.Item>
+            <Form.Item name='is_available' label='是否可用' valuePropName='checked'>
                 <Checkbox />
-            </Form2.Item>
+            </Form.Item>
             <div className="flex justify-end space-x-4">
                 <button
                     type="button"
@@ -95,7 +95,7 @@ function MenuItemForm({
                     )}
                 </button>
             </div>
-        </Form2>
+        </Form>
     )
 }
 

@@ -1,7 +1,7 @@
 "use client";
 import Breadcrumb from '@/components/Breadcrumb';
-import { Checkbox, Form2, Input, Select } from '@/components/form2';
-import { Form2Ref, FormValues } from '@/components/form2/types';
+import { Checkbox, Form, Input, Select } from '@/components/form';
+import { FormRef, FormValues } from '@/components/form/types';
 import PageTitle from '@/components/page/PageTitle';
 import { toast } from '@/components/Toast';
 import { UserRole } from '@/prisma-generated/postgres-client';
@@ -51,7 +51,7 @@ export default function EditUserPage() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  const formRef = useRef<Form2Ref>(null);
+  const formRef = useRef<FormRef>(null);
 
   const roleOptions = useMemo(() => ([
     { label: getUserRoleChineseName(UserRole.USER), value: 'USER' },
@@ -175,36 +175,36 @@ export default function EditUserPage() {
       <div className="max-w-2xl mx-auto">
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
-            <Form2 ref={formRef} initialValues={formData} onFinish={handleFinish}>
-              <Form2.Item name="name" label="姓名" rules={[{ required: true, message: '請輸入姓名' }]}>
+            <Form ref={formRef} initialValues={formData} onFinish={handleFinish}>
+              <Form.Item name="name" label="姓名" rules={[{ required: true, message: '請輸入姓名' }]}>
                 <Input placeholder="請輸入姓名" />
-              </Form2.Item>
-              <Form2.Item
+              </Form.Item>
+              <Form.Item
                 name="email"
                 label="Email"
                 rules={[{ required: true, message: '請輸入 Email' }, { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: '請輸入有效的 Email 地址' }]}
               >
                 <Input type="email" placeholder="請輸入 Email 地址" />
-              </Form2.Item>
-              <Form2.Item name="role" label="角色" rules={[{ required: true, message: '請選擇角色' }]}>
+              </Form.Item>
+              <Form.Item name="role" label="角色" rules={[{ required: true, message: '請選擇角色' }]}>
                 <Select
                   options={roleOptions}
                   placeholder="請選擇角色"
                 />
-              </Form2.Item>
-              {/* <Form2.Item name="password" label="重設密碼" help="如需重設密碼，請在此輸入新密碼，否則留空">
+              </Form.Item>
+              {/* <Form.Item name="password" label="重設密碼" help="如需重設密碼，請在此輸入新密碼，否則留空">
                 <Input type="password" placeholder="輸入新密碼以重設" />
-              </Form2.Item> */}
-              <Form2.Item name="is_active" label="帳戶狀態" valuePropName="checked">
+              </Form.Item> */}
+              <Form.Item name="is_active" label="帳戶狀態" valuePropName="checked">
                 <Checkbox label='是否啟用帳戶，勾選為啟用' />
-              </Form2.Item>
-              <Form2.Button.Container>
-                <Form2.Button type="submit" className="btn btn-primary w-full" disabled={loading}>
+              </Form.Item>
+              <Form.Button.Container>
+                <Form.Button type="submit" className="btn btn-primary w-full" disabled={loading}>
                   <FaSave className="h-4 w-4" />
                   更新使用者
-                </Form2.Button>
-              </Form2.Button.Container>
-            </Form2>
+                </Form.Button>
+              </Form.Button.Container>
+            </Form>
           </div>
         </div>
       </div>

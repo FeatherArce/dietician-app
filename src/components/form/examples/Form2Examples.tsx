@@ -1,18 +1,18 @@
 "use client";
 /**
- * Form2 組件使用示例
+ * Form 組件使用示例
  * 
- * 這個文件展示了如何使用 Form2 組件系統
+ * 這個文件展示了如何使用 Form 組件系統
  */
 
 import React from 'react';
-import { Form2 } from '@/components/form2';
-import Input from '@/components/form2/controls/Input';
-import Select from '@/components/form2/controls/Select';
-import NumberInput from '@/components/form2/controls/NumberInput';
-import TextArea from '@/components/form2/controls/TextArea';
-import Checkbox from '@/components/form2/controls/Checkbox';
-import RadioGroup from '@/components/form2/controls/RadioGroup';
+import { Form } from '@/components/form';
+import Input from '@/components/form/controls/Input';
+import Select from '@/components/form/controls/Select';
+import NumberInput from '@/components/form/controls/NumberInput';
+import TextArea from '@/components/form/controls/TextArea';
+import Checkbox from '@/components/form/controls/Checkbox';
+import RadioGroup from '@/components/form/controls/RadioGroup';
 
 // 基本使用示例
 export function BasicFormExample() {
@@ -30,7 +30,7 @@ export function BasicFormExample() {
 
   return (
     <div className="max-w-md mx-auto">
-      <Form2
+      <Form
         onFinish={handleFinish}
         onFinishFailed={handleFinishFailed}
         // onValuesChange={handleValuesChange}
@@ -41,7 +41,7 @@ export function BasicFormExample() {
           agree: false
         }}
       >
-        <Form2.Item
+        <Form.Item
           name="username"
           label="使用者名稱"
           required
@@ -51,9 +51,9 @@ export function BasicFormExample() {
           ]}
         >
           <Input placeholder="請輸入使用者名稱" />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.Item
+        <Form.Item
           name="email"
           label="電子郵件"
           required
@@ -65,9 +65,9 @@ export function BasicFormExample() {
           ]}
         >
           <Input type="email" placeholder="請輸入電子郵件" />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.Item
+        <Form.Item
           name="age"
           label="年齡"
           required
@@ -84,9 +84,9 @@ export function BasicFormExample() {
           ]}
         >
           <NumberInput min={1} max={100} />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.Item
+        <Form.Item
           name="gender"
           label="性別"
           required
@@ -99,17 +99,17 @@ export function BasicFormExample() {
             ]}
             direction="horizontal"
           />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.Item
+        <Form.Item
           name="bio"
           label="個人簡介"
           help="簡單介紹一下自己"
         >
           <TextArea placeholder="請輸入個人簡介" rows={3} />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.Item
+        <Form.Item
           name="agree"
           required
           rules={[
@@ -122,7 +122,7 @@ export function BasicFormExample() {
           ]}
         >
           <Checkbox label="我同意使用條款和隱私政策" />
-        </Form2.Item>
+        </Form.Item>
 
         <div className="form-actions">
           <button type="button" className="btn btn-ghost">
@@ -132,7 +132,7 @@ export function BasicFormExample() {
             提交
           </button>
         </div>
-      </Form2>
+      </Form>
     </div>
   );
 }
@@ -161,17 +161,17 @@ export function DynamicFormExample() {
 
   return (
     <div className="max-w-md mx-auto">
-      <Form2 onFinish={handleFinish}>
+      <Form onFinish={handleFinish}>
         {formItems.map((item) => (
           <div key={item.id} className="flex items-end space-x-2 mb-4">
             <div className="flex-1">
-              <Form2.Item
+              <Form.Item
                 name={item.name}
                 label={item.label}
                 required
               >
                 <Input placeholder={`請輸入${item.label}`} />
-              </Form2.Item>
+              </Form.Item>
             </div>
             {formItems.length > 1 && (
               <button
@@ -198,7 +198,7 @@ export function DynamicFormExample() {
             提交動態表單
           </button>
         </div>
-      </Form2>
+      </Form>
     </div>
   );
 }
@@ -231,8 +231,8 @@ export function ComplexValidationExample() {
 
   return (
     <div className="max-w-md mx-auto">
-      <Form2 onFinish={handleFinish}>
-        <Form2.Item
+      <Form onFinish={handleFinish}>
+        <Form.Item
           name="username"
           label="使用者名稱"
           required
@@ -242,9 +242,9 @@ export function ComplexValidationExample() {
           ]}
         >
           <Input placeholder="請輸入使用者名稱" />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.Item
+        <Form.Item
           name="password"
           label="密碼"
           required
@@ -257,9 +257,9 @@ export function ComplexValidationExample() {
           ]}
         >
           <Input type="password" placeholder="請輸入密碼" />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.Item
+        <Form.Item
           name="confirmPassword"
           label="確認密碼"
           required
@@ -268,14 +268,14 @@ export function ComplexValidationExample() {
           ]}
         >
           <Input type="password" placeholder="請再次輸入密碼" />
-        </Form2.Item>
+        </Form.Item>
 
         <div className="form-actions">
           <button type="submit" className="btn btn-primary">
             註冊
           </button>
         </div>
-      </Form2>
+      </Form>
     </div>
   );
 }
@@ -288,24 +288,24 @@ export function GridLayoutExample() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Form2 onFinish={handleFinish} className="form-grid form-grid-cols-2">
-        <Form2.Item name="firstName" label="姓" required>
+      <Form onFinish={handleFinish} className="form-grid form-grid-cols-2">
+        <Form.Item name="firstName" label="姓" required>
           <Input placeholder="請輸入姓" />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.Item name="lastName" label="名" required>
+        <Form.Item name="lastName" label="名" required>
           <Input placeholder="請輸入名" />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.Item name="email" label="電子郵件" required>
+        <Form.Item name="email" label="電子郵件" required>
           <Input type="email" placeholder="請輸入電子郵件" />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.Item name="phone" label="電話號碼">
+        <Form.Item name="phone" label="電話號碼">
           <Input placeholder="請輸入電話號碼" />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.Item name="country" label="國家" required>
+        <Form.Item name="country" label="國家" required>
           <Select
             placeholder="請選擇國家"
             options={[
@@ -315,16 +315,16 @@ export function GridLayoutExample() {
               { label: '日本', value: 'jp' }
             ]}
           />
-        </Form2.Item>
+        </Form.Item>
 
-        <Form2.Item name="city" label="城市">
+        <Form.Item name="city" label="城市">
           <Input placeholder="請輸入城市" />
-        </Form2.Item>
+        </Form.Item>
 
         <div className="col-span-1 md:col-span-2">
-          <Form2.Item name="address" label="詳細地址">
+          <Form.Item name="address" label="詳細地址">
             <TextArea placeholder="請輸入詳細地址" rows={3} />
-          </Form2.Item>
+          </Form.Item>
         </div>
 
         <div className="col-span-1 md:col-span-2 form-actions">
@@ -335,7 +335,7 @@ export function GridLayoutExample() {
             保存
           </button>
         </div>
-      </Form2>
+      </Form>
     </div>
   );
 }

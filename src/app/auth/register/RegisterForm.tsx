@@ -1,7 +1,7 @@
-import { Form2, Form2Props, FormItem, Input } from '@/components/form2'
+import { Form, FormProps, FormItem, Input } from '@/components/form'
 import React from 'react'
 
-interface RegisterFormProps extends Form2Props {
+interface RegisterFormProps extends FormProps {
     isLoading?: boolean;
     submitText?: string;
 }
@@ -12,11 +12,11 @@ export default function RegisterForm({
     ...props
 }: Partial<RegisterFormProps>) {
     return (
-        <Form2
+        <Form
             autoComplete="off"
             {...props}
         >
-            <Form2.Item
+            <Form.Item
                 name='email'
                 label='電子信箱'
                 rules={[
@@ -35,8 +35,8 @@ export default function RegisterForm({
                 ]}
             >
                 <Input type='email' placeholder='請輸入電子信箱' autoComplete='email' />
-            </Form2.Item>
-            <Form2.Item
+            </Form.Item>
+            <Form.Item
                 name='name'
                 label='使用者名稱'
                 rules={[
@@ -46,8 +46,8 @@ export default function RegisterForm({
                 ]}
             >
                 <Input type='text' placeholder='請輸入使用者名稱' autoComplete='new-user-name' />
-            </Form2.Item>
-            <Form2.Item
+            </Form.Item>
+            <Form.Item
                 name='password'
                 label='密碼'
                 rules={[
@@ -66,8 +66,8 @@ export default function RegisterForm({
                 ]}
             >
                 <Input type='password' placeholder='請輸入密碼' autoComplete='new-password' />
-            </Form2.Item>
-            <Form2.Item
+            </Form.Item>
+            <Form.Item
                 name='confirmPassword'
                 label='確認密碼'
                 rules={[
@@ -86,7 +86,7 @@ export default function RegisterForm({
                 ]}
             >
                 <Input type='password' placeholder='請再次輸入密碼' autoComplete='user-password' />
-            </Form2.Item>
+            </Form.Item>
             <div className="form-control mt-6">
                 <button
                     type="submit"
@@ -97,6 +97,6 @@ export default function RegisterForm({
                     {isLoading ? "處理中..." : submitText}
                 </button>
             </div>
-        </Form2>
+        </Form>
     )
 }
