@@ -6,7 +6,7 @@ function Hint() {
     const { pending } = useLinkStatus()
     if (!pending) return null;
     return (
-        <span className="loading loading-spinner" />
+        <span className="loading loading-spinner loading-sm" />
     )
 }
 
