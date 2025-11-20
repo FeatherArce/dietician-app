@@ -456,6 +456,21 @@ export const orderService = {
         }
     },
 
+    async deleteOrders(orderIds: string[]) {
+        try {
+            // 批次刪除訂單
+            const deletedOrders = await prisma.lunchOrder.deleteMany({
+                where: {
+                    id: { in: orderIds }
+                }
+            });
+            return deletedOrders;
+        } catch (error) {
+            console.error('Error deleting orders:', error);
+            throw error instanceof Error ? error : new Error('Failed to delete orders');
+        }
+    },
+
     // 獲取事件的訂餐統計
     async getEventOrdersSummary(eventId: string) {
         try {

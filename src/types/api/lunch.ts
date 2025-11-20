@@ -1,4 +1,4 @@
-import { Menu, Shop } from "@/prisma-generated/postgres-client";
+import { LunchOrder, Menu, Shop } from "@/prisma-generated/postgres-client";
 import { ApiResponse } from "./api";
 import { ILunchEvent } from "../LunchEvent";
 
@@ -12,3 +12,6 @@ export type PutShopResponse = ApiResponse<{ shop: Shop }>;
 export type DeleteShopResponse = ApiResponse<{ shop: Shop }>;
 
 // src/app/api/lunch/shops/menus 的回應型別定義
+
+// src/app/api/lunch/orders 的回應型別定義
+export type DeleteOrderResponse = ApiResponse<{ orderId: string, order: LunchOrder }>;

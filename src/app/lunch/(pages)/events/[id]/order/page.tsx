@@ -13,7 +13,7 @@ import { MenuCategory } from "@/prisma-generated/postgres-client";
 import { getLunchEventById } from "@/services/client/lunch/lunch-event";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import {
   FaCheck,
   FaClock,
@@ -28,6 +28,8 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { MealFormMode, MenuFormValues } from "./_components/MealForm";
 import MealModal, { MealModalSettings } from "./_components/MealModal";
 import { ILunchOrderItem, ILunchEvent, IShopMenu, IShopMenuCategory, IShopMenuItem } from "@/types/LunchEvent";
+import { cn } from "@/libs/utils";
+import { deleteOrder } from "@/services/client/lunch/lunch-order";
 
 
 interface ExistingOrder {
@@ -56,6 +58,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     from: 'custom',
     open: false
   });
+  const [isDeleteOrdering, startDeleteOrderTransition] = useTransition();
 
   // 解析動態參數
   useEffect(() => {
@@ -114,14 +117,23 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
   }, [user, event, eventId]);
 
   // 檢查是否可以訂餐
-  const canOrder = () => {
+  const canAddOrder = useMemo(() => {
     if (!event) return false;
     if (!event.is_active) return false;
 
     const orderDeadline = new Date(event.order_deadline);
     const now = new Date();
     return now <= orderDeadline;
-  };
+  }, [event]);
+
+  const canCancelOrder = useMemo(() => {
+    if (!event) return false;
+    if (!event.is_active) return false;
+    if (!existingOrder) return false;
+    const orderDeadline = new Date(event.order_deadline);
+    const now = new Date();
+    return now <= orderDeadline;
+  }, [existingOrder, event]);
 
   // 開啟菜單項目設定視窗
   const openAddMenuMealModal = (menuItem: IShopMenuItem) => {
@@ -395,6 +407,32 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     );
   }
 
+  const handleDeleteOrder = useCallback(async () => {
+    if (!canCancelOrder) {
+      toast.error("無法取消訂單，可能已超過截止時間或活動已關閉");
+      return;
+    }
+    if (!existingOrder?.id) {
+      toast.info("您尚未下訂，無需取消訂單");
+      return;
+    }
+
+    startDeleteOrderTransition(async () => {
+      try {
+        const { response, result } = await deleteOrder(existingOrder.id);
+        console.log("Delete order response:", { response, result });
+        if (response.ok && result.success) {
+          toast.success("訂單已成功取消");
+          router.back();
+        } else {
+          throw new Error(result.message || "取消訂單失敗");
+        }
+      } catch (error) {
+        toast.error("取消訂單失敗：" + (error as Error).message);
+      }
+    });
+  }, [canCancelOrder, existingOrder, router]);
+
   if (authLoading || loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -427,7 +465,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     );
   }
 
-  if (!canOrder()) {
+  if (!canAddOrder) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
@@ -469,7 +507,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       />
 
       {/* 活動資訊卡片 */}
-      <div className="card bg-base-100 shadow-sm mb-6">
+      <div className="card bg-base-100 shadow-sm">
         <div className="card-body">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div className="flex items-center space-x-2">
@@ -490,8 +528,8 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
         </div>
       </div>
 
-      {/* 菜單 */}
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-2">
+      {/* Container */}
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-2 mt-6">
         {/* 菜單 */}
         <div className="card bg-base-100 shadow-sm">
           <div className="card-body">
@@ -648,6 +686,26 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Danger Zone: 取消訂單 */}
+      <div className={cn("card bg-base-100 shadow mt-6", !canCancelOrder ? 'hidden pointer-events-none' : '')}>
+        <div className="card-body">
+          <h3 className="card-title text-error">取消訂單</h3>
+          <p className="mb-4">若您想取消整筆訂單，請點擊下方按鈕。訂單一經取消將無法復原，所有訂單內容都會被刪除。</p>
+          <button
+            className="btn btn-outline btn-error"
+            onClick={() => {
+              if (confirm("確定要取消此訂單嗎？此操作無法復原。")) {
+                handleDeleteOrder();
+              }
+            }}
+            disabled={!canCancelOrder}
+          >
+            <FaShoppingCart className="w-4 h-4 mr-2" />
+            取消訂單
+          </button>
         </div>
       </div>
 
