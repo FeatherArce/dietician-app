@@ -13,7 +13,7 @@ import { MenuCategory } from "@/prisma-generated/postgres-client";
 import { getLunchEventById } from "@/services/client/lunch/lunch-event";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   FaCheck,
   FaClock,
@@ -26,11 +26,10 @@ import {
 } from "react-icons/fa";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { MealFormMode, MenuFormValues } from "./_components/MealForm";
-import MealModal, { MealModalSettings } from "./_components/MealModal";
+import MealModal, { MealModalRef, MealModalSettings } from "./_components/MealModal";
 import { ILunchOrderItem, ILunchEvent, IShopMenu, IShopMenuCategory, IShopMenuItem } from "@/types/LunchEvent";
 import { cn } from "@/libs/utils";
 import { deleteOrder } from "@/services/client/lunch/lunch-order";
-
 
 interface ExistingOrder {
   id: string;
@@ -39,12 +38,21 @@ interface ExistingOrder {
   items: ILunchOrderItem[];
 }
 
+function menuItemDiff(a: ILunchOrderItem, b: ILunchOrderItem): boolean {
+  if (a.name && b.name && a.name !== b.name) return true;
+  if (a.price && b.price && a.price !== b.price) return true;
+  if (a.quantity && b.quantity && a.quantity !== b.quantity) return true;
+  if (a.note && b.note && a.note !== b.note) return true;
+  return false;
+}
+
 export default function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { data: session, status } = useSession();
   const authLoading = status === 'loading';
   const isAuthenticated = status === 'authenticated';
   const user = session?.user;
+  const mealModalRef = useRef<MealModalRef>(null);
 
   const [event, setEvent] = useState<ILunchEvent | undefined>();
   const [existingOrder, setExistingOrder] = useState<ExistingOrder | null>(null);
@@ -59,6 +67,24 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     open: false
   });
   const [isDeleteOrdering, startDeleteOrderTransition] = useTransition();
+
+  const hasUnSendItems = useMemo(() => {
+    // 比較現有訂單與當前訂單項目是否相同
+    if (!existingOrder) {
+      return orderItems.length > 0;
+    }
+    if (existingOrder.items.length !== orderItems.length) {
+      return true;
+    }
+    for (let i = 0; i < orderItems.length; i++) {
+      const existingItem = existingOrder.items[i];
+      const currentItem = orderItems[i];
+      if (menuItemDiff(existingItem, currentItem)) {
+        return true;
+      }
+    }
+    return false;
+  }, [existingOrder, orderItems]);
 
   // 解析動態參數
   useEffect(() => {
@@ -223,18 +249,30 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     });
   }, []);
 
-  const handleMenuModalOk = useCallback((values: MenuFormValues, settings: MealModalSettings) => {
-    setMealModalSettings({
-      mode: MealFormMode.ADD,
-      from: 'custom',
-      open: false
-    });
+  const handleMenuModalOk = useCallback((values: MenuFormValues, settings: MealModalSettings, continueAdding: boolean) => {
+    console.log("Meal modal submitted", { values, settings, continueAdding });
     const appendedItem: ILunchOrderItem = values as ILunchOrderItem;
-
     if (settings.mode === MealFormMode.ADD) {
       appendOrderItem(appendedItem);
+      toast.success("餐點已暫存至訂單摘要");
     } else if (settings.mode === MealFormMode.EDIT && typeof settings.index === 'number') {
       updateOrderItem(settings.index, appendedItem);
+      toast.success("餐點已更新至訂單摘要");
+    }
+
+    if (continueAdding && settings.mode === MealFormMode.ADD) {
+      mealModalRef.current?.resetForm();
+      setMealModalSettings({
+        mode: settings.mode,
+        from: settings.from,
+        open: true
+      });
+    } else {
+      setMealModalSettings({
+        mode: MealFormMode.ADD,
+        from: 'custom',
+        open: false
+      });
     }
   }, [appendOrderItem, updateOrderItem]);
 
@@ -433,7 +471,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     });
   }, [canCancelOrder, existingOrder, router]);
 
-  if (authLoading || loading) {
+  if (authLoading || loading || isDeleteOrdering) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-center items-center h-64">
@@ -673,7 +711,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
               <button
                 className="btn btn-primary w-full"
                 onClick={submitOrder}
-                disabled={submitting}
+                disabled={submitting || !hasUnSendItems}
               >
                 {submitting ? (
                   <span className="loading loading-spinner loading-sm"></span>
@@ -710,6 +748,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       </div>
 
       <MealModal
+        ref={mealModalRef}
         settings={mealModalSettings}
         open={mealModalSettings.open}
         onOk={handleMenuModalOk}

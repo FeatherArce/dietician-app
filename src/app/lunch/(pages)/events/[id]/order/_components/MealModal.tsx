@@ -1,7 +1,7 @@
 import { FormRef } from '@/components/form/types';
 import Modal, { ModalRef } from '@/components/Modal';
 import { ILunchOrderItem, IShopMenuItem } from '@/types/LunchEvent';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import MealForm, { MealFormMode, MenuFormValues } from './MealForm';
 
 export interface MealModalSettings {
@@ -17,19 +17,27 @@ export interface MealModalSettings {
 interface AddMealModalProps {
   settings: MealModalSettings;
   open?: boolean;
-  onOk: (values: any, settings: MealModalSettings) => void;
+  onOk: (values: any, settings: MealModalSettings, continueAdding: boolean) => void;
   onClose?: () => void;
 }
 
+export interface MealModalRef extends ModalRef {
+  resetForm: () => void;
+} 
+
 const id = "add-meal-modal";
-export default function MealModal({
-  settings,
-  open = false,
-  onOk,
-  onClose
-}: AddMealModalProps) {
+function MealModal(
+  {
+    settings,
+    open = false,
+    onOk,
+    onClose,
+  }: AddMealModalProps,
+  ref: React.Ref<MealModalRef>
+) {
   const modalRef = useRef<ModalRef>(null);
   const formRef = useRef<FormRef>(null);
+  const [isCountinueAdding, setIsContinueAdding] = useState(true);
 
   const getValuesFromSettings = useCallback((): MenuFormValues => {
     if (settings.mode === MealFormMode.EDIT && settings.from === 'custom' && settings.values) {
@@ -78,6 +86,18 @@ export default function MealModal({
     }
   }, [open, settings, getValuesFromSettings]);
 
+  useImperativeHandle(ref, () => ({
+    resetForm: () => {
+      formRef.current?.reset();
+    },
+    open: () => {
+      modalRef.current?.open();
+    },
+    close: () => {
+      modalRef.current?.close();
+    },
+  }), []);
+
   return (
     <Modal
       ref={modalRef}
@@ -96,10 +116,18 @@ export default function MealModal({
         mode={settings.mode}
         initialValues={getValuesFromSettings()}
         onSubmit={(values) => {
-          onOk?.(values, settings);
+          onOk?.(values, settings, isCountinueAdding);
           modalRef.current?.close();
         }}
       />
+      {settings.mode === MealFormMode.ADD && (
+        <label className="label mt-1">
+          <input type="checkbox" className="checkbox" checked={isCountinueAdding} onChange={e => setIsContinueAdding(e.target.checked)} />
+          按下確定送出後，繼續輸入下一筆
+        </label>
+      )}
     </Modal>
   )
 }
+
+export default forwardRef(MealModal);
