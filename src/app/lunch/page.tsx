@@ -1,5 +1,5 @@
 "use client";
-import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ErrorBoundary } from '@/components/swr/ErrorBoundary';
 import Modal, { ModalRef } from '@/components/Modal';
 import PageContainer from '@/components/page/PageContainer';
 import SearchContainer from '@/components/SearchContainer';
@@ -304,6 +304,7 @@ export default function LunchPage() {
                     <EventOrderSummaryTable
                         event={selectedEvent}
                         className="w-full"
+                        loading={loadingEventStats}
                     />
                 </Modal>
             </PageContainer>
