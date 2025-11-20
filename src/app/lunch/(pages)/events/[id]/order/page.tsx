@@ -4,7 +4,7 @@ import DataTable from "@/components/DataTable";
 import { Notification } from "@/components/Notification";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import PageTitle from "@/components/page/PageTitle";
-import Tabs from "@/components/Tabs";
+import Tabs from "@/components/ui/Tabs";
 import { toast } from "@/components/Toast";
 import { AUTH_CONSTANTS } from "@/constants/app-constants";
 import { authFetch } from "@/libs/auth-fetch";

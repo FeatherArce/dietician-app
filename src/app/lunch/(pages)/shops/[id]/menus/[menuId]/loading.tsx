@@ -1,7 +1,7 @@
-import LoadingSkeleton from '@/components/LoadingSkeleton'
+import { LoadingSkeleton } from '@/components/ui/Loading'
 import React from 'react'
 
-export default function RootLoading() {
+export default function LunchShopMenuLoading() {
     return (
         <LoadingSkeleton />
     )

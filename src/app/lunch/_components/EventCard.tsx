@@ -1,11 +1,10 @@
 "use client";
-import LoadingIndicator from '@/components/LoadingIndicator';
 import { toast } from '@/components/Toast';
+import PageLink from '@/components/ui/PageLink';
 import { formatCurrency } from '@/libs/formatter';
 import { LunchEvent, UserRole } from '@/prisma-generated/postgres-client';
 import { ILunchEvent, MyOrder } from '@/types/LunchEvent';
 import type { User } from 'next-auth';
-import Link from 'next/link';
 import {
     FaCalendarAlt,
     FaChartBar,
@@ -21,7 +20,7 @@ import {
 
 interface EventCardProps {
     event: ILunchEvent;
-    user?: User;    
+    user?: User;
     getUserOrderForEvent?: (eventId: string) => MyOrder | null;
     onShowOrderDetail?: (order: MyOrder) => void;
     onShowEventStats?: (eventId: string) => void; // 新增統計按鈕回調
@@ -69,14 +68,13 @@ export default function EventCard({
                         {/* 管理功能按鈕 - 只有管理者能看到 */}
                         {hasManagePermission && (
                             <>
-                                <Link
+                                <PageLink
                                     href={`/lunch/events/${event.id}`}
                                     className="btn btn-ghost btn-sm"
                                 >
                                     <FaEdit className="w-3 h-3" />
                                     編輯
-                                    <LoadingIndicator />
-                                </Link>
+                                </PageLink>
                                 {/* <Link
                                 href={`/lunch/events/${event.id}/edit`}
                                 className="btn btn-warning btn-sm"
@@ -183,21 +181,19 @@ export default function EventCard({
                     {/* 訂餐相關按鈕 - 根據狀態顯示 */}
                     {(event.is_active && new Date(event.order_deadline) > new Date()) ? (
                         !hasOrder ? (
-                            <Link
+                            <PageLink
                                 href={`/lunch/events/${event.id}/order`}
                                 className="btn btn-primary btn-sm"
                             >
                                 參與訂餐
-                                <LoadingIndicator />
-                            </Link>
+                            </PageLink>
                         ) : (
-                            <Link
+                            <PageLink
                                 href={`/lunch/events/${event.id}/order`}
                                 className="btn btn-primary btn-sm"
                             >
                                 修改訂單
-                                <LoadingIndicator />
-                            </Link>
+                            </PageLink>
                         )
                     ) : null}
 
@@ -209,7 +205,6 @@ export default function EventCard({
                         >
                             <FaChartBar className="w-3 h-3" />
                             訂餐統計
-                            <LoadingIndicator />
                         </button>
                     )}
 

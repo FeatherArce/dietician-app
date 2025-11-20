@@ -18,8 +18,8 @@ import {
 } from "react-icons/fa";
 import { Shop } from "@/prisma-generated/postgres-client";
 import Breadcrumb from "@/components/Breadcrumb";
-import Tabs from "@/components/Tabs";
-import LoadingIndicator from "@/components/LoadingIndicator";
+import Tabs from "@/components/ui/Tabs";
+import PageLink from "@/components/ui/PageLink";
 
 interface ShopWithDetails extends Shop {
   menus?: Array<{
@@ -352,14 +352,13 @@ export default function ShopDetailPage() {
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-bold">菜單管理</h3>
-                  <Link
+                  <PageLink
                     href={`/lunch/shops/${shopId}/menus/new`}
                     className="btn btn-primary"
                   >
                     <FaPlus className="w-4 h-4" />
                     新增菜單
-                    <LoadingIndicator />
-                  </Link>
+                  </PageLink>
                 </div>
 
                 {shop.menus && shop.menus.length > 0 ? (

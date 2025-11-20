@@ -1,30 +1,23 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
-import { useSession } from "next-auth/react";
-import {
-  FaArrowLeft,
-  FaStore,
-  FaEdit,
-  FaUtensils,
-  FaList,
-  FaExclamationCircle,
-  FaPlus
-} from "react-icons/fa";
 import Breadcrumb from "@/components/Breadcrumb";
-import Tabs from "@/components/Tabs";
+import { MenuCategory } from "@/components/menu/MenuCategoryManager";
+import { MenuItem } from "@/components/menu/MenuItemManager";
+import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import FullShopForm, {
-  ShopForm,
   ShopFormData,
   ShopFormErrors
 } from "@/components/shop/ShopForm";
-import { authFetch } from "@/libs/auth-fetch";
-import MenuCategoryManager, { MenuCategory } from "@/components/menu/MenuCategoryManager";
-import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
-import { Select } from "@/components/SearchContainer/SearchFields";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
-import PageAuthBlocker from "@/components/page/PageAuthBlocker";
+import { authFetch } from "@/libs/auth-fetch";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import {
+  FaArrowLeft,
+  FaEdit,
+  FaExclamationCircle
+} from "react-icons/fa";
 
 interface ShopData extends ShopFormData {
   id: string;

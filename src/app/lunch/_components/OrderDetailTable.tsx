@@ -3,7 +3,7 @@ import DataTable from '@/components/DataTable';
 import { formatCurrency } from '@/libs/formatter';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FaClipboardList, FaUserFriends } from 'react-icons/fa';
-import Tabs from '@/components/Tabs';
+import Tabs from '@/components/ui/Tabs';
 import { ILunchEvent } from '@/types/LunchEvent';
 
 enum DisplayMode {

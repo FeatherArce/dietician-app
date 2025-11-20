@@ -1,4 +1,4 @@
-import LoadingSkeleton from '@/components/LoadingSkeleton'
+import { LoadingSkeleton } from '@/components/ui/Loading'
 import React from 'react'
 
 export default function TestPage() {

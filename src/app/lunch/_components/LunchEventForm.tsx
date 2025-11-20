@@ -1,7 +1,7 @@
 'use client';
 import { Checkbox, Form2, Form2Props, Input, Select } from '@/components/form2';
 import { Form2Ref } from '@/components/form2/types';
-import LoadingSkeleton from '@/components/LoadingSkeleton';
+import { LoadingSkeleton } from '@/components/ui/Loading';
 import { Shop } from '@/prisma-generated/postgres-client';
 import { getLunchShops } from '@/services/client/lunch/lunch-shop';
 import moment from 'moment-timezone';

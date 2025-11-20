@@ -1,15 +1,15 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import Navbar from "../components/Navbar";
-import { NotificationProvider, NotificationContainer } from "@/components/Notification";
-import { ToastProvider, ToastContainer } from "@/components/Toast";
+import { NotificationContainer, NotificationProvider } from "@/components/Notification";
 import "@/components/Notification/notification.css";
+import { ToastContainer, ToastProvider } from "@/components/Toast";
 import "@/components/Toast/toast.css";
-import ThemeProvider from "@/components/ThemeProvider";
-import { SessionProvider } from "next-auth/react";
-import { cn } from "@/libs/utils";
+import ThemeProvider from "@/components/ui/theme/ThemeProvider";
 import { APP_DESCRIPTION, APP_NAME } from "@/constants/app-constants";
+import { cn } from "@/libs/utils";
+import type { Metadata } from "next";
+import { SessionProvider } from "next-auth/react";
+import { Geist, Geist_Mono } from "next/font/google";
+import Navbar from "../components/Navbar";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

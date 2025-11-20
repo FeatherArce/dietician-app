@@ -9,10 +9,13 @@ import {
 } from 'react-icons/fa';
 import OrderDetailTable from './OrderDetailTable';
 import { ILunchEvent } from '@/types/LunchEvent';
+import { LoadingSkeleton } from '@/components/ui/Loading';
+
 
 interface EventStatisticsProps extends React.HTMLAttributes<HTMLDivElement> {
     event?: ILunchEvent;
     showStatistics?: boolean;
+    loading?: boolean;
 }
 
 export interface EventOrderSummaryTableRef {
@@ -66,6 +69,7 @@ function EventOrderSummaryTable(
         event,
         className = '',
         showStatistics = true,
+        loading = false,
     }: EventStatisticsProps,
     ref: React.Ref<EventOrderSummaryTableRef>
 ) {
@@ -104,11 +108,19 @@ function EventOrderSummaryTable(
         );
     }
 
+    if (loading) {
+        return (
+            <div className={`flex flex-col ${className} min-w-0 w-full`}>
+                <LoadingSkeleton height="200px" />
+            </div>
+        );
+    }
+
     return (
         <div className={`flex flex-col ${className} min-w-0 w-full`}>
             {/* 統計摘要 */}
             {showStatistics && (<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-                {renderStat(<FaShoppingCart size={24} />, '訂單數量', event?._count?.orders || 0, '筆訂單')}               
+                {renderStat(<FaShoppingCart size={24} />, '訂單數量', event?._count?.orders || 0, '筆訂單')}
                 {renderStat(<FaUsers size={24} />, '參與人數', event?._count?.attendees || 0, '位顧客')}
                 {renderStat(<FaDollarSign size={24} />, '總金額', formatCurrency(event?._count?.total_amount || 0), '新台幣')}
                 {renderStat(<FaUser size={24} />, '已收款人數', (event?._count?.paid_orders || 0), '位顧客')}
