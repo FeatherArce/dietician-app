@@ -24,7 +24,7 @@ export interface ValidationRule {
 
 // 表單項目實例接口
 export interface FormItemInstance {
-  name: string | (string | number)[];
+  name: string | (string | number)[] | undefined;
   getValue: () => unknown;
   setValue: (value: unknown) => void;
   getError: () => string | string[] | undefined;
@@ -69,7 +69,7 @@ export interface FormRef {
 
 // 表單項目屬性接口
 export interface FormItemProps {
-  name: string | (string | number)[];
+  name?: string | (string | number)[];
   label?: string;
   rules?: ValidationRule[];
   children: ReactNode;
@@ -79,4 +79,5 @@ export interface FormItemProps {
   validateTrigger?: 'onChange' | 'onBlur';
   valuePropName?: string;
   hidden?: boolean;
+  isListItem?: boolean;
 }

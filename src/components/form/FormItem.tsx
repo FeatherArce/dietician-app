@@ -17,6 +17,7 @@ export default function FormItem({
     validateTrigger = 'onChange',
     valuePropName = 'value',
     hidden = false,
+    isListItem = false,
 }: FormItemProps) {
     const {
         registerField,
@@ -95,14 +96,16 @@ export default function FormItem({
     const fieldInstance = useMemo((): FormItemInstance => ({
         name,
         getValue: () => getCurrentValue(), // 直接從 formValues 讀取，不使用閉包
-        setValue: (newValue: unknown) => setFieldValue(name, newValue),
+        setValue: (newValue: unknown) => {
+            if (!name) return;
+            setFieldValue(name, newValue)
+        },
         getError: () => {
-            console.log(`Getting error for ${name}:`, { localError, errors });
-            // return localError;
+            if(!name) return localError;
             return errors[pathToString(name)] ?? localError;
         },
         setError: (error: string | string[] | undefined) => {
-            console.log(`Setting error for ${name}:`, error);
+            if(!name) return;
             setLocalError(error);
             setFieldError(name, error); // <--- 新增這行
         },
@@ -116,12 +119,14 @@ export default function FormItem({
 
     // 註冊和取消註冊字段
     useEffect(() => {
+        if (!name) return;
         registerField(name, fieldInstance);
         return () => unregisterField(name);
     }, [name, registerField, unregisterField, fieldInstance]);
 
     // 處理值變更
     const handleValueChange = useCallback((newValue: unknown) => {
+        if (!name) return;
         setFieldValue(name, newValue);
 
         if (validateTrigger === 'onChange') {
@@ -189,6 +194,7 @@ export default function FormItem({
 
     // 處理失焦事件
     const handleBlur = useCallback(() => {
+        if (!name) return;
         setFieldTouched(name, true);
 
         if (validateTrigger === 'onBlur') {
@@ -201,9 +207,9 @@ export default function FormItem({
     }, [name, setFieldTouched, setFieldError, getCurrentValue, validate, validateTrigger]);
 
     // 獲取字段錯誤和觸摸狀態
-    const nameKey = pathToString(name);
-    const fieldError = errors[nameKey];
-    const fieldTouched = touched[nameKey];
+    const nameKey = pathToString(name ?? '');
+    const fieldError = nameKey ? errors[nameKey] : undefined;
+    const fieldTouched = nameKey ? touched[nameKey] : undefined;
     const currentValue = getCurrentValue();
 
     // 克隆子元素並注入必要的 props
@@ -229,10 +235,11 @@ export default function FormItem({
     return (
         <div
             className={cn(
-                'form-item space-y-1',
+                isListItem ? 'form-list-item' : 'form-item',
+                'space-y-1',
                 className,
                 showError ? 'form-item-error' : '',
-                hidden ? 'hidden' : ''
+                hidden ? 'hidden' : '',
             )}
         >
             {label && (

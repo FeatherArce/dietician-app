@@ -12,6 +12,10 @@
   margin-bottom: 1rem;
 }
 
+.form-list-item {
+  margin-bottom: 0;
+}
+
 .form-item-label {
   display: block;
   font-size: 0.875rem;

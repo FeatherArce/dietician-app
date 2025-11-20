@@ -21,80 +21,65 @@ export function SimpleDynamicForm() {
         onFinish={handleFinish}
         onValuesChange={handleValuesChange}
         initialValues={{
-          users: [
-            { name: '張三', email: 'zhang@example.com', age: 25 }
-          ]
+          description: '測試餐點列表',
+          menuItems: [{ name: '牛', price: 1500 }]
         }}
       >
-        <Form.List name="users">
+        <Form.Item label="餐點列表說明" name="description">
+          <Input placeholder="請輸入餐點列表說明" />
+        </Form.Item>
+        <Form.List name='menuItems'>
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name }, index) => (
-                <div key={key} className="border border-base-300 rounded-lg p-4 mb-4 bg-base-50">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="font-semibold">使用者 {index + 1}</h4>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-error"
-                      onClick={() => remove(name)}
-                      disabled={fields.length === 1}
-                    >
-                      刪除
-                    </button>
-                  </div>
+                <Form.List.Item
+                  key={key}
+                  className=""
+                >
+                  <Form.Item
+                    name={`menuItems.${name}.name`}
+                    required
+                    rules={[{ required: true, message: '請輸入餐點名稱' }]}
+                    isListItem={true}
+                  >
+                    <Input placeholder="請輸入餐點名稱" />
+                  </Form.Item>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Form.Item
-                      name={`users.${name}.name`}
-                      label="姓名"
-                      required
-                      rules={[{ required: true, message: '請輸入姓名' }]}
-                    >
-                      <Input placeholder="請輸入姓名" />
-                    </Form.Item>
-
-                    <Form.Item
-                      name={`users.${name}.email`}
-                      label="電子郵件"
-                      required
-                      rules={[
-                        { required: true, message: '請輸入電子郵件' },
-                        { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: '請輸入有效的電子郵件' }
-                      ]}
-                    >
-                      <Input type="email" placeholder="請輸入電子郵件" />
-                    </Form.Item>
-
-                    <Form.Item
-                      name={`users.${name}.age`}
-                      label="年齡"
-                      rules={[
-                        { min: 1, message: '年齡必須大於0' },
-                        { max: 150, message: '年齡必須小於150' }
-                      ]}
-                    >
-                      <NumberInput min={1} max={150} />
-                    </Form.Item>
-                  </div>
-                </div>
+                  <Form.Item
+                    name={`menuItems.${name}.price`}
+                    rules={[
+                      { required: true, message: '請輸入價格' },
+                    ]}
+                    isListItem={true}
+                  >
+                    <NumberInput min={1} max={150} placeholder="價格" />
+                  </Form.Item>
+                  <button
+                    type="button"
+                    className="btn btn-error"
+                    onClick={() => remove(name)}
+                    disabled={fields.length === 1}
+                  >
+                    刪除
+                  </button>
+                </Form.List.Item>
               ))}
 
               <button
                 type="button"
                 className="btn btn-secondary btn-outline w-full"
-                onClick={() => add({ name: '', email: '', age: undefined })}
+                onClick={() => add({ name: '', price: undefined })}
               >
-                + 新增使用者
+                + 新增餐點
               </button>
             </>
           )}
         </Form.List>
-
-        <div className="mt-6 flex gap-4">
-          <button type="submit" className="btn btn-primary">
+        <Form.Button.Container>
+          <Form.Button type="submit" className="btn btn-primary w-full">
             提交表單
-          </button>
-        </div>
+          </Form.Button>
+        </Form.Button.Container>
       </Form>
     </div>
   );

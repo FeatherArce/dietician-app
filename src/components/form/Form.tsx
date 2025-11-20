@@ -177,17 +177,12 @@ function Form(
     try {
       // 驗證所有字段
       const validResult = await validateFields();
-      // console.log('Form valid:', validResult.isValid);
 
       if (validResult.isValid) {
-        // 收集最新的值
-        const latestValues: FormValues = {};
-        fieldInstancesRef.current.forEach((instance, name) => {
-          latestValues[name] = instance.getValue();
-        });
-
+        // 收集最新的巢狀值
+        // 直接用 values（已是巢狀物件）
         if (onFinish) {
-          await onFinish(latestValues);
+          await onFinish(values);
         }
       } else {
         onFinishFailed?.({ values, errors: validResult.errors });
@@ -198,21 +193,21 @@ function Form(
   }, [values, errors, onFinish, onFinishFailed, validateFields]);
 
   // 更新初始值時同步到字段
-  useEffect(() => {
-    console.log('Initial values changed:', stableInitialValues);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setValues(prev => {
-      // 檢查是否真的有變化，避免不必要的更新
-      const hasChanges = Object.keys(stableInitialValues).some(key =>
-        prev[key] !== stableInitialValues[key]
-      ) || Object.keys(prev).length !== Object.keys(stableInitialValues).length;
+  // useEffect(() => {
+  //   console.log('Initial values changed:', stableInitialValues);
+  //   // eslint-disable-next-line react-hooks/set-state-in-effect
+  //   setValues(prev => {
+  //     // 檢查是否真的有變化，避免不必要的更新
+  //     const hasChanges = Object.keys(stableInitialValues).some(key =>
+  //       prev[key] !== stableInitialValues[key]
+  //     ) || Object.keys(prev).length !== Object.keys(stableInitialValues).length;
 
-      if (hasChanges) {
-        return { ...prev, ...stableInitialValues };
-      }
-      return prev;
-    });
-  }, [stableInitialValues]);
+  //     if (hasChanges) {
+  //       return { ...prev, ...stableInitialValues };
+  //     }
+  //     return prev;
+  //   });
+  // }, [stableInitialValues]);
 
   const contextValue = {
     values,
