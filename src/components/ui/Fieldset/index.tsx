@@ -1,6 +1,7 @@
-import LoadingSkeleton from "@/components/LoadingSkeleton";
+import { breakpoints } from "@/constants/app-constants";
 import { cn } from "@/libs/utils";
 import React, { useMemo } from "react";
+import { LoadingSkeleton } from "../Loading";
 
 export interface FieldsetItem {
     label: string;
@@ -16,7 +17,6 @@ export interface FieldsetColSpan {
     xl?: number;
 }
 
-type Breakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 type FlexDirection = 'row' | 'col';
 export interface FieldsetDirection {
     xs?: FlexDirection;
@@ -34,8 +34,6 @@ export interface FieldsetProps extends React.FieldsetHTMLAttributes<HTMLFieldSet
     loading?: boolean;
     direction?: FieldsetDirection;
 }
-
-const breakpoints = ["xs", "sm", "md", "lg", "xl"] as const;
 
 const defaultColSpanSettings: { [key: string]: string } = {
     xs: "grid-cols-1",
