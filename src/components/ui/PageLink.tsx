@@ -16,8 +16,8 @@ interface PageLinkProps extends React.ComponentProps<typeof Link> {
 export default function PageLink({ title, children, ...props }: PageLinkProps) {
     return (
         <Link prefetch={false} {...props}>
-            <Hint />
             {children}
+            <Hint />
         </Link>
     )
 }
