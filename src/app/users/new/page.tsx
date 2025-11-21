@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaEnvelope, FaLock, FaUserTag, FaArrowLeft, FaSave } from 'react-icons/fa';
-import Breadcrumb from '@/components/Breadcrumb';
+import Breadcrumb, { usersBreadcrumbHomeItem } from '@/components/Breadcrumb';
 import { getUserRoleChineseName } from '@/types/User';
 import { UserRole } from '@/prisma-generated/postgres-client';
 
@@ -82,7 +82,7 @@ export default function NewUserPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
@@ -134,11 +134,12 @@ export default function NewUserPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* 麵包屑導航 */}
-      <Breadcrumb 
+      <Breadcrumb
         items={[
+          usersBreadcrumbHomeItem,
           { label: '使用者管理', href: '/users' },
           { label: '新增使用者', current: true }
-        ]} 
+        ]}
       />
 
       {/* 頁面標題 */}

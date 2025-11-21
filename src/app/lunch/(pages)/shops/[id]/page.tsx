@@ -17,7 +17,7 @@ import {
   FaEye
 } from "react-icons/fa";
 import { Shop } from "@/prisma-generated/postgres-client";
-import Breadcrumb from "@/components/Breadcrumb";
+import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import Tabs from "@/components/ui/Tabs";
 import PageLink from "@/components/ui/PageLink";
 
@@ -133,6 +133,7 @@ export default function ShopDetailPage() {
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
+          lunchBreadcrumbHomeItem,
           { label: '商店管理', href: '/lunch/shops' },
           { label: shop.name, current: true }
         ]}

@@ -1,5 +1,5 @@
 "use client";
-import Breadcrumb from "@/components/Breadcrumb";
+import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import DataTable, { Column } from "@/components/DataTable";
 import SearchContainer from "@/components/SearchContainer";
 import { SearchInput, Select } from "@/components/SearchContainer/SearchFields";
@@ -265,6 +265,7 @@ export default function ShopsPage() {
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
+          lunchBreadcrumbHomeItem,
           { label: '商店管理', current: true }
         ]}
       />

@@ -1,6 +1,6 @@
 "use client";
 import LunchEventForm, { parseDatetimeLocalString } from "@/app/lunch/_components/LunchEventForm";
-import Breadcrumb from "@/components/Breadcrumb";
+import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import { Notification } from "@/components/Notification";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import { toast } from "@/components/Toast";
@@ -44,7 +44,7 @@ export default function NewEventPage() {
       const momentOrderDeadline = values.order_deadline ? moment.tz(orderDeadline, timezone) : null;
       const eventDate = momentOrderDeadline ? momentOrderDeadline.format('YYYY-MM-DD') : null;
       const iso8601OrderDeadline = momentOrderDeadline ? momentOrderDeadline.toISOString() : null;
-      
+
       const requestData = {
         ...values,
         owner_id: user?.id,
@@ -94,6 +94,7 @@ export default function NewEventPage() {
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
+          lunchBreadcrumbHomeItem,
           { label: '活動管理', href: '/lunch/events' },
           { label: '建立活動', current: true }
         ]}

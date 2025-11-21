@@ -1,6 +1,6 @@
 "use client";
 import LunchEventForm from "@/app/lunch/_components/LunchEventForm";
-import Breadcrumb from "@/components/Breadcrumb";
+import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import { FormValues } from "@/components/form";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import { toast } from "@/components/Toast";
@@ -124,6 +124,7 @@ export default function EditEventPage() {
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
+          lunchBreadcrumbHomeItem,
           { label: '活動管理', href: '/lunch/events' },
           { label: eventData?.title || '不明活動', href: `/lunch/events/${eventId}` },
           { label: '編輯', current: true }

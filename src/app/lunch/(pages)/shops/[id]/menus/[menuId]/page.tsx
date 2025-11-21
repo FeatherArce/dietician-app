@@ -1,5 +1,5 @@
 "use client";
-import Breadcrumb from "@/components/Breadcrumb";
+import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import { MenuCategory } from "@/components/menu/MenuCategoryManager";
 import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
@@ -60,7 +60,7 @@ export default function MenuDetailPage() {
       console.log("Shop Response:", response, result);
       setShopData(result.shop);
       let selectedMenu: MenuData | null = null;
-      if (menuId === MENU_DEFAULT_ID) {        
+      if (menuId === MENU_DEFAULT_ID) {
         selectedMenu = (result?.shop?.menus || [])?.[0] || null;
       } else {
         selectedMenu = (result?.shop?.menus || [])?.find((m: Menu) => m.id === menuId);
@@ -144,6 +144,7 @@ export default function MenuDetailPage() {
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
+          lunchBreadcrumbHomeItem,
           { label: '商店管理', href: '/lunch/shops' },
           { label: shopData.name, href: `/lunch/shops/${shopId}` },
           { label: menu.name, current: true }

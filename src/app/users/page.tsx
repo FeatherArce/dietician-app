@@ -10,7 +10,6 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { User, UserRole } from "@/prisma-generated/postgres-client";
-import Breadcrumb from "@/components/Breadcrumb";
 import DataTable, { Column } from "@/components/DataTable";
 import PageContainer from "@/components/page/PageContainer";
 import SearchContainer from "@/components/SearchContainer";
@@ -379,9 +378,6 @@ export default function UsersPage() {
 
   return (
     <PageContainer>
-      {/* 麵包屑導航 */}
-      <Breadcrumb items={[{ label: "使用者管理", current: true }]} />
-
       {/* 頁面標題 */}
       <div className="flex justify-between items-center mb-6">
         <div>

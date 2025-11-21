@@ -1,5 +1,5 @@
 "use client";
-import Breadcrumb from "@/components/Breadcrumb";
+import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import { MenuCategory } from "@/components/menu/MenuCategoryManager";
 import { MenuItem } from "@/components/menu/MenuItemManager";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
@@ -216,6 +216,7 @@ export default function EditShopPage() {
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
+          lunchBreadcrumbHomeItem,
           { label: '商店管理', href: '/lunch/shops' },
           { label: shopData.name, href: `/lunch/shops/${shopId}` },
           { label: '編輯', current: true }

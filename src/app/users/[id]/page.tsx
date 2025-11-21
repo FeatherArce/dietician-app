@@ -2,19 +2,19 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { 
-  FaArrowLeft, 
-  FaEdit, 
-  FaUserCheck, 
-  FaUserSlash, 
-  FaShoppingCart, 
+import {
+  FaArrowLeft,
+  FaEdit,
+  FaUserCheck,
+  FaUserSlash,
+  FaShoppingCart,
   FaCalendarAlt,
   FaClock,
   FaEnvelope,
   FaUser
 } from "react-icons/fa";
 import { User, UserRole } from "@/prisma-generated/postgres-client";
-import Breadcrumb from "@/components/Breadcrumb";
+import Breadcrumb, { usersBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import { getUserRoleChineseName } from "@/types/User";
 
 interface UserWithStats extends User {
@@ -38,7 +38,7 @@ export default function UserDetailPage() {
   const params = useParams();
   const router = useRouter();
   const userId = params.id as string;
-  
+
   const [user, setUser] = useState<UserWithStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -68,7 +68,7 @@ export default function UserDetailPage() {
 
   const toggleUserStatus = async () => {
     if (!user) return;
-    
+
     setUpdating(true);
     try {
       const response = await fetch(`/api/users/${userId}`, {
@@ -94,7 +94,7 @@ export default function UserDetailPage() {
       MODERATOR: "badge-warning",
       GUEST: "badge-secondary"
     };
-    
+
     const labels: Record<UserRole, string> = {
       ADMIN: getUserRoleChineseName(UserRole.ADMIN),
       MODERATOR: getUserRoleChineseName(UserRole.MODERATOR),
@@ -124,8 +124,8 @@ export default function UserDetailPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">找不到使用者</h2>
-          <button 
-            onClick={() => router.back()} 
+          <button
+            onClick={() => router.back()}
             className="btn btn-primary"
           >
             返回上一頁
@@ -138,18 +138,19 @@ export default function UserDetailPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* 麵包屑導航 */}
-      <Breadcrumb 
+      <Breadcrumb
         items={[
+          usersBreadcrumbHomeItem,
           { label: '使用者管理', href: '/users' },
           { label: user.name, current: true }
-        ]} 
+        ]}
       />
 
       {/* 頁面標題和操作 */}
       <div className="flex justify-between items-start mb-6">
         <div className="flex items-center space-x-4">
-          <button 
-            onClick={() => router.back()} 
+          <button
+            onClick={() => router.back()}
             className="btn btn-ghost btn-circle"
           >
             <FaArrowLeft className="w-5 h-5" />
@@ -159,9 +160,8 @@ export default function UserDetailPage() {
               <span>{user.name}</span>
               {getRoleBadge(user.role)}
               <span
-                className={`badge ${
-                  user.is_active ? "badge-success" : "badge-error"
-                }`}
+                className={`badge ${user.is_active ? "badge-success" : "badge-error"
+                  }`}
               >
                 {user.is_active ? "啟用" : "停用"}
               </span>
@@ -171,7 +171,7 @@ export default function UserDetailPage() {
             </p>
           </div>
         </div>
-        
+
         <div className="flex space-x-2">
           <Link
             href={`/users/${userId}/edit`}
@@ -208,7 +208,7 @@ export default function UserDetailPage() {
           <div className="card bg-base-100 shadow-sm">
             <div className="card-body">
               <h3 className="card-title text-lg mb-4">基本資料</h3>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <div className="avatar avatar-placeholder">
@@ -305,7 +305,7 @@ export default function UserDetailPage() {
             <div className="card-body">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="card-title">最近訂單</h3>
-                <Link 
+                <Link
                   href={`/lunch/orders?userId=${userId}`}
                   className="btn btn-ghost btn-sm"
                 >
@@ -329,7 +329,7 @@ export default function UserDetailPage() {
                       {user.recentOrders.map((order) => (
                         <tr key={order.id}>
                           <td>
-                            <Link 
+                            <Link
                               href={`/lunch/orders/${order.id}`}
                               className="link link-primary"
                             >
@@ -337,7 +337,7 @@ export default function UserDetailPage() {
                             </Link>
                           </td>
                           <td>
-                            <Link 
+                            <Link
                               href={`/lunch/events/${order.event.id}`}
                               className="link"
                             >

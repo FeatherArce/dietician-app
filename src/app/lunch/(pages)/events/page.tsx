@@ -1,5 +1,5 @@
 "use client";
-import Breadcrumb from "@/components/Breadcrumb";
+import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import DataTable, { Column } from "@/components/DataTable";
 import { Notification, useNotificationAPI } from "@/components/Notification";
 import SearchContainer from "@/components/SearchContainer";
@@ -374,6 +374,7 @@ export default function EventsPage() {
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
+          lunchBreadcrumbHomeItem,
           { label: '活動管理', current: true }
         ]}
       />

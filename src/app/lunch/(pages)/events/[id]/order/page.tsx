@@ -1,5 +1,5 @@
 "use client";
-import Breadcrumb from "@/components/Breadcrumb";
+import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import DataTable from "@/components/DataTable";
 import { Notification } from "@/components/Notification";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
@@ -527,6 +527,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
+          lunchBreadcrumbHomeItem,
           { label: '午餐系統', href: AUTH_CONSTANTS.DEFAULT_REDIRECT_AFTER_LOGIN },
           { label: event.title, href: `/lunch/events/${eventId}` },
           { label: '參與訂餐', current: true }

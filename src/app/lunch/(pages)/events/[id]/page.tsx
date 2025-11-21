@@ -1,5 +1,5 @@
 "use client";
-import Breadcrumb from "@/components/Breadcrumb";
+import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import DataTable from "@/components/DataTable";
 import { authFetch } from "@/libs/auth-fetch";
 import { useSession } from "next-auth/react";
@@ -191,6 +191,7 @@ export default function EventDetailPage() {
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
+          lunchBreadcrumbHomeItem,
           { label: '活動管理', href: '/lunch/events' },
           { label: event.title, current: true }
         ]}

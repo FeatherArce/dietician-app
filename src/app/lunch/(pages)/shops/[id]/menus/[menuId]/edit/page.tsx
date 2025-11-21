@@ -9,7 +9,7 @@ import {
   FaSave,
   FaEdit
 } from "react-icons/fa";
-import Breadcrumb from "@/components/Breadcrumb";
+import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import MenuCategoryManager, { MenuCategory } from "@/components/menu/MenuCategoryManager";
 import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
@@ -224,6 +224,7 @@ export default function EditMenuPage() {
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
+          lunchBreadcrumbHomeItem,
           { label: '商店管理', href: '/lunch/shops' },
           { label: shopData.name, href: `/lunch/shops/${shopId}` },
           { label: menuData.name, href: `/lunch/shops/${shopId}/menus/${menuId}` },

@@ -1,5 +1,5 @@
 "use client";
-import Breadcrumb from '@/components/Breadcrumb';
+import Breadcrumb, { usersBreadcrumbHomeItem } from '@/components/Breadcrumb';
 import { Checkbox, Form, Input, Select } from '@/components/form';
 import { FormRef, FormValues } from '@/components/form/types';
 import PageTitle from '@/components/page/PageTitle';
@@ -158,6 +158,7 @@ export default function EditUserPage() {
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
+          usersBreadcrumbHomeItem,
           { label: '使用者管理', href: '/users' },
           { label: userData.name, href: `/users/${userId}` },
           { label: '編輯', current: true }

@@ -1,8 +1,8 @@
 "use client";
 
-import { AUTH_CONSTANTS } from '@/constants/app-constants';
+import { APP_NAME, AUTH_CONSTANTS } from '@/constants/app-constants';
 import Link from 'next/link';
-import { FaHome } from 'react-icons/fa';
+import { FaHome, FaUser } from 'react-icons/fa';
 
 export interface BreadcrumbItem {
   label: string;
@@ -11,13 +11,30 @@ export interface BreadcrumbItem {
   current?: boolean;
 }
 
+export const appBreadcrumbHomeItem: BreadcrumbItem = {
+  label: APP_NAME,
+  href: AUTH_CONSTANTS.DEFAULT_REDIRECT_AFTER_LOGIN,
+  icon: <FaHome />
+};
+
+export const lunchBreadcrumbHomeItem: BreadcrumbItem = {
+  label: '訂餐系統',
+  href: '/lunch',
+  icon: <FaHome />
+};
+
+export const usersBreadcrumbHomeItem: BreadcrumbItem = {
+  label: '使用者管理',
+  href: '/users',
+  icon: <FaUser />
+};
+
 interface BreadcrumbProps extends React.HTMLAttributes<HTMLDivElement> {
-  homeItem?: BreadcrumbItem;
   items: BreadcrumbItem[];
   className?: string;
 }
 
-export default function Breadcrumb({ homeItem, items , className, ...props}: BreadcrumbProps) {
+export default function Breadcrumb({ items, className, ...props }: BreadcrumbProps) {
 
   const renderItem = (item: BreadcrumbItem) => {
     if (item.href && !item.current) {
@@ -41,11 +58,6 @@ export default function Breadcrumb({ homeItem, items , className, ...props}: Bre
   return (
     <div className={`breadcrumbs max-w-screen text-sm mb-6 ${className || ''}`} {...props}>
       <ul>
-        {/* 首頁 */}
-        <li>
-          {renderItem(homeItem || { label: '午餐系統', href: AUTH_CONSTANTS.DEFAULT_REDIRECT_AFTER_LOGIN, icon: <FaHome /> })}
-        </li>
-
         {/* 動態項目 */}
         {items.map((item, index) => (
           <li key={index}>
