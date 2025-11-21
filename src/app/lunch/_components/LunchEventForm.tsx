@@ -70,7 +70,11 @@ export default function LunchEventForm({
       const dateTimeLocal = orderDeadline ? convertIsoToDateTimeLocalString(orderDeadline) : '';
       console.log('Converted order_deadline to datetime-local:', dateTimeLocal);
       const newValues = {
-        ...initialValues,
+        title: initialValues.title,
+        description: initialValues.description,
+        location: initialValues.location,
+        shop_id: initialValues.shop_id,
+        allow_custom_items: initialValues.allow_custom_items,
         order_deadline: dateTimeLocal,
       };
       return newValues;
@@ -142,7 +146,7 @@ export default function LunchEventForm({
         ]
         }
       >
-        <Input type="datetime-local" name="order_deadline" />
+        <Input type="datetime-local" />
       </Form.Item>
       <Form.Item
         label="活動描述"
