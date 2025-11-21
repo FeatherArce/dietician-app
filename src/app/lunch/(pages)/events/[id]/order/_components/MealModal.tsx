@@ -23,7 +23,7 @@ interface AddMealModalProps {
 
 export interface MealModalRef extends ModalRef {
   resetForm: () => void;
-} 
+}
 
 const id = "add-meal-modal";
 function MealModal(
@@ -37,54 +37,60 @@ function MealModal(
 ) {
   const modalRef = useRef<ModalRef>(null);
   const formRef = useRef<FormRef>(null);
-  const [isCountinueAdding, setIsContinueAdding] = useState(true);
+  const [isCountinueAdding, setIsContinueAdding] = useState(false);
+  if(settings.mode === MealFormMode.ADD && settings.from === 'custom' && isCountinueAdding === false) {
+    setIsContinueAdding(true);
+  } else if (!(settings.mode === MealFormMode.ADD && settings.from === 'custom') && isCountinueAdding === true) {
+    setIsContinueAdding(false);
+  }
 
-  const getValuesFromSettings = useCallback((): MenuFormValues => {
-    if (settings.mode === MealFormMode.EDIT && settings.from === 'custom' && settings.values) {
+  const setValuesFromSettings = useCallback((): void => {
+    if (settings.from === 'custom' && settings.mode === MealFormMode.EDIT && settings.values) {
       // 編輯: 使用傳入的值作為初始值
-      return {
+      formRef.current?.setFieldsValue({
         menu_item_id: settings.values.menu_item_id || undefined,
         name: settings.values.name,
         // description: settings.values.description || '',
         price: settings.values.price,
         quantity: settings.values.quantity,
         note: settings.values.note || '',
-      };
+      });
+      return;
     }
 
     if (settings.from === 'menu' && settings.menu_item) {
       // 新增或編輯: 從菜單項目載入初始值
-      return {
+      formRef.current?.setFieldsValue({
         menu_item_id: settings.menu_item.id,
         name: settings.menu_item.name,
         // description: settings.menu_item.description || '',
         price: settings.menu_item.price,
         quantity: 1,
         note: (settings.mode === MealFormMode.EDIT && settings?.values?.note) ? settings.values.note : '',
-      };
+      });
+      return;
     }
 
     // 新增: 初始載入預設值
-    return {
+    formRef.current?.setFieldsValue({
       menu_item_id: undefined,
       name: '',
       // description: '',
       price: 0,
       quantity: 1,
       note: '',
-    };
+    });
   }, [settings]);
 
   useEffect(() => {
     if (open) {
       modalRef.current?.open();
-      const newValues = getValuesFromSettings();
-      formRef.current?.setFieldsValue(newValues);
+      setValuesFromSettings();
     } else {
       modalRef.current?.close();
       formRef.current?.reset();
     }
-  }, [open, settings, getValuesFromSettings]);
+  }, [open, settings, setValuesFromSettings]);
 
   useImperativeHandle(ref, () => ({
     resetForm: () => {
@@ -114,15 +120,19 @@ function MealModal(
       <MealForm
         ref={formRef}
         mode={settings.mode}
-        initialValues={getValuesFromSettings()}
         onSubmit={(values) => {
           onOk?.(values, settings, isCountinueAdding);
           modalRef.current?.close();
         }}
       />
-      {settings.mode === MealFormMode.ADD && (
+      {(settings.mode === MealFormMode.ADD && settings.from === 'custom') && (
         <label className="label mt-1">
-          <input type="checkbox" className="checkbox" checked={isCountinueAdding} onChange={e => setIsContinueAdding(e.target.checked)} />
+          <input
+            type="checkbox"
+            className="checkbox"
+            checked={isCountinueAdding}
+            onChange={e => setIsContinueAdding(e.target.checked)}
+          />
           按下確定送出後，繼續輸入下一筆
         </label>
       )}
