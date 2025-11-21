@@ -17,6 +17,7 @@ export interface IShopMenu extends Menu {
 }
 
 export interface IShop extends Shop {
+    events?: Array<LunchEvent>;
     menus: Array<IShopMenu>;
 }
 

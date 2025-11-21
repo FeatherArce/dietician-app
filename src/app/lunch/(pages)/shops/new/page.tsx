@@ -2,6 +2,7 @@
 import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import { FormValues } from "@/components/form";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
+import PageContainer from "@/components/page/PageContainer";
 import FullShopForm from "@/components/shop/ShopForm";
 import { toast } from "@/components/Toast";
 import { createLunchShop } from "@/services/client/lunch/lunch-shop";
@@ -54,7 +55,7 @@ export default function NewShopPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <PageContainer>
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
@@ -93,6 +94,6 @@ export default function NewShopPage() {
           onFinish={handleSubmit}
         />
       </div>
-    </div>
+    </PageContainer>
   );
 }

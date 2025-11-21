@@ -3,6 +3,7 @@ import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import { MenuCategory } from "@/components/menu/MenuCategoryManager";
 import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
+import PageContainer from "@/components/page/PageContainer";
 import { ShopFormData } from "@/components/shop/ShopForm";
 import { authFetch } from "@/libs/auth-fetch";
 import { Menu } from "@/prisma-generated/postgres-client";
@@ -140,7 +141,7 @@ export default function MenuDetailPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <PageContainer>
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
@@ -284,6 +285,6 @@ export default function MenuDetailPage() {
           )}
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }

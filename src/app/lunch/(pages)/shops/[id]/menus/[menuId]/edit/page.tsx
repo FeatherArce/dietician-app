@@ -14,6 +14,7 @@ import MenuCategoryManager, { MenuCategory } from "@/components/menu/MenuCategor
 import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
+import PageContainer from "@/components/page/PageContainer";
 
 interface MenuData {
   id: string;
@@ -220,7 +221,7 @@ export default function EditMenuPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <PageContainer>
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
@@ -401,6 +402,6 @@ export default function EditMenuPage() {
           </div>
         )}
       </div>
-    </div>
+    </PageContainer>
   );
 }

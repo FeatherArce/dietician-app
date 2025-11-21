@@ -93,7 +93,7 @@ function MealForm({
         rules={[
           { required: true, message: '請輸入餐點名稱' },
         ]}
-        help={initialValues?.description}
+        help="餐點名稱請與菜單項目名稱保持一致"
       >
         <Input placeholder="例：牛肉麵" disabled={isFromMenu} />
       </Form.Item>
@@ -150,10 +150,16 @@ function MealForm({
       <Form.Item
         name="note"
         label="餐點備註"
-        help={<div className='flex'>
-          <button type='button' className='btn btn-xs btn-ghost' onClick={() => { setNote('半飯') }}>半飯</button>
-          <button type='button' className='btn btn-xs btn-ghost' onClick={() => { setNote('飯換菜') }}>飯換菜</button>
-        </div>}
+        help={
+          <>
+            <p>餐點的口味、尺寸等變化請使用 "備註" 欄位說明。</p>
+            <div className='flex'>
+              快捷按鈕：
+              <button type='button' className='btn btn-xs btn-ghost' onClick={() => { setNote('半飯') }}>半飯</button>
+              <button type='button' className='btn btn-xs btn-ghost' onClick={() => { setNote('飯換菜') }}>飯換菜</button>
+            </div>
+          </>
+        }
       >
         <Input placeholder="例：不要辣、加蛋、去冰..." />
       </Form.Item>

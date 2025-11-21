@@ -18,43 +18,17 @@ import {
 } from "react-icons/fa";
 import { Shop } from "@/prisma-generated/postgres-client";
 import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
-import Tabs from "@/components/ui/Tabs";
 import PageLink from "@/components/ui/PageLink";
-
-interface ShopWithDetails extends Shop {
-  menus?: Array<{
-    id: string;
-    name: string;
-    description?: string;
-    is_available: boolean;
-    categories?: Array<{
-      id: string;
-      name: string;
-      items?: Array<{
-        id: string;
-        name: string;
-      }>;
-    }>;
-    items?: Array<{
-      id: string;
-      name: string;
-    }>;
-    _count?: {
-      items: number;
-    };
-  }>;
-  _count?: {
-    menus: number;
-    events: number;
-  };
-}
+import Fieldset from "@/components/ui/Fieldset";
+import PageContainer from "@/components/page/PageContainer";
+import { IShop } from "@/types/LunchEvent";
 
 export default function ShopDetailPage() {
   const params = useParams();
   const router = useRouter();
   const shopId = params.id as string;
 
-  const [shop, setShop] = useState<ShopWithDetails | null>(null);
+  const [shop, setShop] = useState<IShop | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
@@ -129,7 +103,7 @@ export default function ShopDetailPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <PageContainer>
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
@@ -195,262 +169,98 @@ export default function ShopDetailPage() {
         </div>
       </div>
 
-      {/* 統計卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 mb-6">
-        <div className="stat bg-base-100 rounded-lg shadow">
-          <div className="stat-figure text-primary">
-            <FaUtensils className="w-8 h-8" />
-          </div>
-          <div className="stat-title">菜單數量</div>
-          <div className="stat-value text-primary">{shop._count?.menus || 0}</div>
-          <div className="stat-desc">可用菜單</div>
-        </div>
-
-        <div className="stat bg-base-100 rounded-lg shadow">
-          <div className="stat-figure text-secondary">
-            <FaCalendarAlt className="w-8 h-8" />
-          </div>
-          <div className="stat-title">參與活動</div>
-          <div className="stat-value text-secondary">{shop._count?.events || 0}</div>
-          <div className="stat-desc">累計活動次數</div>
-        </div>
-
-        <div className="stat bg-base-100 rounded-lg shadow">
-          <div className="stat-figure text-accent">
-            <FaShoppingCart className="w-8 h-8" />
-          </div>
-          <div className="stat-title">菜單項目</div>
-          <div className="stat-value text-accent">
-            {shop.menus?.reduce((total, menu) => total + (menu._count?.items || 0), 0) || 0}
-          </div>
-          <div className="stat-desc">總菜單項目</div>
-        </div>
-
-        <div className="stat bg-base-100 rounded-lg shadow">
-          <div className="stat-title">商店狀態</div>
-          <div className="stat-value">
-            {shop.is_active ? (
-              <span className="text-success">營業中</span>
-            ) : (
-              <span className="text-error">暫停營業</span>
-            )}
-          </div>
-          <div className="stat-desc">目前狀態</div>
-        </div>
+      {/* 基本資料 */}
+      <div className="">
+        <Fieldset
+          legend="基本資料"
+          items={[
+            // { label: '商店 ID', content: shop.id },
+            { label: '名稱', content: shop.name },
+            { label: '地址', content: shop.address || '無' },
+            { label: '電話', content: shop.phone || '無' },
+            { label: '描述', content: shop.description || '無' },
+            { label: '狀態', content: shop.is_active ? '可用' : '停用' },
+            { label: '活動次數', content: `${shop?.events?.length || 0} 次` },
+            { label: '菜單數量', content: `${shop?.menus?.length || 0} 個` },
+            { label: '菜單項目數量', content: `${shop.menus?.reduce((total, menu) => total + (menu?.items?.length || 0), 0) || 0} 個` },
+          ]}
+          colSpan={{
+            xs: 1,
+            sm: 2,
+            md: 2,
+            lg: 3,
+            xl: 4,
+          }}
+        />
       </div>
 
-      <Tabs
-        onTabChange={(tabId: string) => { }}
-        items={[
-          {
-            id: 'overview',
-            label: '基本資料',
-            content: (<>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* 基本資料 */}
-                <div className="card bg-base-100 shadow-sm">
-                  <div className="card-body">
-                    <h3 className="card-title text-lg mb-4">基本資料</h3>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-xl font-bold">菜單管理</h3>
+          <PageLink
+            href={`/lunch/shops/${shopId}/menus/new`}
+            className="btn btn-primary"
+          >
+            <FaPlus className="w-4 h-4" />
+            新增菜單
+          </PageLink>
+        </div>
 
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-3">
-                        <FaStore className="w-5 h-5 text-primary" />
-                        <div>
-                          <div className="font-semibold text-lg">{shop.name}</div>
-                          <div className="text-sm text-base-content/70">
-                            ID: {shop.id}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="divider"></div>
-
-                      <div className="space-y-3">
-                        {shop.address && (
-                          <div className="flex items-start space-x-3">
-                            <FaMapMarkerAlt className="w-4 h-4 text-base-content/70 mt-1" />
-                            <div>
-                              <div className="text-sm text-base-content/70">地址</div>
-                              <div>{shop.address}</div>
-                            </div>
-                          </div>
-                        )}
-
-                        {shop.phone && (
-                          <div className="flex items-center space-x-3">
-                            <FaPhone className="w-4 h-4 text-base-content/70" />
-                            <div>
-                              <div className="text-sm text-base-content/70">電話</div>
-                              <div>{shop.phone}</div>
-                            </div>
-                          </div>
-                        )}
-
-                        {shop.description && (
-                          <div className="flex items-start space-x-3">
-                            <div className="w-4 h-4 text-base-content/70 mt-1">📝</div>
-                            <div>
-                              <div className="text-sm text-base-content/70">描述</div>
-                              <div className="text-base-content/80">{shop.description}</div>
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex items-center space-x-3">
-                          <FaCalendarAlt className="w-4 h-4 text-base-content/70" />
-                          <div>
-                            <div className="text-sm text-base-content/70">建立時間</div>
-                            <div>{new Date(shop.created_at).toLocaleString("zh-TW")}</div>
-                          </div>
-                        </div>
-                      </div>
+        {shop.menus && shop.menus.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {(shop?.menus || []).map((menu) => (
+              <div key={menu.id} className="card bg-base-100 shadow-sm">
+                <div className="card-body">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="card-title">{menu.name}</h4>
+                      {menu.description && (
+                        <p className="text-sm text-base-content/70 mt-1">
+                          {menu.description}
+                        </p>
+                      )}
                     </div>
+                    <span
+                      className={`badge ${menu.is_available ? "badge-success" : "badge-error"
+                        } badge-sm`}
+                    >
+                      {menu.is_available ? "可用" : "停用"}
+                    </span>
                   </div>
-                </div>
 
-                {/* 營業時間 */}
-                <div className="card bg-base-100 shadow-sm">
-                  <div className="card-body">
-                    <h3 className="card-title text-lg mb-4">營業資訊</h3>
-
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span>營業狀態</span>
-                        <span
-                          className={`badge ${shop.is_active ? "badge-success" : "badge-error"
-                            }`}
-                        >
-                          {shop.is_active ? "營業中" : "暫停營業"}
+                  <div className="mt-3">
+                    <div className="text-sm text-base-content/70">
+                      {menu.categories?.length || 0} 個分類, {menu.items?.length || 0} 個項目
+                    </div>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {menu.categories?.map((category) => (
+                        <span key={category.id} className="badge badge-outline badge-xs">
+                          {category.name} ({category.items?.length || 0})
                         </span>
-                      </div>
-
-                      <div className="divider"></div>
-
-                      <div className="grid grid-cols-2 gap-4 text-center">
-                        <div>
-                          <div className="text-2xl font-bold text-primary">
-                            {shop._count?.menus || 0}
-                          </div>
-                          <div className="text-sm text-base-content/70">菜單數量</div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-secondary">
-                            {shop._count?.events || 0}
-                          </div>
-                          <div className="text-sm text-base-content/70">參與活動</div>
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
-                </div>
-              </div>
-            </>)
-          },
-          {
-            id: 'menus',
-            label: '菜單管理',
-            content: (<>
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-bold">菜單管理</h3>
-                  <PageLink
-                    href={`/lunch/shops/${shopId}/menus/new`}
-                    className="btn btn-primary"
-                  >
-                    <FaPlus className="w-4 h-4" />
-                    新增菜單
-                  </PageLink>
-                </div>
 
-                {shop.menus && shop.menus.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {shop.menus.map((menu) => (
-                      <div key={menu.id} className="card bg-base-100 shadow-sm">
-                        <div className="card-body">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h4 className="card-title">{menu.name}</h4>
-                              {menu.description && (
-                                <p className="text-sm text-base-content/70 mt-1">
-                                  {menu.description}
-                                </p>
-                              )}
-                            </div>
-                            <span
-                              className={`badge ${menu.is_available ? "badge-success" : "badge-error"
-                                } badge-sm`}
-                            >
-                              {menu.is_available ? "可用" : "停用"}
-                            </span>
-                          </div>
-
-                          <div className="mt-3">
-                            <div className="text-sm text-base-content/70">
-                              {menu.categories?.length || 0} 個分類, {menu._count?.items || 0} 個項目
-                            </div>
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {menu.categories?.map((category) => (
-                                <span key={category.id} className="badge badge-outline badge-xs">
-                                  {category.name} ({category.items?.length || 0})
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="card-actions justify-end mt-4">
-                            <Link
-                              href={`/lunch/shops/${shopId}/menus/${menu.id}`}
-                              className="btn btn-primary btn-sm"
-                            >
-                              <FaEye className="w-3 h-3" />
-                              管理
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="card-actions justify-end mt-4">
+                    <Link
+                      href={`/lunch/shops/${shopId}/menus/${menu.id}`}
+                      className="btn btn-primary btn-sm"
+                    >
+                      <FaEye className="w-3 h-3" />
+                      管理
+                    </Link>
                   </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <FaUtensils className="w-16 h-16 mx-auto text-base-content/30 mb-4" />
-                    <h4 className="text-lg font-semibold mb-2">尚無菜單</h4>
-                  </div>
-                )}
-              </div>
-            </>)
-          },
-          {
-            id: 'events',
-            label: '相關活動',
-            content: (<>
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-bold">相關活動</h3>
-                  <Link
-                    href={`/lunch/events/new?shopId=${shopId}`}
-                    className="btn btn-primary"
-                  >
-                    <FaPlus className="w-4 h-4" />
-                    建立活動
-                  </Link>
-                </div>
-
-                <div className="text-center py-12">
-                  <FaCalendarAlt className="w-16 h-16 mx-auto text-base-content/30 mb-4" />
-                  <h4 className="text-lg font-semibold mb-2">暫無活動資料</h4>
-                  <p className="text-base-content/70 mb-4">目前沒有相關的活動記錄</p>
-                  <Link
-                    href={`/lunch/events?shop_id=${shopId}`}
-                    className="btn btn-outline"
-                  >
-                    查看所有活動
-                  </Link>
                 </div>
               </div>
-            </>)
-          }
-        ]}
-      />
-    </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <FaUtensils className="w-16 h-16 mx-auto text-base-content/30 mb-4" />
+            <h4 className="text-lg font-semibold mb-2">尚無菜單</h4>
+          </div>
+        )}
+      </div>
+    </PageContainer>
   );
 }

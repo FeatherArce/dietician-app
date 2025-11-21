@@ -70,7 +70,7 @@ export interface FormRef {
 // 表單項目屬性接口
 export interface FormItemProps {
   name?: string | (string | number)[];
-  label?: string;
+  label?: ReactNode;
   rules?: ValidationRule[];
   children: ReactNode;
   className?: string;
