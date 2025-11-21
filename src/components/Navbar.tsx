@@ -14,13 +14,18 @@ export interface MenuItem {
   disabled?: boolean;
 }
 
-export function NavbarMenu({ device, items }: { device?: 'mobile' | 'desktop'; items?: Array<MenuItem> }) {
+export interface NavbarMenuProps {
+  type: 'dropdown' | 'menu';
+  items?: Array<MenuItem>;
+}
+
+export function NavbarMenu({ type = 'menu', items }: NavbarMenuProps) {
   return (
     <ul
       tabIndex={-1}
       className={cn(
         "menu menu-md",
-        device === 'mobile' ? "dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow" : "menu-horizontal px-1"
+        type === 'dropdown' ? "dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow" : "menu-horizontal px-1"
       )}>
       {items?.map((item) => (
         <li key={item.href} className={cn(item.disabled && "opacity-50 pointer-events-none")}>
@@ -66,7 +71,7 @@ export default function Navbar() {
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" /> </svg>
           </div>
-          <NavbarMenu device="mobile" items={menuItems} />
+          <NavbarMenu type="dropdown" items={menuItems} />
         </div>
         <div className="hidden md:block">
           <PageLink href="/" className="btn btn-ghost text-xl normal-case">訂餐管理系統</PageLink>
@@ -77,7 +82,7 @@ export default function Navbar() {
           <PageLink href="/" className="btn btn-ghost text-xl normal-case">訂餐管理系統</PageLink>
         </div>
         <div className="hidden md:block">
-          <NavbarMenu device="desktop" items={menuItems} />
+          <NavbarMenu type="menu" items={menuItems} />
         </div>
       </div>
       <div className="navbar-end">

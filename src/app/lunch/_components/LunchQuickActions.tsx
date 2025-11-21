@@ -33,7 +33,7 @@ export default function LunchQuickActions() {
     return (
         <div>
             <div className='hidden md:block'>
-                <NavbarMenu device="desktop" items={menuItems} />
+                <NavbarMenu type='menu' items={menuItems} />
             </div>
             <div className='flex justify-end md:hidden'>
                 <div className="dropdown dropdown-end">
@@ -43,7 +43,7 @@ export default function LunchQuickActions() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                     </div>
-                    <NavbarMenu device="mobile" items={menuItems} />
+                    <NavbarMenu type="dropdown" items={menuItems} />
                 </div>
             </div>
         </div>
