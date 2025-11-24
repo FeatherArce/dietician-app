@@ -1,18 +1,13 @@
 "use client";
-import { Form, Input } from "@/components/form";
-import PasswordInput from "@/components/form/controls/PasswordInput";
-import { FormErrors } from "@/components/form/FormErrors";
 import { Card } from "@/components/ui/Card";
+import PageLink from "@/components/ui/PageLink";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
-import { AuthError } from "next-auth";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { FaDiscord } from "react-icons/fa";
 
 export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<string[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
@@ -27,27 +22,6 @@ export default function LoginPage() {
     }
   }, [router, searchParams]);
 
-  const handleFinish = useCallback(async (values: any) => {
-    try {
-      setIsLoading(true);
-      const res = await signIn("credentials", {
-        ...values,
-        redirect: false,
-      });
-      redirectToNextPage();
-    } catch (error) {
-      console.error("Login error:", error);
-      if (error instanceof AuthError) {
-        setErrors([error.message || "登入失敗，請稍後再試。"]);
-        return;
-      }
-
-      setErrors(["登入失敗，請稍後再試。"]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [redirectToNextPage]);
-
   useEffect(() => {
     if (status === 'authenticated') {
       redirectToNextPage();
@@ -60,71 +34,27 @@ export default function LoginPage() {
         <h2 className="card-title justify-center text-2xl">
           登入
         </h2>
+        <p className="text-center text-sm text-gray-500">
+          使用以下第三方服務帳號登入
+        </p>
       </div>
       <div className="flex flex-col items-center justify-center gap-2">
         <div className="w-full flex flex-col gap-2">
           {/* Google */}
           <button className="btn dark:btn-neutral" onClick={() => signIn("discord")}>
             <FaDiscord className="size-[1.2em] text-black dark:text-[#E0E3FF]" size={20} />
-            Login with Discord
+            Discord
           </button>
           {/* <button className="btn dark:btn-neutral cursor-not-allowed" disabled>
             <FcGoogle className="size-[1.2em]" size={20} />
             Login with Google
           </button> */}
         </div>
-
-        <div className="divider">或</div>
-
-        <FormErrors errors={errors} />
-
-        <Form onFinish={handleFinish}>
-          <Form.Item
-            label="Email"
-            name='email'
-            rules={[{
-              required: true,
-              validator(value, values) {
-                const emailRegex = /\S+@\S+\.\S+/;
-                const email = value as string;
-                if (!email || !emailRegex.test(email)) {
-                  return '請輸入有效的 Email 格式';
-                }
-                return '';
-              },
-            }]}
-          >
-            <Input type="email" placeholder="請輸入 Email" required autoComplete="email" />
-          </Form.Item>
-          <Form.Item
-            label="密碼"
-            name='password'
-            rules={[{ required: true }]}
-          >
-            <PasswordInput
-              type="password"
-              placeholder="請輸入密碼"
-              required
-              autoComplete="current-password"
-              showPasswordToggle={true}
-            />
-          </Form.Item>
-          <Form.Button.Container>
-            <Form.Button
-              type="submit"
-              loading={status === 'loading' || isLoading}
-              className="btn-primary w-full mt-6"
-            >
-              登入
-            </Form.Button>
-          </Form.Button.Container>
-        </Form>
-
         {/* <p className="text-sm text-center text-black/60">
-          還沒有帳號？
-          <Link href="/auth/register" className="link link-primary ml-1">
-            立即註冊
-          </Link>
+          是管理員嗎？
+          <PageLink href="/auth/login/admin" className="link link-primary ml-1">
+            立即登入
+          </PageLink>
         </p> */}
       </div>
     </Card>
