@@ -350,7 +350,7 @@ export default function EventDetailPage() {
           <h3 className="text-xl font-bold">訂單</h3>
         </div>
 
-        <div className="overflow-x-auto w-full max-w-screen">
+        <div className="w-full max-w-screen">
           <DataTable<ILunchOrder>
             dataSource={event.orders || []}
             columns={[
@@ -363,16 +363,11 @@ export default function EventDetailPage() {
                   <div className="max-w-xs">
                     {order.items.length > 0 ? (
                       <div className="space-y-1">
-                        {order.items.slice(0, 2).map((item, idx) => (
+                        {(order.items || []).map((item, idx) => (
                           <div key={idx} className="text-xs">
-                            {item.name} x{item.quantity}
+                            {item.name} x{item.quantity} {item.note ? `（${item.note}）` : ''}
                           </div>
                         ))}
-                        {order.items.length > 2 && (
-                          <div className="text-xs text-gray-500">
-                            等 {order.items.length} 項餐點
-                          </div>
-                        )}
                       </div>
                     ) : (
                       <span className="text-gray-500">無餐點</span>
@@ -412,14 +407,11 @@ export default function EventDetailPage() {
                 )
               },
               { key: 'created_at', title: '下單時間', render: (value) => new Date(String(value)).toLocaleString("zh-TW") },
-              { key: 'note', title: '備註', render: (value, record) => String(value) || "-" },
-              {
-                key: 'actions', title: '操作', render: (value, order) => (
-                  <>
-
-                  </>
-                )
-              },
+              // {
+              //   key: 'actions', title: '操作', render: (value, order) => (
+              //     <></>
+              //   )
+              // },
             ]}
           />
         </div>
