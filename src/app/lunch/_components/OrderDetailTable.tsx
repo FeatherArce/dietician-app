@@ -95,7 +95,7 @@ export default function OrderDetailTable({ event, ...props }: OrderDetailTablePr
                                 使用者訂單明細
                             </h4>
                             <div className="space-y-3">
-                                <div className='w-full max-w-full overflow-auto'>
+                                <div className='w-full max-w-full'>
                                     <UserOrderDetailTable event={event} />
                                 </div>
                             </div>
@@ -111,7 +111,7 @@ export default function OrderDetailTable({ event, ...props }: OrderDetailTablePr
                                 餐點統計明細
                             </h4>
                             <div className="space-y-3">
-                                <div className='w-full max-w-full overflow-auto'>
+                                <div className='w-full max-w-full'>
                                     <MenuOrderDetailTable event={event} />
                                 </div>
                             </div>

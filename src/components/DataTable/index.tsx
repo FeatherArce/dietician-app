@@ -462,10 +462,10 @@ function DataTable<T extends Record<string, unknown>>({
   };
 
   return (
-    <div className={`w-full text-base md:text-sm ${className}`}>
+    <div className={`h-auto w-full text-base md:text-sm ${className}`}>
       {/* 表格容器 - 使用 overflow-x-auto 處理水平滾動 */}
       <div className="card bg-base-100 shadow-sm">
-        <div className="overflow-x-auto w-full max-w-full">
+        <div className="overflow-x-auto h-auto w-full max-w-full">
           <table className={getTableClassName()}>
             <colgroup>
               {columns.map((column) => (
