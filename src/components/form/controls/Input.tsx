@@ -1,8 +1,10 @@
+import { InputWithDataListProps } from "@/components/ui/Input";
 import { forwardRef } from "react";
 import { RxCross1, RxCross2 } from "react-icons/rx";
+import UiInput from "@/components/ui/Input";
 
 // 基礎輸入框組件
-export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size' | 'value'> {
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement> & InputWithDataListProps, 'onChange' | 'size' | 'value'> {
     value?: string | FileList;
     onChange?: (value: string | FileList) => void;
     onBlur?: () => void;
@@ -56,7 +58,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
 
     return (
         <div className="relative w-full">
-            <input
+            <UiInput
                 ref={ref}
                 type={type}
                 value={inputValue}

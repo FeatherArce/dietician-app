@@ -150,18 +150,23 @@ function MealForm({
       <Form.Item
         name="note"
         label="餐點備註"
-        help={
-          <>
-            <p>餐點的口味、尺寸等變化請使用 "備註" 欄位說明。</p>
-            <div className='flex'>
-              快捷按鈕：
-              <button type='button' className='btn btn-xs btn-ghost' onClick={() => { setNote('半飯') }}>半飯</button>
-              <button type='button' className='btn btn-xs btn-ghost' onClick={() => { setNote('飯換菜') }}>飯換菜</button>
-            </div>
-          </>
-        }
+        help="餐點的口味、尺寸等變化請使用 '備註' 欄位說明。"
       >
-        <Input placeholder="例：不要辣、加蛋、去冰..." />
+        <Input
+          placeholder="例：不要辣、半飯..."
+          datalist={{
+            listId: 'meal-note-suggestions',
+            suggestions: [
+              '半飯',
+              '飯換菜',
+              '不要辣',
+              '少辣',
+              '中辣',
+              '大辣',
+            ]
+          }}
+          allowClear
+        />
       </Form.Item>
 
       {/* 小計顯示 */}
