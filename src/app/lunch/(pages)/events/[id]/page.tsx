@@ -1,32 +1,27 @@
 "use client";
 import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import DataTable from "@/components/DataTable";
+import { toast } from "@/components/Toast";
+import Fieldset from "@/components/ui/Fieldset";
+import PageLink from "@/components/ui/PageLink";
 import { authFetch } from "@/libs/auth-fetch";
+import { UserRole } from "@/prisma-generated/postgres-client";
+import { getLunchEventById, updateLunchEvent } from "@/services/client/lunch/lunch-event";
+import { ILunchEvent, ILunchOrder } from "@/types/LunchEvent";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FaArrowLeft,
-  FaCalendarAlt,
-  FaClock,
   FaDollarSign,
   FaDownload,
   FaEdit,
-  FaMapMarkerAlt,
   FaShoppingCart,
-  FaStore,
   FaToggleOff,
   FaToggleOn,
   FaUsers
 } from "react-icons/fa";
 import EventOrderSummaryTable, { EventOrderSummaryTableRef } from "../../../_components/EventOrderSummaryTable";
-import { getLunchEventById, updateLunchEvent } from "@/services/client/lunch/lunch-event";
-import { toast } from "@/components/Toast";
-import { ILunchEvent, ILunchOrder } from "@/types/LunchEvent";
-import { UserRole } from "@/prisma-generated/postgres-client";
-import Fieldset from "@/components/ui/Fieldset";
-import { cn } from "@/libs/utils";
 
 // interface EventWithSummary extends EventWithDetails {
 //   orderCount: number;
@@ -221,13 +216,13 @@ export default function EventDetailPage() {
           {/* 只有活動擁有者才能看到編輯和狀態控制按鈕 */}
           {canEdit && (
             <>
-              <Link
+              <PageLink
                 href={`/lunch/events/${eventId}/edit`}
                 className="btn btn-ghost"
               >
                 <FaEdit className="w-4 h-4" />
                 編輯
-              </Link>
+              </PageLink>
               <button
                 className={`btn ${event.is_active ? "btn-error" : "btn-success"}`}
                 onClick={toggleEventStatus}
@@ -260,7 +255,6 @@ export default function EventDetailPage() {
           )}
         </div>
       </div>
-
 
       {/* 統計 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
