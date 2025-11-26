@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState, useTransition } from '
 import DataTable from '../DataTable'
 import { IShopMenuItem } from '@/types/LunchEvent'
 import { formatCurrency } from '@/libs/formatter'
-import { FaEdit, FaPlus, FaSpinner, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaPlus, FaSpinner, FaTrash, FaUtensils } from 'react-icons/fa';
 import { getLunchShopMenuItems } from '@/services/client/lunch/lunch-shop';
 import Modal, { ModalRef } from '../Modal';
 import MenuItemForm from './MenuItemForm';
@@ -12,6 +12,7 @@ import { toast } from '../Toast';
 
 interface MenuItemTableProps {
     menuId: string;
+    loading?: boolean;
 }
 
 interface MenuItemTableModalSettings {
@@ -20,7 +21,8 @@ interface MenuItemTableModalSettings {
 }
 
 export default function MenuItemTable({
-    menuId
+    menuId,
+    loading = false,
 }: MenuItemTableProps) {
     const formRef = useRef<FormRef>(null);
     const modalRef = useRef<ModalRef>(null);
@@ -32,22 +34,27 @@ export default function MenuItemTable({
 
     const getMenuItems = useCallback(async () => {
         if (!menuId) return;
-        try {
-            const { response, result } = await getLunchShopMenuItems(menuId);
-            console.log('Menu Items Response:', response);
-            if (result && Array.isArray(result.items)) {
-                setMenuItems(result.items);
-            } else {
+        startTransition(async () => {
+            try {
+                const { response, result } = await getLunchShopMenuItems(menuId);
+                console.log('Menu Items Response:', {
+                    response,
+                    result
+                });
+                if (result && Array.isArray(result.items)) {
+                    setMenuItems(result.items);
+                } else {
+                    setMenuItems([]);
+                }
+            } catch (error) {
                 setMenuItems([]);
             }
-        } catch (error) {
-            setMenuItems([]);
-        }
+        });
     }, [menuId]);
 
     useEffect(() => {
         // 避免 effect 直接 setState，改用 async function
-        (async () => { await getMenuItems(); })();
+        getMenuItems();
     }, [getMenuItems]);
 
     const modalOpenHandler = useCallback((mode: 'create' | 'edit', item?: IShopMenuItem) => {
@@ -67,7 +74,14 @@ export default function MenuItemTable({
     }, []);
 
     const handleDelete = useCallback(async (itemId: string) => {
-        if (!itemId) return;
+        if (!menuId) {
+            toast.error('Menu ID is missing for update');
+            return;
+        }
+        if (!itemId) {
+            toast.error('Item ID is missing for deletion');
+            return;
+        }
         if (!window.confirm('確定要刪除這個項目嗎？')) return;
         startTransition(async () => {
             try {
@@ -80,7 +94,10 @@ export default function MenuItemTable({
     }, [getMenuItems, menuId]);
 
     const handleCreate = useCallback(async (values: FormValues) => {
-        if (!menuId) return;
+        if (!menuId) {
+            toast.error('Menu ID is missing for creation');
+            return;
+        }
         startTransition(async () => {
             try {
                 await createLunchShopMenuItem(menuId, values);
@@ -95,7 +112,14 @@ export default function MenuItemTable({
     }, [menuId, getMenuItems, modalCloseHandler]);
 
     const handleUpdate = useCallback(async (id: string, values: FormValues) => {
-        if (!id) return;
+        if (!id) {
+            toast.error('Item ID is missing for update');
+            return;
+        }
+        if (!menuId) {
+            toast.error('Menu ID is missing for update');
+            return;
+        }
         startTransition(async () => {
             try {
                 await updateLunchShopMenuItem(menuId, id, values);
@@ -119,6 +143,15 @@ export default function MenuItemTable({
 
     return (
         <div className='grid gap-2'>
+            <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold flex items-center space-x-2">
+                    <FaUtensils className="w-4 h-4 text-primary" />
+                    <span>菜單項目</span>
+                    <span className="badge badge-outline badge-sm">
+                        {menuItems?.length || 0} 個項目
+                    </span>
+                </h3>
+            </div>
             <div className="mb-2 flex justify-end">
                 <button
                     className="btn btn-primary btn-sm"
@@ -131,6 +164,7 @@ export default function MenuItemTable({
                 </button>
             </div>
             <DataTable<IShopMenuItem>
+                loading={loading}
                 dataSource={menuItems}
                 columns={[
                     // { key: 'sort_order', title: '排序順序', },

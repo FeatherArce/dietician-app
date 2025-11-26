@@ -77,6 +77,7 @@ export const shopService = {
       const shops = await prisma.shop.findMany({
         where,
         include: {
+          events: true,
           menus: true,
           _count: {
             select: {
@@ -101,6 +102,7 @@ export const shopService = {
       const shop = await prisma.shop.findUnique({
         where: { id },
         include: {
+          events: true,
           menus: {
             where: { is_available: true },
             include: {
@@ -487,6 +489,7 @@ export const menuCategoryService = {
 export const menuItemService = {
   // 獲取項目列表
   async getItems(menuId: string, categoryId?: string) {
+    console.log('Fetching items for menuId:', menuId, 'and categoryId:', categoryId);
     try {
       const where: Prisma.MenuItemWhereInput = {
         menu_id: menuId,

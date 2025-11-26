@@ -260,20 +260,7 @@ export default function MenuItemManager({
 
   return (
     <div className="space-y-4">
-      {/* 標題和新增按鈕 */}
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold flex items-center space-x-2">
-          <FaUtensils className="w-4 h-4 text-primary" />
-          <span>菜單項目</span>
-          <span className="badge badge-outline badge-sm">
-            {items?.length || 0} 個項目
-          </span>
-        </h3>
-      </div>
-
-      <MenuItemTable
-        menuId={menuId}
-      />
+      <MenuItemTable menuId={menuId} />
     </div>
   );
 }
