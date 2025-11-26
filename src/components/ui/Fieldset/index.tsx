@@ -96,7 +96,7 @@ export default function Fieldset({
                             key={idx}
                             className={cn("flex flex-col gap-1.5", mixedDirectionClasses)}
                         >
-                            <label className="label text-base font-bold text-black">
+                            <label className="label text-base font-bold">
                                 {item.label}
                             </label>
                             <div className="text-sm">
