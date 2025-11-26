@@ -14,6 +14,9 @@ export async function GET(
     }
 
     const { id: shopId, menuId } = await params;
+    if(!shopId || !menuId) {
+      return NextResponse.json({ error: '缺少商店ID或菜單ID' }, { status: 400 });
+    }
 
     const menu = await postgresClient.menu.findFirst({
       where: {
@@ -29,6 +32,7 @@ export async function GET(
           },
           orderBy: { created_at: 'asc' }
         },
+        items: true,
         _count: {
           select: { categories: true, items: true }
         }
