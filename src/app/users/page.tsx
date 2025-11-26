@@ -18,19 +18,21 @@ import { getUserRoleChineseName } from "@/types/User";
 import Modal, { ModalRef } from "@/components/Modal";
 import { deleteUser } from "@/services/client/admin/admin-user";
 import { toast } from "@/components/Toast";
-import { logicalDeleteUser, restoreUser } from "@/services/client/user";
+import { getUsers, logicalDeleteUser, restoreUser } from "@/services/client/user";
 import { FcDataRecovery } from "react-icons/fc";
 import UserAccountTable from "./_components/UserAccountTable";
 import { formatNumber } from "@/libs/formatter";
+import { useUsers } from "@/hooks/data/useUser";
+import { UserWithSafetyFields } from "@/types/api/user";
 
-interface UserWithStats extends User {
-  orderCount?: number;
-  lastOrderDate?: Date;
-  [key: string]: unknown; // 添加索引簽章以符合 DataTable 要求
-}
+// interface UserWithStats extends User {
+//   orderCount?: number;
+//   lastOrderDate?: Date;
+//   [key: string]: unknown; // 添加索引簽章以符合 DataTable 要求
+// }
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<UserWithStats[]>([]);
+  const { users, isLoading, isError, mutate } = useUsers();
   const [loading, setLoading] = useState(false);
   const [deleteing, setDeleting] = useState(false);
   const [restoring, setRestoring] = useState(false);
@@ -40,19 +42,19 @@ export default function UsersPage() {
   const [showDeleted, setShowDeleted] = useState<boolean>(false);
   const deleteUserModalRef = useRef<ModalRef>(null);
   const [deleteModalSettings, setDeleteModalSettings] = useState<{
-    user: UserWithStats | null;
+    user: UserWithSafetyFields | null;
   }>({ user: null });
   const restoreUserModalRef = useRef<ModalRef>(null);
   const [restoreModalSettings, setRestoreModalSettings] = useState<{
-    user: UserWithStats | null;
+    user: UserWithSafetyFields | null;
   }>({ user: null });
   const userAccountsModalRef = useRef<ModalRef>(null);
   const [userAccountModalSettings, setUserAccountModalSettings] = useState<{
-    user: UserWithStats | null;
+    user: UserWithSafetyFields | null;
   }>({ user: null });
 
   // 統一的篩選邏輯
-  const filteredUsers: UserWithStats[] = useMemo(() => {
+  const filteredUsers: UserWithSafetyFields[] = useMemo(() => {
     return users?.filter((user) => {
       // 已刪除篩選
       if (!showDeleted && user.is_deleted) {
@@ -94,47 +96,24 @@ export default function UsersPage() {
     setSearchTerm("");
   }, []);
 
-  const fetchUsers = useCallback(async () => {
+  const toggleUserStatus = useCallback(async (userId: string, isActive: boolean) => {
     setLoading(true);
     try {
-      const response = await fetch("/api/users");
+      const response = await fetch(`/api/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_active: !isActive }),
+      });
+
       if (response.ok) {
-        const data = await response.json();
-        setUsers(data.users || []);
+        await mutate(); // 重新載入資料
       }
     } catch (error) {
-      console.error("Failed to fetch users:", error);
+      console.error("Failed to update user status:", error);
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  // 載入使用者資料
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
-
-  const toggleUserStatus = useCallback(
-    async (userId: string, isActive: boolean) => {
-      setLoading(true);
-      try {
-        const response = await fetch(`/api/users/${userId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ is_active: !isActive }),
-        });
-
-        if (response.ok) {
-          await fetchUsers(); // 重新載入資料
-        }
-      } catch (error) {
-        console.error("Failed to update user status:", error);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [fetchUsers]
-  );
+  }, [mutate]);
 
   const getRoleBadge = (role: UserRole) => {
     const styles: Record<UserRole, string> = {
@@ -156,46 +135,42 @@ export default function UsersPage() {
     );
   };
 
-  const handleOpenDeleteUserConfirm = useCallback(
-    async (user: UserWithStats) => {
-      try {
-        setDeleting(true);
-        await logicalDeleteUser(user.id);
-        toast.success(`使用者 ${user.name} 已成功刪除`);
-        deleteUserModalRef.current?.close();
-        // 重新載入使用者列表
-        fetchUsers();
-      } catch (error) {
-        console.error("Failed to delete user:", error);
-        toast.error(`刪除使用者 ${user.name} 失敗`);
-      } finally {
-        setDeleting(false);
-      }
-    },
-    [fetchUsers]
-  );
+  const handleOpenDeleteUserConfirm = useCallback(async (user: UserWithSafetyFields) => {
+    try {
+      setDeleting(true);
+      await logicalDeleteUser(user.id);
+      toast.success(`使用者 ${user.name} 已成功刪除`);
+      deleteUserModalRef.current?.close();
+      // 重新載入使用者列表
+      await mutate();
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      toast.error(`刪除使用者 ${user.name} 失敗`);
+    } finally {
+      setDeleting(false);
+    }
+  }, [mutate]);
 
-  const handleRestoreUser = useCallback(
-    async (user: UserWithStats) => {
-      try {
-        setRestoring(true);
-        const { response, result } = await restoreUser(user.id);
-        if (!response.ok || !result.success) {
-          throw new Error(result.message || '復原使用者失敗');
-        }
-        toast.success(`使用者 ${user.name} 已成功復原`);
-        restoreUserModalRef.current?.close();
-        fetchUsers();
-      } catch (error) {
-        console.error("Failed to restore user:", error);
-        toast.error(`復原使用者 ${user.name} 失敗`);
-      } finally {
-        setRestoring(false);
+  const handleRestoreUser = useCallback(async (user: UserWithSafetyFields) => {
+    try {
+      setRestoring(true);
+      const { response, result } = await restoreUser(user.id);
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || '復原使用者失敗');
       }
-    }, [fetchUsers]);
+      toast.success(`使用者 ${user.name} 已成功復原`);
+      restoreUserModalRef.current?.close();
+      await mutate();
+    } catch (error) {
+      console.error("Failed to restore user:", error);
+      toast.error(`復原使用者 ${user.name} 失敗`);
+    } finally {
+      setRestoring(false);
+    }
+  }, [mutate]);
 
   // DataTable 欄位定義
-  const columns: Column<UserWithStats>[] = [
+  const columns: Column<UserWithSafetyFields>[] = [
     {
       key: "user",
       title: "使用者",
@@ -336,7 +311,7 @@ export default function UsersPage() {
             className="btn btn-ghost btn-xs"
             title={record.is_active ? "停用使用者" : "啟用使用者"}
             onClick={() => toggleUserStatus(record.id, record.is_active)}
-            disabled={loading}
+            disabled={loading || isLoading}
           >
             {record.is_active ? (
               <FaUserSlash className="w-3 h-3 text-error" />
@@ -353,7 +328,7 @@ export default function UsersPage() {
                 setRestoreModalSettings({ user: record });
                 restoreUserModalRef.current?.open();
               }}
-              disabled={loading}
+              disabled={loading || restoring}
             >
               <FcDataRecovery className="w-3 h-3 text-success" />
             </button>
@@ -366,7 +341,7 @@ export default function UsersPage() {
                 setDeleteModalSettings({ user: record });
                 deleteUserModalRef.current?.open();
               }}
-              disabled={loading}
+              disabled={loading || deleteing}
             >
               <FaTrash className="w-3 h-3 text-error" />
             </button>
@@ -450,10 +425,10 @@ export default function UsersPage() {
       </div>
 
       {/* 使用者列表 */}
-      <DataTable<UserWithStats>
+      <DataTable<UserWithSafetyFields>
         columns={columns}
         dataSource={filteredUsers}
-        loading={loading}
+        loading={loading || isLoading}
         pagination={{
           current: 1,
           pageSize: 20,
@@ -488,7 +463,7 @@ export default function UsersPage() {
             確定要刪除使用者 {deleteModalSettings.user?.name}(
             {deleteModalSettings.user?.email}) 嗎？此操作不可復原。
           </p>
-          {loading && (
+          {(loading || isLoading) && (
             <div className="container mx-auto px-4 py-8 z-50 absolute">
               <div className="flex justify-center items-center h-64">
                 <span className="loading loading-spinner loading-lg"></span>

@@ -2,6 +2,7 @@ import prisma from "@/services/prisma";
 import { User, UserRole, Prisma } from "@/prisma-generated/postgres-client";
 import type { User as NextAuthUser } from "next-auth";
 import { PasswordService } from "./auth/password-service";
+import { userWithSafetyFields } from "@/types/api/user";
 
 // 類型定義
 export type CreateUserData = {
@@ -69,52 +70,24 @@ export const userService = {
   // 獲取使用者列表
   async getUsers(filters: UserFilters = {}) {
     try {
-      const where: Prisma.UserWhereInput = {};
-
-      if (filters.role) {
-        where.role = filters.role;
-      }
-
-      if (filters.isActive !== undefined) {
-        where.is_active = filters.isActive;
-      }
-
-      if (filters.searchName) {
-        where.name = {
-          contains: filters.searchName,
-        };
-      }
-
-      if (filters.searchEmail) {
-        where.email = {
-          contains: filters.searchEmail,
-        };
-      }
-
-      if (filters.emailVerified !== undefined) {
-        where.email_verified = filters.emailVerified;
-      }
+      const where: Prisma.UserWhereInput = {
+        role: filters.role
+          ? filters.role : undefined,
+        is_active: filters.isActive !== undefined
+          ? filters.isActive : undefined,
+        email_verified: filters.emailVerified !== undefined
+          ? filters.emailVerified : undefined,
+        name: filters.searchName
+          ? { contains: filters.searchName }
+          : undefined,
+        email: filters.searchEmail
+          ? { contains: filters.searchEmail }
+          : undefined,
+      };
 
       const users = await prisma.user.findMany({
         where,
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          is_active: true,
-          is_deleted: true,
-          email_verified: true,
-          created_at: true,
-          last_login: true,
-          login_count: true,
-          _count: {
-            select: {
-              ownedEvents: true,
-              orders: true,
-            },
-          },
-        },
+        select: userWithSafetyFields.select,
         orderBy: { created_at: "desc" },
       });
 

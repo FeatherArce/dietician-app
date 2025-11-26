@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { urlSearchParamsToUserFilters, userService, type CreateUserData, type UserFilters } from '@/services/server/user-services';
 import { UserRole } from '@/prisma-generated/postgres-client';
 import { PasswordService } from '@/services/server/auth/password-service';
+import { GetUsersResponse } from '@/types/api/user';
 
 export async function GET(request: NextRequest) {
     try {
@@ -11,7 +12,8 @@ export async function GET(request: NextRequest) {
         const filters = urlSearchParamsToUserFilters(searchParams);
 
         const users = await userService.getUsers(filters);
-        return NextResponse.json({ users, success: true });
+        const response : GetUsersResponse = { success: true, data: { users } };
+        return NextResponse.json(response);
         
     } catch (error) {
         console.error('GET /api/users error:', error);
