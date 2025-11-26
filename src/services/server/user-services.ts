@@ -71,18 +71,11 @@ export const userService = {
   async getUsers(filters: UserFilters = {}) {
     try {
       const where: Prisma.UserWhereInput = {
-        role: filters.role
-          ? filters.role : undefined,
-        is_active: filters.isActive !== undefined
-          ? filters.isActive : undefined,
-        email_verified: filters.emailVerified !== undefined
-          ? filters.emailVerified : undefined,
-        name: filters.searchName
-          ? { contains: filters.searchName }
-          : undefined,
-        email: filters.searchEmail
-          ? { contains: filters.searchEmail }
-          : undefined,
+        role: filters.role ? filters.role : undefined,
+        is_active: (filters.isActive !== undefined) ? filters.isActive : undefined,
+        email_verified: (filters.emailVerified !== undefined) ? filters.emailVerified : undefined,
+        name: filters.searchName ? { contains: filters.searchName } : undefined,
+        email: filters.searchEmail ? { contains: filters.searchEmail } : undefined,
       };
 
       const users = await prisma.user.findMany({
@@ -146,27 +139,6 @@ export const userService = {
     } catch (error) {
       console.error("Error fetching user:", error);
       throw new Error("Failed to fetch user");
-    }
-  },
-
-  // 根據 email 獲取使用者
-  async getUserByEmail(email: string) {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { email },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          is_active: true,
-          created_at: true,
-        },
-      });
-      return user;
-    } catch (error) {
-      console.error("Error fetching user by email:", error);
-      throw new Error("Failed to fetch user by email");
     }
   },
 
@@ -318,91 +290,6 @@ export const userService = {
     }
   },
 
-  // 檢查使用者權限
-  async checkUserPermission(
-    userId: string,
-    requiredRole: UserRole
-  ): Promise<boolean> {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { role: true, is_active: true },
-      });
-
-      if (!user || !user.is_active) {
-        return false;
-      }
-
-      // 權限層級: ADMIN > MODERATOR > USER
-      const roleHierarchy = {
-        [UserRole.GUEST]: 0,
-        [UserRole.USER]: 1,
-        [UserRole.MODERATOR]: 2,
-        [UserRole.ADMIN]: 3,
-      };
-
-      return roleHierarchy[user.role] >= roleHierarchy[requiredRole];
-    } catch (error) {
-      console.error("Error checking user permission:", error);
-      return false;
-    }
-  },
-
-  // 檢查使用者是否為事件擁有者
-  async isEventOwner(userId: string, eventId: string): Promise<boolean> {
-    try {
-      const event = await prisma.lunchEvent.findUnique({
-        where: { id: eventId },
-        select: { owner_id: true },
-      });
-
-      return event?.owner_id === userId;
-    } catch (error) {
-      console.error("Error checking event ownership:", error);
-      return false;
-    }
-  },
-
-  // 檢查使用者是否可以修改訂單
-  async canModifyOrder(userId: string, orderId: string): Promise<boolean> {
-    try {
-      const order = await prisma.lunchOrder.findUnique({
-        where: { id: orderId },
-        select: {
-          user_id: true,
-          event: {
-            select: {
-              owner_id: true,
-              order_deadline: true,
-              is_active: true,
-            },
-          },
-        },
-      });
-
-      if (!order) {
-        return false;
-      }
-
-      // 檢查是否為訂單擁有者或事件擁有者
-      const isOrderOwner = order.user_id === userId;
-      const isEventOwner = order.event.owner_id === userId;
-
-      if (!isOrderOwner && !isEventOwner) {
-        return false;
-      }
-
-      // 檢查是否還在期限內
-      const isWithinDeadline = new Date() <= order.event.order_deadline;
-      const isEventActive = order.event.is_active;
-
-      return isWithinDeadline && isEventActive;
-    } catch (error) {
-      console.error("Error checking order modification permission:", error);
-      return false;
-    }
-  },
-
   // 獲取使用者統計
   async getUserStats(userId: string) {
     try {
@@ -445,82 +332,7 @@ export const userService = {
     }
   },
 
-  // 獲取系統統計（僅管理員）
-  async getSystemStats() {
-    try {
-      const [
-        totalUsers,
-        activeUsers,
-        totalEvents,
-        activeEvents,
-        totalOrders,
-        totalRevenue,
-      ] = await Promise.all([
-        // 總使用者數
-        prisma.user.count(),
-        // 活躍使用者數
-        prisma.user.count({
-          where: { is_active: true },
-        }),
-        // 總事件數
-        prisma.lunchEvent.count(),
-        // 進行中事件數
-        prisma.lunchEvent.count({
-          where: {
-            is_active: true,
-            order_deadline: {
-              gte: new Date(),
-            },
-          },
-        }),
-        // 總訂單數
-        prisma.lunchOrder.count(),
-        // 總營收
-        prisma.lunchOrder.aggregate({
-          _sum: { total: true },
-        }),
-      ]);
-
-      return {
-        totalUsers,
-        activeUsers,
-        totalEvents,
-        activeEvents,
-        totalOrders,
-        totalRevenue: totalRevenue._sum.total || 0,
-      };
-    } catch (error) {
-      console.error("Error fetching system stats:", error);
-      throw new Error("Failed to fetch system stats");
-    }
-  },
-
   // ========== 認證相關方法 ==========
-
-  // 根據 email 獲取使用者（用於登入）
-  async getUserByEmailForAuth(email: string) {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { email },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          is_active: true,
-          email_verified: true,
-          password_hash: true, // 登入時需要
-          created_at: true,
-          last_login: true,
-          login_count: true,
-        },
-      });
-      return user;
-    } catch (error) {
-      console.error("Error fetching user by email for auth:", error);
-      throw new Error("Failed to fetch user by email for auth");
-    }
-  },
 
   toNextAuthUser(user: User): NextAuthUser {
     return {
@@ -535,22 +347,6 @@ export const userService = {
       last_login: user.last_login || undefined,
       login_count: user.login_count,
     };
-  },
-
-  // 檢查 email 是否可用
-  async isEmailAvailable(email: string, excludeUserId?: string) {
-    try {
-      const where: Prisma.UserWhereInput = { email };
-      if (excludeUserId) {
-        where.id = { not: excludeUserId };
-      }
-
-      const existingUser = await prisma.user.findFirst({ where });
-      return !existingUser;
-    } catch (error) {
-      console.error("Error checking email availability:", error);
-      return false;
-    }
   },
 
   // 更新登入資訊
