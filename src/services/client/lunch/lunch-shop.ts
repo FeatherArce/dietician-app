@@ -1,7 +1,7 @@
 import { FormValues } from "@/components/form";
 import { authFetch } from "@/libs/auth-fetch";
 import { ShopFilters } from "@/services/server/lunch";
-import { GetShopsResponse, PostShopResponse } from "@/types/api/lunch";
+import { GetShopResponse, GetShopsResponse, PostShopResponse } from "@/types/api/lunch";
 
 const shopsPath = '/api/lunch/shops';
 const menuPath = '/api/lunch/menus';
@@ -44,7 +44,7 @@ export async function updateLunchShop(shopId: string, values: FormValues) {
 
 export async function getLunchShopById(shopId: string) {
      const response = await authFetch(`${shopsPath}/${shopId}`);
-     const result = await response.json();
+     const result: GetShopResponse = await response.json();
      return { response, result };
 }
 
