@@ -39,10 +39,10 @@ interface ExistingOrder {
 }
 
 function menuItemDiff(a: ILunchOrderItem, b: ILunchOrderItem): boolean {
-  if (a.name && b.name && a.name !== b.name) return true;
-  if (a.price && b.price && a.price !== b.price) return true;
-  if (a.quantity && b.quantity && a.quantity !== b.quantity) return true;
-  if (a.note && b.note && a.note !== b.note) return true;
+  if (a.name !== b.name) return true;
+  if (a.price !== b.price) return true;
+  if (a.quantity !== b.quantity) return true;
+  if (a.note !== b.note) return true;
   return false;
 }
 
