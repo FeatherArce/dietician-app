@@ -121,9 +121,9 @@ function MealForm({
         ]}
       >
         <NumberInput
-          min={0}
-          precision={0}
-          step={1}
+          min={0.5}
+          precision={1}
+          step={0.5}
           placeholder="請輸入價格"
           disabled={isFromMenu}
         />
