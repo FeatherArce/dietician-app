@@ -1,6 +1,6 @@
 "use client";
 import { Breakpoint } from "@/constants/app-constants";
-import { useLoadingStore } from "@/stores/loading-store";
+import { useLoadingStore } from "@/hooks/zustand/loading-store";
 
 interface LoadingOverlayProps {
     size?: Breakpoint;

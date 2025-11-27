@@ -1,4 +1,4 @@
-import { GetUsersResponse, UserWithSafetyFields } from '@/types/api/user';
+import { GetUserResponse, GetUsersResponse, UserWithSafetyFields } from '@/types/api/user';
 import useSWR, { KeyedMutator } from 'swr';
 import { fetcher } from '@/libs/swr-fetcher';
 
@@ -21,7 +21,7 @@ export function useUsers(): {
 }
 
 export function useUser(uid: string) {
-    const { data, error, isLoading } = useSWR([userApiBase, uid], async () => {
+    const { data, error, isLoading } = useSWR<GetUserResponse>([userApiBase, uid], async () => {
         return fetcher(`${userApiBase}/${uid}`);
     })
     console.log('useUser', data, error, isLoading);

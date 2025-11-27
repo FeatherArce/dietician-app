@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { userService } from '@/services/server/user-services';
 import { UserRole } from '@/prisma-generated/postgres-client';
+import { GetUserResponse } from '@/types/api/user';
 
 export async function GET(
     request: NextRequest,
@@ -22,20 +23,18 @@ export async function GET(
 
         // 如果需要統計資料，額外獲取
         let userStats = null;
-        if (includeStats) {
-            try {
-                userStats = await userService.getUserStats(userId);
-            } catch (error) {
-                console.warn('Failed to fetch user stats:', error);
-                // 即使統計失敗，仍然返回使用者資料
-            }
-        }
+        // if (includeStats) {
+        //     try {
+        //         userStats = await userService.getUserStats(userId);
+        //     } catch (error) {
+        //         console.warn('Failed to fetch user stats:', error);
+        //         // 即使統計失敗，仍然返回使用者資料
+        //     }
+        // }
 
-        return NextResponse.json({
-            user,
-            stats: userStats,
-            success: true
-        });
+        const response: GetUserResponse = { success: true, data: { user, stats: null } };
+
+        return NextResponse.json(response);
 
     } catch (error) {
         const { id: userId } = await params;

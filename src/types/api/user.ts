@@ -24,5 +24,6 @@ export const userWithSafetyFields = Prisma.validator<Prisma.UserDefaultArgs>()({
 export type UserWithSafetyFields = Prisma.UserGetPayload<typeof userWithSafetyFields>;
 
 export type GetUsersResponse = ApiResponse<{ users: UserWithSafetyFields[] }>;
+export type GetUserResponse = ApiResponse<{ user: UserWithSafetyFields, stats: any }>;
 
 export type GetUserAccountsResponse = ApiResponse<{ accounts: Account[] }>;
