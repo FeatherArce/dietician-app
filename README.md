@@ -1,16 +1,22 @@
+# Intro
+
 This is a dynamic website for 'Dietician'.
 
 ## Frameworks
+
 - [Next.js](https://nextjs.org)
 - [DaisyUI](https://daisyui.com)
 - [Tailwind CSS](https://tailwindcss.com)
 
 ## Packages
+
 - react
 - react-dom
 - react-icons
 - swr
-- prisma / @prisma/client
+- @prisma/client
+- @prisma/adapter-better-sqlite3
+- prisma
 - next-auth
 - zustand
 - xlsx
@@ -21,8 +27,10 @@ This is a dynamic website for 'Dietician'.
 - crypto-js
 - jsonwebtoken
 - @supabase/supabase-js
+- moment-timezone
+- word-list
 
-## Commands
+## Scripts
 
 ```bash
 pnpm dev                # 開發模式 (Turbopack)

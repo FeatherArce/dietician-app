@@ -1,5 +1,6 @@
 {
   "name": "dietician-erp",
+  "description": "A erp and lunch order system.",
   "version": "0.0.1",
   "private": true,
   "scripts": {
