@@ -3,7 +3,7 @@ import DataTable from '../DataTable'
 import { IShopMenuItem } from '@/types/LunchEvent'
 import { formatCurrency } from '@/libs/formatter'
 import { FaEdit, FaPlus, FaSpinner, FaTrash, FaUtensils } from 'react-icons/fa';
-import { getLunchShopMenuItems } from '@/data-access/lunch/lunch-shop';
+import { batchCreateLunchShopMenuItems, getLunchShopMenuItems } from '@/data-access/lunch/lunch-shop';
 import Modal, { ModalRef } from '../Modal';
 import MenuItemForm from './MenuItemForm';
 import { FormRef, FormValues } from '../form/types';
@@ -11,7 +11,7 @@ import { createLunchShopMenuItem, updateLunchShopMenuItem, deleteLunchShopMenuIt
 import { toast } from '../Toast';
 import { useLunchShopMenuItems } from '@/data-access/lunch/useLunchShop';
 import { FiRefreshCw } from 'react-icons/fi';
-import BatchImportMenuModal from './BatchImportMenuModal';
+import BatchImportMenuModal, { BatchCreateMenuItemSheetData } from './BatchImportMenuModal';
 
 interface MenuItemTableProps {
     shopId: string;
@@ -126,6 +126,36 @@ export default function MenuItemTable({
         }
     }, [shopId, menuId, mutate, modalCloseHandler]);
 
+    const handleBatchCreate = useCallback(async (items: BatchCreateMenuItemSheetData[]) => {
+        console.log('Batch creating items with values:', {
+            items,
+            shopId,
+            menuId,
+        });
+        if (!shopId) {
+            toast.error('Shop ID is missing for batch creation');
+            return;
+        }
+        if (!menuId) {
+            toast.error('Menu ID is missing for batch creation');
+            return;
+        }
+        try {
+            setIsLoading(true);
+            const { response, result } = await batchCreateLunchShopMenuItems(shopId, menuId, items);
+            if (!response.ok || result?.success === false) {
+                throw new Error(result?.error || '批次新增失敗');
+            }
+            await mutate();
+            toast.success('批次新增成功');
+        } catch (e) {
+            console.error('批次新增失敗', e);
+            toast.error('批次新增失敗');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [shopId, menuId, mutate]);
+
     const handleUpdate = useCallback(async (id: string, values: FormValues) => {
         console.log('Updating item with values:', values);
         if (!id) {
@@ -188,14 +218,14 @@ export default function MenuItemTable({
                     <FaPlus className="w-3 h-3" />
                 </button>
                 <button
-                    className="btn btn-secondary btn-sm "
+                    className="btn btn-soft btn-primary btn-sm"
                     onClick={() => setBatchImportOpen(true)}
                 >
                     批次新增
                 </button>
             </div>
             <DataTable<IShopMenuItem>
-                loading={loading}
+                loading={loading || isGetMenuItemsLoading || isLoading}
                 dataSource={shopMenuItems}
                 columns={[
                     // { key: 'sort_order', title: '排序順序', },
@@ -246,7 +276,7 @@ export default function MenuItemTable({
 
             <BatchImportMenuModal
                 open={batchImportOpen}
-                onImport={(data) => { }}
+                onFinish={handleBatchCreate}
             />
         </div>
     )

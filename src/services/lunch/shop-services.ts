@@ -539,6 +539,20 @@ export const menuItemService = {
     }
   },
 
+  async batchCreateMenuItems(
+    itemsData: CreateMenuItemData[]
+  ) {
+    try {
+      const createdItems = await prisma.menuItem.createMany({
+        data: [...itemsData],
+      });
+      return createdItems;
+    } catch (error) {
+      console.error("Error batch creating items:", error);
+      throw new Error("Failed to batch create items");
+    }
+  },
+
   // 更新項目
   async updateItem(id: string, data: UpdateMenuItemData) {
     try {

@@ -1,11 +1,13 @@
 import { FormValues } from "@/components/form";
+import { BatchCreateMenuItemSheetData } from "@/components/menu/BatchImportMenuModal";
 import { authFetch } from "@/libs/auth-fetch";
 import { ShopFilters } from "@/services/lunch";
-import { DeleteShopMenuItemResponse, GetShopResponse, GetShopsResponse, PostShopResponse } from "@/types/api/lunch";
+import { DeleteShopMenuItemResponse, GetShopResponse, GetShopsResponse, PostBatchShopMenuItemsResponse, PostShopResponse } from "@/types/api/lunch";
 
 const shopsPath = '/api/lunch/shops';
 const menuPath = '/api/lunch/menus';
 
+// #region Shops
 
 export async function getLunchShops(filters: ShopFilters = {}) {
      const query = new URLSearchParams();
@@ -48,11 +50,19 @@ export async function getLunchShopById(shopId: string) {
      return { response, result };
 }
 
+// #endregion
+
+// #region Menus
+
 export async function getLunchShopMenus(shopId: string) {
      const response = await authFetch(`${shopsPath}/${shopId}/menus`);
      const result = await response.json();
      return { response, result };
 }
+
+// #endregion
+
+// #region Menu Items
 
 export async function getLunchShopMenuItems(menuId: string) {
      const response = await authFetch(`${menuPath}/${menuId}/items`);
@@ -70,6 +80,19 @@ export async function createLunchShopMenuItem(shopId: string, menuId: string, va
      });
 
      const result = await response.json();
+     return { response, result };
+}
+
+export async function batchCreateLunchShopMenuItems(shopId: string, menuId: string, values: BatchCreateMenuItemSheetData[]) {
+     const response = await authFetch(`${shopsPath}/${shopId}/menus/${menuId}/items/batch`, {
+          method: 'POST',
+          headers: {
+               'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(values),
+     });
+
+     const result: PostBatchShopMenuItemsResponse = await response.json();
      return { response, result };
 }
 
@@ -93,3 +116,5 @@ export async function deleteLunchShopMenuItem(shopId: string, menuId: string, it
      const result: DeleteShopMenuItemResponse = await response.json();
      return { response, result };
 }
+
+// #endregion

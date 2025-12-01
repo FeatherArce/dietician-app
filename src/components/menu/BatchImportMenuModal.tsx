@@ -6,26 +6,29 @@ import Modal, { ModalRef } from '../Modal';
 
 interface BatchImportMenuModalProps {
     open?: boolean;
-    onImport?: (data: SheetData[]) => void;
+    onFinish?: (records: BatchCreateMenuItemSheetData[]) => void;
 }
 
-interface SheetData {
+export interface BatchCreateMenuItemSheetData {
     name: string;
     description?: string;
     price: number;
     is_available: boolean;
+    [key: string]: any;
 }
 
 export default function BatchImportMenuModal({
     open = false,
-    onImport,
+    onFinish,
 }: BatchImportMenuModalProps) {
     const modalRef = useRef<ModalRef>(null);
-    const [sheetData, setSheetData] = useState<SheetData[]>([]);
+    const [sheetData, setSheetData] = useState<BatchCreateMenuItemSheetData[]>([]);
 
     useEffect(() => {
         if (open) {
             modalRef.current?.open();
+        } else {
+            modalRef.current?.close();
         }
     }, [open]);
 
@@ -49,7 +52,7 @@ export default function BatchImportMenuModal({
                 const worksheet = workbook.Sheets[firstSheetName];
                 const sheetData = xlsxUtils.sheet_to_json(worksheet);
                 console.log('Parsed sheet data:', sheetData);
-                setSheetData(sheetData as SheetData[]);
+                setSheetData(sheetData as BatchCreateMenuItemSheetData[]);
             }
         };
         reader.readAsArrayBuffer(file);
@@ -57,9 +60,9 @@ export default function BatchImportMenuModal({
 
     const handleImport = useCallback(() => {
         console.log('Importing data:', sheetData);
-        onImport?.(sheetData);
+        onFinish?.(sheetData);
         modalRef.current?.close();
-    }, [sheetData, onImport]);
+    }, [sheetData, onFinish]);
 
     return (
         <Modal
@@ -93,6 +96,19 @@ export default function BatchImportMenuModal({
                         <a href="#" onClick={handleDownloadTemplate} className="link link-primary dark:link-info">範本檔案</a>
                     </label>
                 </fieldset>
+                <div className="card">
+                    <div className="card-body">
+                        <DataTable<BatchCreateMenuItemSheetData>
+                            dataSource={sheetData}
+                            columns={[
+                                { title: '名稱', key: 'name' },
+                                { title: '描述', key: 'description' },
+                                { title: '價格', key: 'price' },
+                                { title: '是否可用', key: 'is_available' },
+                            ]}
+                        />
+                    </div>
+                </div>
             </div>
         </Modal>
     )

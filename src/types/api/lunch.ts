@@ -66,6 +66,6 @@ export type DeleteOrderResponse = ApiResponse<{ orderId: string, order: LunchOrd
 // src/app/api/lunch/shops/[id]/menus/[menuId]/items 的回應型別定義
 export type GetShopMenuItemsResponse = ApiResponse<{ items: MenuItemWithArgs[] }>;
 export type PostShopMenuItemResponse = ApiResponse<{ item: MenuItemWithArgs }>;
-export type PostShopMenuItemsResponse = ApiResponse<{ items: MenuItemWithArgs[] }>;
+export type PostBatchShopMenuItemsResponse = ApiResponse<{ count: number }>;
 export type PutShopMenuItemResponse = ApiResponse<{ item: MenuItemWithArgs }>;
 export type DeleteShopMenuItemResponse = ApiResponse<{ id: string, item: MenuItemWithArgs }>;
