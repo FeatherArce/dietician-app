@@ -1,16 +1,14 @@
 "use client";
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useParams } from 'next/navigation';
-import { useSession } from "next-auth/react";
-import { FaCalendarAlt, FaStore, FaUsers } from 'react-icons/fa';
-import Link from 'next/link';
-import { authFetch } from '@/libs/auth-fetch';
-import { ROUTE_CONSTANTS } from '@/constants/app-constants';
 import EventCard from '@/app/lunch/_components/EventCard';
-import { getLunchEventById, getLunchEvents } from '@/data-access/lunch/lunch-event';
+import { ROUTE_CONSTANTS } from '@/constants/app-constants';
+import { getLunchEventById } from '@/data-access/lunch/lunch-event';
+import { authFetch } from '@/libs/auth-fetch';
 import { LunchOrder } from '@/prisma-generated/postgres-client';
 import { ILunchEvent } from '@/types/LunchEvent';
-
+import { useSession } from "next-auth/react";
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export default function JoinEventPage() {
     const params = useParams();
@@ -81,7 +79,7 @@ export default function JoinEventPage() {
 
     useEffect(() => {
         getOrder();
-    }, [isAuthenticated, getOrder]);
+    }, [getOrder]);
 
     if (isLoading || loading) {
         return (
