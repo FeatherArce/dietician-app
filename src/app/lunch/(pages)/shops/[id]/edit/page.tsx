@@ -103,9 +103,10 @@ export default function EditShopPage() {
       try {
         const response = await authFetch(`/api/lunch/shops/${shopId}`);
         const data = await response.json();
+        console.log('Fetched shop data:', data);
 
-        if (data.success && data.shop) {
-          const shop = data.shop;
+        if (data.success && data?.data?.shop) {
+          const shop = data.data.shop;
           setShopData(shop);
 
           // 設定商店基本資訊

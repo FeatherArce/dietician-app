@@ -1,20 +1,16 @@
 "use client";
 import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
-import { MenuCategory } from "@/components/menu/MenuCategoryManager";
-import MenuItemManager, { MenuItem } from "@/components/menu/MenuItemManager";
 import MenuItemTable from "@/components/menu/MenuItemTable";
-import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import PageContainer from "@/components/page/PageContainer";
-import { ShopFormData } from "@/components/shop/ShopForm";
 import { authFetch } from "@/libs/auth-fetch";
 import { cn } from "@/libs/utils";
-import { Menu, Shop } from "@/prisma-generated/postgres-client";
+import { Menu } from "@/prisma-generated/postgres-client";
 import { getLunchShopById } from "@/services/client/lunch/lunch-shop";
 import { MenuWithArgs, ShopWithArgs } from "@/types/api/lunch";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { startTransition, useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import {
   FaArrowLeft,
   FaEdit,
@@ -58,7 +54,6 @@ export default function MenuDetailPage() {
         }
 
         const newShopData: ShopWithArgs = result.data?.shop as ShopWithArgs;
-
         setShopData(newShopData);
 
         let selectedMenu: MenuWithArgs | undefined = undefined;
@@ -264,6 +259,7 @@ export default function MenuDetailPage() {
                     }}
                   /> */}
                 <MenuItemTable
+                  shopId={shopId}
                   menuId={selectedMenuId}
                   loading={isPending}
                 />

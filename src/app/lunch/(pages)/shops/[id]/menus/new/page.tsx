@@ -359,6 +359,7 @@ export default function NewMenuPage() {
             <div className="card bg-base-100 shadow-sm">
               <div className="card-body">
                 <MenuItemManager
+                  shopId={shopId}
                   menuId={createdMenuId!}
                   items={items}
                   categories={categories}

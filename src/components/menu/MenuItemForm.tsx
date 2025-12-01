@@ -12,7 +12,7 @@ interface MenuItemFormProps extends Partial<FormProps> {
 function MenuItemForm({
     initialValues,
     loading = false,
-    mode = 'edit',
+    mode = 'create',
     onFinish,
     onFinishFailed,
     onCancel,
@@ -90,7 +90,7 @@ function MenuItemForm({
                     ) : (
                         <>
                             <FaEdit className="w-4 h-4 mr-2" />
-                            {mode === 'create' ? '新增項目' : '更新項目'}
+                            {mode === 'create' ? '新增菜單項目' : '更新菜單項目'}
                         </>
                     )}
                 </button>

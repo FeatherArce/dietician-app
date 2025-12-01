@@ -14,7 +14,7 @@ export async function GET(
     }
 
     const { id: shopId, menuId } = await params;
-    if(!shopId || !menuId) {
+    if (!shopId || !menuId) {
       return NextResponse.json({ error: '缺少商店ID或菜單ID' }, { status: 400 });
     }
 
@@ -154,7 +154,7 @@ export async function DELETE(
     }
 
     // 刪除菜單（會自動級聯刪除分類和項目）
-    await postgresClient.menu.delete({
+    const deletedItem = await postgresClient.menu.delete({
       where: { id: menuId }
     });
 

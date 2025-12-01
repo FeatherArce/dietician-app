@@ -393,6 +393,7 @@ export default function EditMenuPage() {
           <div className="card bg-base-100 shadow-sm">
             <div className="card-body">
               <MenuItemManager
+                shopId={shopId}
                 menuId={menuId}
                 items={items}
                 categories={categories}

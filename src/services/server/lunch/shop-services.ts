@@ -1,5 +1,6 @@
 import { Prisma } from "@/prisma-generated/postgres-client";
 import prisma from "@/services/prisma";
+import { menuItemWithArgs } from "@/types/api/lunch";
 
 // Shop Service 類型定義
 export type CreateShopData = {
@@ -501,11 +502,7 @@ export const menuItemService = {
 
       const items = await prisma.menuItem.findMany({
         where,
-        include: {
-          category: {
-            select: { id: true, name: true },
-          },
-        },
+        include: menuItemWithArgs.include,
         orderBy: { sort_order: "asc" },
       });
       return items;
@@ -515,7 +512,7 @@ export const menuItemService = {
     }
   },
 
-  // 新增項目
+  // 新增菜單項目
   async createItem(data: CreateMenuItemData) {
     try {
       const item = await prisma.menuItem.create({
@@ -566,6 +563,7 @@ export const menuItemService = {
     try {
       const item = await prisma.menuItem.delete({
         where: { id },
+        include: menuItemWithArgs.include,
       });
       return item;
     } catch (error) {

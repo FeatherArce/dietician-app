@@ -1,7 +1,7 @@
 import { FormValues } from "@/components/form";
 import { authFetch } from "@/libs/auth-fetch";
 import { ShopFilters } from "@/services/server/lunch";
-import { GetShopResponse, GetShopsResponse, PostShopResponse } from "@/types/api/lunch";
+import { DeleteShopMenuItemResponse, GetShopResponse, GetShopsResponse, PostShopResponse } from "@/types/api/lunch";
 
 const shopsPath = '/api/lunch/shops';
 const menuPath = '/api/lunch/menus';
@@ -60,8 +60,8 @@ export async function getLunchShopMenuItems(menuId: string) {
      return { response, result };
 }
 
-export async function createLunchShopMenuItem(menuId: string, values: FormValues) {
-     const response = await authFetch(`${menuPath}/${menuId}/items`, {
+export async function createLunchShopMenuItem(shopId: string, menuId: string, values: FormValues) {
+     const response = await authFetch(`${shopsPath}/${shopId}/menus/${menuId}/items`, {
           method: 'POST',
           headers: {
                'Content-Type': 'application/json',
@@ -86,10 +86,10 @@ export async function updateLunchShopMenuItem(menuId: string, itemId: string, va
      return { response, result };
 }
 
-export async function deleteLunchShopMenuItem(menuId: string, itemId: string) {
-     const response = await authFetch(`${menuPath}/${menuId}/items/${itemId}`, {
+export async function deleteLunchShopMenuItem(shopId: string, menuId: string, itemId: string) {
+     const response = await authFetch(`${shopsPath}/${shopId}/menus/${menuId}/items/${itemId}`, {
           method: 'DELETE',
      });
-     const result = await response.json();
+     const result: DeleteShopMenuItemResponse = await response.json();
      return { response, result };
 }

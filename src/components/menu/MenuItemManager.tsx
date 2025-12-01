@@ -34,6 +34,7 @@ interface MenuItemFormData {
 }
 
 interface MenuItemManagerProps {
+  shopId: string;
   menuId: string;
   items: MenuItem[];
   categories: MenuCategory[];
@@ -42,6 +43,7 @@ interface MenuItemManagerProps {
 }
 
 export default function MenuItemManager({
+  shopId,
   menuId,
   items,
   categories,
@@ -260,7 +262,10 @@ export default function MenuItemManager({
 
   return (
     <div className="space-y-4">
-      <MenuItemTable menuId={menuId} />
+      <MenuItemTable
+        shopId={shopId}
+        menuId={menuId}
+      />
     </div>
   );
 }
