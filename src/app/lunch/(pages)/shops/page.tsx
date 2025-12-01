@@ -185,7 +185,7 @@ export default function ShopsPage() {
     {
       key: 'menuCount',
       title: '菜單項目',
-      dataIndex: 'menuCount',
+      dataIndex: '_count.menus',
       align: 'center',
       sortable: true,
       render: (value) => (
@@ -195,7 +195,7 @@ export default function ShopsPage() {
     {
       key: 'eventCount',
       title: '參與活動',
-      dataIndex: 'eventCount',
+      dataIndex: '_count.events',
       align: 'center',
       sortable: true,
       render: (value) => (
