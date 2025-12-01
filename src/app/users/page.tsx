@@ -22,7 +22,7 @@ import { getUsers, logicalDeleteUser, restoreUser } from "@/services/client/user
 import { FcDataRecovery } from "react-icons/fc";
 import UserAccountTable from "./_components/UserAccountTable";
 import { formatNumber } from "@/libs/formatter";
-import { useUsers } from "@/hooks/swr/useUser";
+import { useUsers } from "@/services/client/useUser";
 import { UserWithSafetyFields } from "@/types/api/user";
 
 // interface UserWithStats extends User {

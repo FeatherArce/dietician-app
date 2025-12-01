@@ -1,15 +1,10 @@
-import { GetUserResponse, GetUsersResponse, UserWithSafetyFields } from '@/types/api/user';
-import useSWR, { KeyedMutator } from 'swr';
 import { fetcher } from '@/libs/swr-fetcher';
+import { GetUserResponse, GetUsersResponse } from '@/types/api/user';
+import useSWR from 'swr';
 
 const userApiBase = '/api/users';
 
-export function useUsers(): {
-    users: UserWithSafetyFields[];
-    isLoading: boolean;
-    isError: any;
-    mutate: KeyedMutator<GetUsersResponse>;
-} {
+export function useUsers() {
     const { data, error, isLoading, mutate } = useSWR<GetUsersResponse>(userApiBase, fetcher);
     console.log('useUsers', { data, error, isLoading });
     return {
