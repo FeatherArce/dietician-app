@@ -86,7 +86,7 @@ export default function EventCard({
 
                         <button
                             onClick={async () => {
-                                const shareUrl = `${window.location.origin}/lunch/events/${event.id}/join`;
+                                const shareUrl = `${window.location.origin}/lunch/events/${event.id}/order`;
                                 await navigator.clipboard.writeText(shareUrl);
                                 // 可以加入 toast 通知
                                 toast.success(<>
