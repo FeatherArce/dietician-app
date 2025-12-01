@@ -20,3 +20,17 @@ export function checkRequiredFields<T>(obj: T, requiredFields: (keyof T)[]): str
     }
     return missingFields;
 }
+
+export function removedUndefinedFields<T>(obj: T): Partial<T> {
+    if (!obj || typeof obj !== 'object') {
+        return {};
+    }
+    
+    const cleanedObj: Partial<T> = {};
+    for (const key in obj) {
+        if (obj[key] !== undefined) {
+            cleanedObj[key] = obj[key];
+        }
+    }
+    return cleanedObj;
+}
