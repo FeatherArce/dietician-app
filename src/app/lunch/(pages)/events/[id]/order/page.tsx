@@ -30,6 +30,7 @@ import MealModal, { MealModalRef, MealModalSettings } from "./_components/MealMo
 import { ILunchOrderItem, ILunchEvent, IShopMenu, IShopMenuCategory, IShopMenuItem } from "@/types/LunchEvent";
 import { cn } from "@/libs/utils";
 import { deleteOrder } from "@/data-access/lunch/lunch-order";
+import moment from "moment-timezone";
 
 interface ExistingOrder {
   id: string;
@@ -551,7 +552,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div className="flex items-center space-x-2">
               <FaClock className="w-4 h-4 text-warning" />
-              <span>截止：{new Date(event.order_deadline).toLocaleString("zh-TW")}</span>
+              <span>截止：{moment(event.order_deadline).tz("Asia/Taipei").format("YYYY-MM-DD HH:mm:ss")}</span>
             </div>
             {event.shop && (
               <div className="flex items-center space-x-2">
