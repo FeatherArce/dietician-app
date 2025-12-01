@@ -7,6 +7,7 @@ import { SearchInput, Select } from "@/components/SearchContainer/SearchFields";
 import { toast, useToastAPI } from "@/components/Toast";
 import PageContainer from "@/components/page/PageContainer";
 import { LunchEvent, UserRole } from "@/prisma-generated/postgres-client";
+import moment from "moment-timezone";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -254,9 +255,9 @@ export default function EventsPage() {
       sortable: true,
       render: (value) => (
         <div className="text-sm">
-          {new Date(value as string).toLocaleDateString("zh-TW")}
+          {moment(value as string).tz("Asia/Taipei").format("YYYY-MM-DD HH:mm:ss")}
           <div className="text-xs text-base-content/70">
-            {new Date(value as string).toLocaleTimeString("zh-TW")}
+            {moment(value as string).tz("Asia/Taipei").format("HH:mm:ss")}
           </div>
         </div>
       )

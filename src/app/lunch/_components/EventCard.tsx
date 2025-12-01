@@ -4,6 +4,7 @@ import PageLink from '@/components/ui/PageLink';
 import { formatCurrency } from '@/libs/formatter';
 import { LunchEvent, UserRole } from '@/prisma-generated/postgres-client';
 import { ILunchEvent, MyOrder } from '@/types/LunchEvent';
+import moment from 'moment-timezone';
 import type { User } from 'next-auth';
 import {
     FaCalendarAlt,
@@ -121,7 +122,7 @@ export default function EventCard({
 
                     <div className="flex items-center space-x-2">
                         <FaClock className="w-3 h-3 text-warning" />
-                        <span>訂餐截止：{new Date(event.order_deadline).toLocaleString("zh-TW")}</span>
+                        <span>訂餐截止：{moment(event.order_deadline).tz("Asia/Taipei").format("YYYY-MM-DD HH:mm:ss")}</span>
                     </div>
 
                     {event.shop && (

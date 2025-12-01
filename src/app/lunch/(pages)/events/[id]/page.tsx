@@ -22,6 +22,7 @@ import {
   FaUsers
 } from "react-icons/fa";
 import EventOrderSummaryTable, { EventOrderSummaryTableRef } from "../../../_components/EventOrderSummaryTable";
+import moment from "moment-timezone";
 
 // interface EventWithSummary extends EventWithDetails {
 //   orderCount: number;
@@ -326,8 +327,8 @@ export default function EventDetailPage() {
           items={[
             { label: '主辦人', content: <>{event.owner ? event.owner.name : '未知'}</> },
             { label: '狀態', content: getEventStatus() },
-            { label: '活動日期', content: <>{new Date(event.event_date).toLocaleDateString("zh-TW")}</> },
-            { label: '訂餐截止時間', content: <>{new Date(event.order_deadline).toLocaleString("zh-TW")}</> },
+            { label: '活動日期', content: <>{new Date(event.event_date).toLocaleDateString("zh-TW")}</> },            
+            { label: '訂餐截止時間', content: <>{moment(event.order_deadline).tz("Asia/Taipei").format("YYYY-MM-DD HH:mm:ss")}</> },
             { label: '商店', content: <>{event.shop ? event.shop.name : '未指定'}</> },
             { label: '商店地址', content: <>{event.shop?.address || '-'}</> },
             { label: '商店電話', content: <>{event.shop?.phone || '-'}</> },
