@@ -1,7 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
 import DataTable, { Column } from "@/components/DataTable";
-import { getAccountsByUserId } from "@/services/client/account-services";
+import { getAccountsByUserId } from "@/data-access/account-services";
 import { toast } from "@/components/Toast";
 import { Account } from "@/prisma-generated/postgres-client";
 

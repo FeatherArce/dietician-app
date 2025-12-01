@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/libs/auth";
-import { orderService } from "@/services/server/lunch/order-services";
+import { orderService } from "@/services/lunch/order-services";
 import { ApiMessage } from "../../utils";
 import { DeleteOrderResponse } from "@/types/api/lunch";
 

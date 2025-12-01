@@ -1,7 +1,7 @@
 // api/admin/user/[id]/route.ts
 // Can Get/Update full user data, and really Delete a user
 import { NextRequest, NextResponse } from 'next/server';
-import { adminUserService } from '@/services/server/admin/admin-user-services';
+import { adminUserService } from '@/services/admin/admin-user-services';
 import { ApiMessage } from '@/app/api/utils';
 import { auth } from '@/libs/auth';
 

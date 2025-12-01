@@ -1,4 +1,4 @@
-import prisma from '@/services/prisma';
+import prisma from '@/libs/prisma';
 import { LunchEvent, Prisma } from '@/prisma-generated/postgres-client';
 import { ILunchEvent } from '@/types/LunchEvent';
 

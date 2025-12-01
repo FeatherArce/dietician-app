@@ -1,6 +1,6 @@
 "use client";
 import { Notification } from "@/components/Notification";
-import { register } from "@/services/client/auth";
+import { register } from "@/data-access/auth";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

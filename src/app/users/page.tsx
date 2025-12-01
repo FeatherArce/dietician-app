@@ -16,13 +16,13 @@ import SearchContainer from "@/components/SearchContainer";
 import { SearchInput, Select } from "@/components/SearchContainer/SearchFields";
 import { getUserRoleChineseName } from "@/types/User";
 import Modal, { ModalRef } from "@/components/Modal";
-import { deleteUser } from "@/services/client/admin/admin-user";
+import { deleteUser } from "@/data-access/admin/admin-user";
 import { toast } from "@/components/Toast";
-import { getUsers, logicalDeleteUser, restoreUser } from "@/services/client/user";
+import { getUsers, logicalDeleteUser, restoreUser } from "@/data-access/user";
 import { FcDataRecovery } from "react-icons/fc";
 import UserAccountTable from "./_components/UserAccountTable";
 import { formatNumber } from "@/libs/formatter";
-import { useUsers } from "@/services/client/useUser";
+import { useUsers } from "@/data-access/useUser";
 import { UserWithSafetyFields } from "@/types/api/user";
 
 // interface UserWithStats extends User {

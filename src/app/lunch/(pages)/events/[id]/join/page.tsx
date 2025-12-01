@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { authFetch } from '@/libs/auth-fetch';
 import { ROUTE_CONSTANTS } from '@/constants/app-constants';
 import EventCard from '@/app/lunch/_components/EventCard';
-import { getLunchEventById, getLunchEvents } from '@/services/client/lunch/lunch-event';
+import { getLunchEventById, getLunchEvents } from '@/data-access/lunch/lunch-event';
 import { LunchOrder } from '@/prisma-generated/postgres-client';
 import { ILunchEvent } from '@/types/LunchEvent';
 

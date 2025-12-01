@@ -1,7 +1,7 @@
 import { UserRole } from "@/prisma-generated/postgres-client";
-import { getUserByEmail, registerOrConnectOAuthUser } from "@/services/server/auth/auth-services";
-import { PasswordService } from "@/services/server/auth/password-service";
-import userService from "@/services/server/user-services";
+import { getUserByEmail, registerOrConnectOAuthUser } from "@/services/auth/auth-services";
+import { PasswordService } from "@/services/auth/password-service";
+import userService from "@/services/user-services";
 import type { Session } from "next-auth";
 import NextAuth from "next-auth";
 import type { JWT } from "next-auth/jwt";

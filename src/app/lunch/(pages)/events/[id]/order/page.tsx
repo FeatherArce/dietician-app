@@ -10,7 +10,7 @@ import { AUTH_CONSTANTS } from "@/constants/app-constants";
 import { authFetch } from "@/libs/auth-fetch";
 import { formatCurrency, formatNumber } from "@/libs/formatter";
 import { MenuCategory } from "@/prisma-generated/postgres-client";
-import { getLunchEventById } from "@/services/client/lunch/lunch-event";
+import { getLunchEventById } from "@/data-access/lunch/lunch-event";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
@@ -29,7 +29,7 @@ import { MealFormMode, MenuFormValues } from "./_components/MealForm";
 import MealModal, { MealModalRef, MealModalSettings } from "./_components/MealModal";
 import { ILunchOrderItem, ILunchEvent, IShopMenu, IShopMenuCategory, IShopMenuItem } from "@/types/LunchEvent";
 import { cn } from "@/libs/utils";
-import { deleteOrder } from "@/services/client/lunch/lunch-order";
+import { deleteOrder } from "@/data-access/lunch/lunch-order";
 
 interface ExistingOrder {
   id: string;

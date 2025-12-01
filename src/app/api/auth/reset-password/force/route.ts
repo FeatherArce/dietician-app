@@ -1,7 +1,7 @@
 import { auth } from "@/libs/auth";
 import { UserRole } from "@/prisma-generated/postgres-client";
-import prisma from "@/services/prisma";
-import { PasswordService } from "@/services/server/auth/password-service";
+import prisma from "@/libs/prisma";
+import { PasswordService } from "@/services/auth/password-service";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {

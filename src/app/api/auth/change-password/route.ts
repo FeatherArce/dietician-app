@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { changePasswordSchema } from '@/services/server/auth/validation-schemas';
+import { changePasswordSchema } from '@/services/auth/validation-schemas';
 import { auth } from "@/libs/auth";
 import { ApiMessage } from '../../utils';
-import { changePassword } from '@/services/server/auth/auth-services';
+import { changePassword } from '@/services/auth/auth-services';
 
 export async function POST(request: NextRequest) {
     try {

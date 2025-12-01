@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/libs/auth";
-import { menuItemService } from '@/services/server/lunch/shop-services';
+import { menuItemService } from '@/services/lunch/shop-services';
 import { GetShopMenuItemsResponse } from '@/types/api/lunch';
 
 // GET /api/lunch/menus/[menuId]/items - 獲取菜單的所有項目

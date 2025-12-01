@@ -3,7 +3,7 @@ import { Checkbox, Form, FormProps, Input, Select } from '@/components/form';
 import { FormRef } from '@/components/form/types';
 import { LoadingSkeleton } from '@/components/ui/Loading';
 import { Shop } from '@/prisma-generated/postgres-client';
-import { getLunchShops } from '@/services/client/lunch/lunch-shop';
+import { getLunchShops } from '@/data-access/lunch/lunch-shop';
 import moment from 'moment-timezone';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useState, useTransition } from 'react'

@@ -5,7 +5,7 @@ import PageContainer from "@/components/page/PageContainer";
 import { authFetch } from "@/libs/auth-fetch";
 import { cn } from "@/libs/utils";
 import { Menu } from "@/prisma-generated/postgres-client";
-import { getLunchShopById } from "@/services/client/lunch/lunch-shop";
+import { getLunchShopById } from "@/data-access/lunch/lunch-shop";
 import { MenuWithArgs, ShopWithArgs } from "@/types/api/lunch";
 import { useSession } from "next-auth/react";
 import Link from "next/link";

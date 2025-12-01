@@ -6,7 +6,7 @@ import Fieldset from "@/components/ui/Fieldset";
 import PageLink from "@/components/ui/PageLink";
 import { authFetch } from "@/libs/auth-fetch";
 import { UserRole } from "@/prisma-generated/postgres-client";
-import { getLunchEventById, updateLunchEvent } from "@/services/client/lunch/lunch-event";
+import { getLunchEventById, updateLunchEvent } from "@/data-access/lunch/lunch-event";
 import { ILunchEvent, ILunchOrder } from "@/types/LunchEvent";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";

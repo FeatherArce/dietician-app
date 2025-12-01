@@ -1,4 +1,4 @@
-import { register } from '@/services/server/auth/auth-services';
+import { register } from '@/services/auth/auth-services';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {

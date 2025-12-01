@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/libs/auth";
-import postgresClient from '@/services/prisma';
+import postgresClient from '@/libs/prisma';
 
 // GET /api/lunch/shops/[id]/menus/[menuId] - 獲取特定菜單
 export async function GET(

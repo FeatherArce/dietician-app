@@ -2,7 +2,7 @@ import { Form, Input } from '@/components/form'
 import { FormRef, FormValues } from '@/components/form/types';
 import { toast } from '@/components/Toast';
 import { User } from '@/prisma-generated/postgres-client';
-import { updateUser } from '@/services/client/user';
+import { updateUser } from '@/data-access/user';
 import React, { forwardRef, useCallback, useImperativeHandle, useMemo } from 'react'
 
 interface UserFormProps {

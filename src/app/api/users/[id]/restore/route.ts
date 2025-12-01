@@ -1,4 +1,4 @@
-import userService from "@/services/server/user-services";
+import userService from "@/services/user-services";
 import { NextRequest, NextResponse } from "next/server";
 
 // 啟用使用者

@@ -5,7 +5,7 @@ import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import PageContainer from "@/components/page/PageContainer";
 import FullShopForm from "@/components/shop/ShopForm";
 import { toast } from "@/components/Toast";
-import { createLunchShop } from "@/services/client/lunch/lunch-shop";
+import { createLunchShop } from "@/data-access/lunch/lunch-shop";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

@@ -3,7 +3,7 @@ import { auth } from "@/libs/auth";
 import {
   LunchEventFilters,
   lunchEventService,
-} from "@/services/server/lunch/lunch-event-services";
+} from "@/services/lunch/lunch-event-services";
 import { NextRequest, NextResponse } from "next/server";
 import { getEventDetails, getEventRequestFilters } from "../utils";
 import { GetEventResponse } from "@/types/api/lunch";

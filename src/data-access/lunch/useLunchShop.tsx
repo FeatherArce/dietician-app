@@ -2,7 +2,7 @@ import { fetcher } from '@/libs/swr-fetcher';
 import useSWR from 'swr';
 import { GetShopMenuItemsResponse, GetShopResponse, GetShopsResponse } from "@/types/api/lunch";
 import { removedUndefinedFields } from '@/libs/utils';
-import { ShopFilters } from '@/services/server/lunch';
+import { ShopFilters } from '@/services/lunch';
 
 const shopsPath = '/api/lunch/shops';
 // const menusPath = /api/lunch/shops/[id]/menus/[id or default]/items';

@@ -1,4 +1,4 @@
-import prisma from '@/services/prisma';
+import prisma from '@/libs/prisma';
 import { User, UserRole, Prisma } from '@/prisma-generated/postgres-client';
 
 export const adminUserService = {

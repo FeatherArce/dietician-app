@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateProfileSchema } from '@/services/server/auth/validation-schemas';
+import { updateProfileSchema } from '@/services/auth/validation-schemas';
 import { auth } from "@/libs/auth";
 import { ApiMessage } from '../../utils';
-import { updateProfile } from '@/services/server/auth/auth-services';
+import { updateProfile } from '@/services/auth/auth-services';
 
 export async function PATCH(request: NextRequest) {
     try {

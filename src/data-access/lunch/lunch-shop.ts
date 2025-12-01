@@ -1,6 +1,6 @@
 import { FormValues } from "@/components/form";
 import { authFetch } from "@/libs/auth-fetch";
-import { ShopFilters } from "@/services/server/lunch";
+import { ShopFilters } from "@/services/lunch";
 import { DeleteShopMenuItemResponse, GetShopResponse, GetShopsResponse, PostShopResponse } from "@/types/api/lunch";
 
 const shopsPath = '/api/lunch/shops';

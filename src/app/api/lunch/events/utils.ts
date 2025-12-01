@@ -1,4 +1,4 @@
-import type { LunchEventFilters } from '@/services/server/lunch/lunch-event-services';
+import type { LunchEventFilters } from '@/services/lunch/lunch-event-services';
 import { ILunchEvent, LunchEventStatistics, LunchOrderItemStatistic } from '@/types/LunchEvent';
 import { NextRequest } from "next/server";
 

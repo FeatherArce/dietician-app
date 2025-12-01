@@ -4,7 +4,7 @@ import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import { Notification } from "@/components/Notification";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import { toast } from "@/components/Toast";
-import { createLunchEvent } from "@/services/client/lunch/lunch-event";
+import { createLunchEvent } from "@/data-access/lunch/lunch-event";
 import moment from "moment-timezone";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";

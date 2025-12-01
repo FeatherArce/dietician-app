@@ -3,7 +3,7 @@ import {
   shopService,
   type CreateShopData,
   type ShopFilters,
-} from "@/services/server/lunch/shop-services";
+} from "@/services/lunch/shop-services";
 import { GetShopsResponse, PostShopResponse } from "@/types/api/lunch";
 import { NextRequest, NextResponse } from "next/server";
 

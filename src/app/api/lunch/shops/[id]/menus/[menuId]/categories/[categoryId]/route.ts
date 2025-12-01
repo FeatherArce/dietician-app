@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/libs/auth";
-import { menuCategoryService } from '@/services/server/lunch/shop-services';
+import { menuCategoryService } from '@/services/lunch/shop-services';
 
 // PATCH /api/lunch/menus/[menuId]/categories/[categoryId] - 更新分類
 export async function PATCH(

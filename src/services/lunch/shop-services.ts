@@ -1,5 +1,5 @@
 import { Prisma } from "@/prisma-generated/postgres-client";
-import prisma from "@/services/prisma";
+import prisma from "@/libs/prisma";
 import { menuItemWithArgs } from "@/types/api/lunch";
 
 // Shop Service 類型定義

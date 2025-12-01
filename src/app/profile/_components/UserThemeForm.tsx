@@ -2,7 +2,7 @@ import { Form, Input, Select } from '@/components/form'
 import { FormRef, FormValues } from '@/components/form/types';
 import { toast } from '@/components/Toast';
 import { useTheme } from '@/hooks/useTheme';
-import { updateUser } from '@/services/client/user';
+import { updateUser } from '@/data-access/user';
 import { User } from 'next-auth';
 import React, { forwardRef, useCallback, useImperativeHandle, useMemo } from 'react'
 

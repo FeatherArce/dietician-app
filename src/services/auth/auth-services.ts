@@ -1,6 +1,6 @@
 import { User, UserRole } from "@/prisma-generated/postgres-client";
 import type { User as NextAuthUser } from "next-auth";
-import prisma from "../../prisma";
+import prisma from "../../libs/prisma";
 import userService from "../user-services";
 import { PasswordService } from "./password-service";
 import {

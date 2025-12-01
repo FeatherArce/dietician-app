@@ -3,13 +3,13 @@ import DataTable from '../DataTable'
 import { IShopMenuItem } from '@/types/LunchEvent'
 import { formatCurrency } from '@/libs/formatter'
 import { FaEdit, FaPlus, FaSpinner, FaTrash, FaUtensils } from 'react-icons/fa';
-import { getLunchShopMenuItems } from '@/services/client/lunch/lunch-shop';
+import { getLunchShopMenuItems } from '@/data-access/lunch/lunch-shop';
 import Modal, { ModalRef } from '../Modal';
 import MenuItemForm from './MenuItemForm';
 import { FormRef, FormValues } from '../form/types';
-import { createLunchShopMenuItem, updateLunchShopMenuItem, deleteLunchShopMenuItem } from '@/services/client/lunch/lunch-shop';
+import { createLunchShopMenuItem, updateLunchShopMenuItem, deleteLunchShopMenuItem } from '@/data-access/lunch/lunch-shop';
 import { toast } from '../Toast';
-import { useLunchShopMenuItems } from '@/services/client/lunch/useLunchShop';
+import { useLunchShopMenuItems } from '@/data-access/lunch/useLunchShop';
 import { FiRefreshCw } from 'react-icons/fi';
 import BatchImportMenuModal from './BatchImportMenuModal';
 

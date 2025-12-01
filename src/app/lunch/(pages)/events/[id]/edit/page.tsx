@@ -5,7 +5,7 @@ import { FormValues } from "@/components/form";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import { toast } from "@/components/Toast";
 import { UserRole } from "@/prisma-generated/postgres-client";
-import { getLunchEventById, updateLunchEvent } from "@/services/client/lunch/lunch-event";
+import { getLunchEventById, updateLunchEvent } from "@/data-access/lunch/lunch-event";
 import { ILunchEvent } from "@/types/LunchEvent";
 import moment from "moment-timezone";
 import { useSession } from "next-auth/react";

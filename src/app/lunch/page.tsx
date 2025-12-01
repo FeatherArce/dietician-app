@@ -19,7 +19,7 @@ import EventOrderSummaryTable from './_components/EventOrderSummaryTable';
 import OrderDetailModal from './_components/OrderDetailModal';
 import PageAuthBlocker from '@/components/page/PageAuthBlocker';
 import { ILunchEvent, MyOrder } from '@/types/LunchEvent';
-import { getLunchEventById } from '@/services/client/lunch/lunch-event';
+import { getLunchEventById } from '@/data-access/lunch/lunch-event';
 import { toast } from '@/components/Toast';
 
 enum EventActiveType {

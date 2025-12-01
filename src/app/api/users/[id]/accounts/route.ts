@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/services/prisma";
+import prisma from "@/libs/prisma";
 import { GetUserAccountsResponse } from "@/types/api/user";
 
 // GET /api/users/[id]/accounts

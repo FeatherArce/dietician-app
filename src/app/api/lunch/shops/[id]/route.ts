@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { shopService } from "@/services/server/lunch/shop-services";
+import { shopService } from "@/services/lunch/shop-services";
 import { GetShopResponse } from "@/types/api/lunch";
 
 export async function GET(
