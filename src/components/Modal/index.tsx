@@ -11,6 +11,7 @@ interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
     okText?: string;
     onClose?: () => void;
     closeText?: string;
+    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl';
 }
 
 export interface ModalRef {
@@ -30,6 +31,7 @@ function Modal({
     onClose,
     closeText = '取消',
     className,
+    size = 'md',
     ...props
 }: ModalProps, ref: React.Ref<ModalRef>) {
     const open = useCallback(() => {
@@ -56,7 +58,7 @@ function Modal({
 
     return (
         <dialog id={id} className={`modal`}>
-            <div className={cn('modal-box space-y-2', className)} {...props}>
+            <div className={cn('modal-box space-y-2 max-w-screen', `w-${size}`, className)} {...props}>
                 <div className=''>
                     {/* if there is a button in form, it will close the modal */}
                     <button
