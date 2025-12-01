@@ -3,7 +3,22 @@ import { ApiResponse } from "./api";
 import { ILunchEvent } from "../LunchEvent";
 import { Prisma } from "@/prisma-generated/postgres-client";
 
-const menuWithArgs = Prisma.validator<Prisma.MenuDefaultArgs>()({
+// src/app/api/lunch/shops/[id]/menu/[id]/items 的回應型別定義
+export const menuItemWithArgs = Prisma.validator<Prisma.MenuItemDefaultArgs>()({
+    include: {
+        category: true,
+        menu: {
+            include: {
+                categories: true,
+                items: true,
+            }
+        },
+    },
+});
+export type MenuItemWithArgs = Prisma.MenuItemGetPayload<typeof menuItemWithArgs>;
+
+// src/app/api/lunch/shops/[id]/menu/[id] 的回應型別定義
+export const menuWithArgs = Prisma.validator<Prisma.MenuDefaultArgs>()({
     include: {
         items: true,
         categories: true,
@@ -15,7 +30,9 @@ const menuWithArgs = Prisma.validator<Prisma.MenuDefaultArgs>()({
     },
 });
 export type MenuWithArgs = Prisma.MenuGetPayload<typeof menuWithArgs>;
-const shopWithArgs = Prisma.validator<Prisma.ShopDefaultArgs>()({
+
+// src/app/api/lunch/shops/[id] 的回應型別定義
+export const shopWithArgs = Prisma.validator<Prisma.ShopDefaultArgs>()({
     include: {
         events: true,
         menus: menuWithArgs,
@@ -28,6 +45,8 @@ const shopWithArgs = Prisma.validator<Prisma.ShopDefaultArgs>()({
     },
 });
 export type ShopWithArgs = Prisma.ShopGetPayload<typeof shopWithArgs>;
+
+
 
 // src/app/api/lunch/events 的回應型別定義
 export type GetEventResponse = ApiResponse<{ event: ILunchEvent }>;
@@ -43,3 +62,10 @@ export type GetShopResponse = ApiResponse<{ shop: ShopWithArgs }>;
 
 // src/app/api/lunch/orders 的回應型別定義
 export type DeleteOrderResponse = ApiResponse<{ orderId: string, order: LunchOrder }>;
+
+// src/app/api/lunch/shops/[id]/menus/[menuId]/items 的回應型別定義
+export type GetShopMenuItemsResponse = ApiResponse<{ items: MenuItemWithArgs[] }>;
+export type PostShopMenuItemResponse = ApiResponse<{ item: MenuItemWithArgs }>;
+export type PostShopMenuItemsResponse = ApiResponse<{ items: MenuItemWithArgs[] }>;
+export type PutShopMenuItemResponse = ApiResponse<{ item: MenuItemWithArgs }>;
+export type DeleteShopMenuItemResponse = ApiResponse<{ id: string, item: MenuItemWithArgs }>;
