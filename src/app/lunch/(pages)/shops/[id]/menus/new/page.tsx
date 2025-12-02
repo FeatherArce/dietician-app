@@ -349,6 +349,7 @@ export default function NewMenuPage() {
                 </div>
 
                 <MenuCategoryManager
+                  shopId={shopId}
                   menuId={createdMenuId!}
                   categories={categories}
                   onCategoriesChange={setCategories}
