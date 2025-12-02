@@ -23,22 +23,23 @@ import Fieldset from "@/components/ui/Fieldset";
 import PageContainer from "@/components/page/PageContainer";
 import { IShop } from "@/types/LunchEvent";
 import { API_CONSTANTS, ROUTE_CONSTANTS } from "@/constants/app-constants";
+import { getLunchShopById } from "@/data-access/lunch/lunch-shop";
+import { ShopWithArgs } from "@/types/api/lunch";
 
 export default function ShopDetailPage() {
   const params = useParams();
   const router = useRouter();
   const shopId = params.id as string;
 
-  const [shop, setShop] = useState<IShop | null>(null);
+  const [shop, setShop] = useState<ShopWithArgs | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
   const fetchShop = useCallback(async () => {
     try {
-      const response = await fetch(API_CONSTANTS.LUNCH_SHOP_DETAIL_ENDPOINT(shopId));
-      if (response.ok) {
-        const data = await response.json();
-        setShop(data.shop);
+      const { response, result } = await getLunchShopById(shopId);
+      if (response.ok && result.success && result.data?.shop) {        
+        setShop(result.data?.shop);
       } else {
         router.push(ROUTE_CONSTANTS.LUNCH_SHOPS);
       }

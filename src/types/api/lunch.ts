@@ -21,7 +21,11 @@ export type MenuItemWithArgs = Prisma.MenuItemGetPayload<typeof menuItemWithArgs
 export const menuWithArgs = Prisma.validator<Prisma.MenuDefaultArgs>()({
     include: {
         items: true,
-        categories: true,
+        categories: {
+            include: {
+                items: true,
+            }
+        },
         _count: {
             select: {
                 items: true,
