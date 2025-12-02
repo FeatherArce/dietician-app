@@ -176,21 +176,12 @@ export default function EventCard({
                 <div className="card-actions justify-end">
                     {/* 訂餐相關按鈕 - 根據狀態顯示 */}
                     {(event.is_active && new Date(event.order_deadline) > new Date()) ? (
-                        !hasOrder ? (
-                            <PageLink
-                                href={ROUTE_CONSTANTS.LUNCH_EVENT_ORDER(event.id)}
-                                className="btn btn-primary btn-sm"
-                            >
-                                參與訂餐
-                            </PageLink>
-                        ) : (
-                            <PageLink
-                                href={ROUTE_CONSTANTS.LUNCH_EVENT_ORDER(event.id)}
-                                className="btn btn-primary btn-sm"
-                            >
-                                修改訂單
-                            </PageLink>
-                        )
+                        <PageLink
+                            href={ROUTE_CONSTANTS.LUNCH_EVENT_ORDER(event.id)}
+                            className="btn btn-primary btn-sm"
+                        >
+                            {hasOrder ? '修改訂單' : '參與訂餐'}
+                        </PageLink>
                     ) : null}
 
                     {/* 統計按鈕 - 當有訂單資料時顯示 */}
