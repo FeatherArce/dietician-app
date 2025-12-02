@@ -5,6 +5,7 @@ import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import PageContainer from "@/components/page/PageContainer";
 import FullShopForm from "@/components/shop/ShopForm";
 import { toast } from "@/components/Toast";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 import { createLunchShop } from "@/data-access/lunch/lunch-shop";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -32,7 +33,7 @@ export default function NewShopPage() {
 
       if (response.ok && result.success && result?.data?.shop?.id) {
         toast.success('商店建立成功');
-        router.push(`/lunch/shops/${result?.data?.shop?.id}`);
+        router.push(ROUTE_CONSTANTS.LUNCH_SHOP_DETAIL(result.data.shop.id));
       } else {
         console.error('API Error:', response);
         toast.error(`建立商店失敗: ${result.message || '未知錯誤'}`);
@@ -60,7 +61,7 @@ export default function NewShopPage() {
       <Breadcrumb
         items={[
           lunchBreadcrumbHomeItem,
-          { label: '商店管理', href: '/lunch/shops' },
+          { label: '商店管理', href: ROUTE_CONSTANTS.LUNCH_SHOPS },
           { label: '建立商店', current: true }
         ]}
       />

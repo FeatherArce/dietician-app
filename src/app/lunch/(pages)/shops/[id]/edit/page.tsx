@@ -7,7 +7,7 @@ import FullShopForm, {
   ShopFormData,
   ShopFormErrors
 } from "@/components/shop/ShopForm";
-import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import { API_CONSTANTS, ROUTE_CONSTANTS } from "@/constants/app-constants";
 import { authFetch } from "@/libs/auth-fetch";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -74,7 +74,7 @@ export default function EditShopPage() {
     // 載入選中菜單的分類和項目
     const loadMenuContent = async (menuId: string) => {
       try {
-        const response = await authFetch(`/api/lunch/shops/${shopId}/menus/${menuId}`);
+        const response = await authFetch(API_CONSTANTS.LUNCH_SHOP_MENU_DETAIL_ENDPOINT(shopId, menuId));
         const data = await response.json();
 
         if (data.success && data.menu) {
@@ -101,7 +101,7 @@ export default function EditShopPage() {
 
     const fetchShopData = async () => {
       try {
-        const response = await authFetch(`/api/lunch/shops/${shopId}`);
+        const response = await authFetch(API_CONSTANTS.LUNCH_SHOP_DETAIL_ENDPOINT(shopId));
         const data = await response.json();
         console.log('Fetched shop data:', data);
 
@@ -149,7 +149,7 @@ export default function EditShopPage() {
 
     setLoading(true);
     try {
-      const response = await authFetch(`/api/lunch/shops/${shopId}`, {
+      const response = await authFetch(API_CONSTANTS.LUNCH_SHOP_DETAIL_ENDPOINT(shopId), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -204,7 +204,7 @@ export default function EditShopPage() {
           <FaExclamationCircle className="w-16 h-16 mx-auto text-error mb-4" />
           <h2 className="text-2xl font-bold mb-2">商店不存在</h2>
           <p className="text-base-content/70 mb-6">找不到指定的商店資料</p>
-          <Link href="/lunch/shops" className="btn btn-primary">
+          <Link href={ROUTE_CONSTANTS.LUNCH_SHOPS} className="btn btn-primary">
             返回商店列表
           </Link>
         </div>
@@ -218,8 +218,8 @@ export default function EditShopPage() {
       <Breadcrumb
         items={[
           lunchBreadcrumbHomeItem,
-          { label: '商店管理', href: '/lunch/shops' },
-          { label: shopData.name, href: `/lunch/shops/${shopId}` },
+          { label: '商店管理', href: ROUTE_CONSTANTS.LUNCH_SHOPS },
+          { label: shopData.name, href: ROUTE_CONSTANTS.LUNCH_SHOP_DETAIL(shopId) },
           { label: '編輯', current: true }
         ]}
       />

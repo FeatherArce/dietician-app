@@ -4,6 +4,7 @@ import Link from 'next/link';
 import DataTable from '@/components/DataTable';
 import { formatCurrency } from '@/libs/formatter';
 import { ILunchOrderItem, MyOrder } from '@/types/LunchEvent';
+import { ROUTE_CONSTANTS } from '@/constants/app-constants';
 
 interface OrderDetailModalProps {
     selectedOrder: MyOrder | null;
@@ -72,7 +73,7 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                         {/* 檢查是否還可以編輯訂單 (截止時間未到) */}
                         {new Date(selectedOrder.event.order_deadline) > new Date() && (
                             <Link
-                                href={`/lunch/events/${selectedOrder.event.id}/order`}
+                                href={ROUTE_CONSTANTS.LUNCH_EVENT_ORDER(selectedOrder.event.id)}
                                 className="btn btn-link btn-sm"
                                 onClick={onClose}
                             >

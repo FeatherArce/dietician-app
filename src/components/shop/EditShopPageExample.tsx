@@ -207,8 +207,8 @@ export default function EditShopPageExample() {
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
-          { label: '商店管理', href: '/lunch/shops' },
-          { label: shopData.name, href: `/lunch/shops/${shopId}` },
+          { label: '商店管理', href: ROUTE_CONSTANTS.LUNCH_SHOPS },
+          { label: shopData.name, href: ROUTE_CONSTANTS.LUNCH_SHOP_DETAIL(shopId) },
           { label: '編輯', current: true }
         ]}
       />

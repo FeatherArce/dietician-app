@@ -22,6 +22,7 @@ import PageLink from "@/components/ui/PageLink";
 import Fieldset from "@/components/ui/Fieldset";
 import PageContainer from "@/components/page/PageContainer";
 import { IShop } from "@/types/LunchEvent";
+import { API_CONSTANTS, ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 export default function ShopDetailPage() {
   const params = useParams();
@@ -34,16 +35,16 @@ export default function ShopDetailPage() {
 
   const fetchShop = useCallback(async () => {
     try {
-      const response = await fetch(`/api/lunch/shops/${shopId}`);
+      const response = await fetch(API_CONSTANTS.LUNCH_SHOP_DETAIL_ENDPOINT(shopId));
       if (response.ok) {
         const data = await response.json();
         setShop(data.shop);
       } else {
-        router.push("/lunch/shops");
+        router.push(ROUTE_CONSTANTS.LUNCH_SHOPS);
       }
     } catch (error) {
       console.error("Failed to fetch shop:", error);
-      router.push("/lunch/shops");
+      router.push(ROUTE_CONSTANTS.LUNCH_SHOPS);
     } finally {
       setLoading(false);
     }
@@ -60,7 +61,7 @@ export default function ShopDetailPage() {
 
     setUpdating(true);
     try {
-      const response = await fetch(`/api/lunch/shops/${shopId}`, {
+      const response = await fetch(API_CONSTANTS.LUNCH_SHOP_DETAIL_ENDPOINT(shopId), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_active: !shop.is_active }),
@@ -108,7 +109,7 @@ export default function ShopDetailPage() {
       <Breadcrumb
         items={[
           lunchBreadcrumbHomeItem,
-          { label: '商店管理', href: '/lunch/shops' },
+          { label: '商店管理', href: ROUTE_CONSTANTS.LUNCH_SHOPS },
           { label: shop.name, current: true }
         ]}
       />
@@ -141,7 +142,7 @@ export default function ShopDetailPage() {
 
         <div className="flex space-x-2">
           <Link
-            href={`/lunch/shops/${shopId}/edit`}
+            href={ROUTE_CONSTANTS.LUNCH_SHOP_EDIT(shopId)}
             className="btn btn-ghost"
           >
             <FaEdit className="w-4 h-4" />
@@ -198,7 +199,7 @@ export default function ShopDetailPage() {
         <div className="flex justify-between items-center">
           <h3 className="text-xl font-bold">菜單管理</h3>
           <PageLink
-            href={`/lunch/shops/${shopId}/menus/new`}
+            href={ROUTE_CONSTANTS.LUNCH_SHOP_MENU_NEW(shopId)}
             className="btn btn-primary"
           >
             <FaPlus className="w-4 h-4" />
@@ -243,7 +244,7 @@ export default function ShopDetailPage() {
 
                   <div className="card-actions justify-end mt-4">
                     <Link
-                      href={`/lunch/shops/${shopId}/menus/${menu.id}`}
+                      href={ROUTE_CONSTANTS.LUNCH_SHOP_MENU_DETAIL(shopId, menu.id)}
                       className="btn btn-primary btn-sm"
                     >
                       <FaEye className="w-3 h-3" />

@@ -1,5 +1,6 @@
 "use client";
 import { MenuItem, NavbarMenu } from '@/components/Navbar';
+import { ROUTE_CONSTANTS } from '@/constants/app-constants';
 import { UserRole } from '@/prisma-generated/postgres-client';
 import { useSession } from "next-auth/react";
 import Link from 'next/link';
@@ -18,10 +19,10 @@ export default function LunchQuickActions() {
 
     const menuItems: Array<MenuItem> = useMemo(() => {
         const newItems: Array<MenuItem> = [];
-        newItems.push({ label: "訂餐系統", href: "/lunch", icon: <FaStore className='w-4 h-4' /> });
-        newItems.push({ label: "活動管理", href: "/lunch/events", icon: <FaCalendarAlt className='w-4 h-4' /> });
+        newItems.push({ label: "訂餐系統", href: ROUTE_CONSTANTS.LUNCH, icon: <FaStore className='w-4 h-4' /> });
+        newItems.push({ label: "活動管理", href: ROUTE_CONSTANTS.LUNCH_EVENTS, icon: <FaCalendarAlt className='w-4 h-4' /> });
         if (user?.role === UserRole.ADMIN || user?.role === UserRole.MODERATOR) {
-            newItems.push({ label: "商店管理", href: "/lunch/shops", icon: <FaStore className='w-4 h-4' /> });
+            newItems.push({ label: "商店管理", href: ROUTE_CONSTANTS.LUNCH_SHOPS, icon: <FaStore className='w-4 h-4' /> });
         }
         return newItems;
     }, [user?.role]);

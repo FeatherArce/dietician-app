@@ -6,6 +6,7 @@ import SearchContainer from "@/components/SearchContainer";
 import { SearchInput, Select } from "@/components/SearchContainer/SearchFields";
 import { toast, useToastAPI } from "@/components/Toast";
 import PageContainer from "@/components/page/PageContainer";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 import { LunchEvent, UserRole } from "@/prisma-generated/postgres-client";
 import moment from "moment-timezone";
 import { useSession } from "next-auth/react";
@@ -268,7 +269,7 @@ export default function EventsPage() {
       render: (_, record) => (
         record.shop ? (
           <Link
-            href={`/lunch/shops/${record.shop.id}`}
+            href={ROUTE_CONSTANTS.LUNCH_SHOP_DETAIL(record.shop.id)}
             className="link link-primary text-sm"
           >
             {record.shop.name}
@@ -331,14 +332,14 @@ export default function EventsPage() {
       render: (_, record) => (
         <div className="flex items-center justify-center space-x-1">
           <Link
-            href={`/lunch/events/${record.id}`}
+            href={ROUTE_CONSTANTS.LUNCH_EVENT_DETAIL(record.id)}
             className="btn btn-ghost btn-xs"
             title="檢視詳細"
           >
             <FaEye className="w-3 h-3" />
           </Link>
           <Link
-            href={`/lunch/events/${record.id}/edit`}
+            href={ROUTE_CONSTANTS.LUNCH_EVENT_EDIT(record.id)}
             className="btn btn-ghost btn-xs"
             title="編輯"
           >
@@ -389,7 +390,7 @@ export default function EventsPage() {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <Link href="/lunch/events/new" className="btn btn-primary">
+          <Link href={ROUTE_CONSTANTS.LUNCH_EVENT_NEW} className="btn btn-primary">
             <FaPlus className="w-4 h-4" />
             建立活動
           </Link>

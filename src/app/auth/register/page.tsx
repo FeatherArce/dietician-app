@@ -21,7 +21,7 @@ export default function RegisterPage() {
   // 檢查使用者是否已登入，如果是則重定向
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      router.push("/lunch");
+      router.push(ROUTE_CONSTANTS.LUNCH);
     }
   }, [authLoading, isAuthenticated, router]);
 
@@ -54,7 +54,7 @@ export default function RegisterPage() {
 
       if (signInResult?.ok) {
         // 登入成功後重定向
-        router.push("/lunch");
+        router.push(ROUTE_CONSTANTS.LUNCH);
       } else {
         console.error("Auto-signin failed:", signInResult?.error);
         toast.error("登入失敗，請手動登入");

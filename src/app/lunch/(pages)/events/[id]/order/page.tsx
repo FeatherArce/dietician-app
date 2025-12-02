@@ -530,7 +530,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
         items={[
           lunchBreadcrumbHomeItem,
           { label: '午餐系統', href: AUTH_CONSTANTS.DEFAULT_REDIRECT_AFTER_LOGIN },
-          { label: event.title, href: `/lunch/events/${eventId}` },
+          { label: event.title, href: ROUTE_CONSTANTS.LUNCH_EVENT_DETAIL(event.id) },
           { label: '參與訂餐', current: true }
         ]}
       />

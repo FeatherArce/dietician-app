@@ -18,6 +18,7 @@ import {
   FaToggleOn,
   FaUtensils,
 } from "react-icons/fa";
+import { API_CONSTANTS, ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 export const MENU_DEFAULT_ID = "default";
 
@@ -86,7 +87,7 @@ export default function MenuDetailPage() {
     setUpdating(true);
     try {
       const response = await authFetch(
-        `/api/lunch/shops/${shopId}/menus/${menuId}`,
+        API_CONSTANTS.LUNCH_SHOP_MENU_DETAIL_ENDPOINT(shopId, menuId),
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -126,8 +127,8 @@ export default function MenuDetailPage() {
       <Breadcrumb
         items={[
           lunchBreadcrumbHomeItem,
-          { label: "商店管理", href: "/lunch/shops" },
-          { label: shopData?.name || "", href: `/lunch/shops/${shopId}` },
+          { label: "商店管理", href: ROUTE_CONSTANTS.LUNCH_SHOPS },
+          { label: shopData?.name || "", href: ROUTE_CONSTANTS.LUNCH_SHOP_DETAIL(shopId) },
           { label: menu?.name || "", current: true },
         ]}
       />
@@ -162,7 +163,7 @@ export default function MenuDetailPage() {
 
         <div className="flex space-x-2">
           <Link
-            href={`/lunch/shops/${shopId}/menus/${menuId}/edit`}
+            href={ROUTE_CONSTANTS.LUNCH_SHOP_MENU_EDIT(shopId, menuId)}
             className="btn btn-ghost"
           >
             <FaEdit className="w-4 h-4" />

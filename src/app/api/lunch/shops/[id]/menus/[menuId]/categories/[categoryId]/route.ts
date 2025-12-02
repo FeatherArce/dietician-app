@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/libs/auth";
 import { menuCategoryService } from '@/services/lunch/shop-services';
 
-// PATCH /api/lunch/menus/[menuId]/categories/[categoryId] - 更新分類
+// PATCH /api/lunch/shops/[id]/menus/[menuId]/categories/[categoryId] - 更新分類
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ menuId: string; categoryId: string }> }
@@ -52,7 +52,7 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/lunch/menus/[menuId]/categories/[categoryId] - 刪除分類
+// DELETE /api/lunch/shops/[id]/menus/[menuId]/categories/[categoryId] - 刪除分類
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ menuId: string; categoryId: string }> }

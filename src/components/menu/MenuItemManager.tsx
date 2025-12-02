@@ -98,7 +98,7 @@ export default function MenuItemManager({
 
     setLoading('create');
     try {
-      const response = await authFetch(`/api/lunch/menus/${menuId}/items`, {
+      const response = await authFetch(`/api/lunch/shops/${shopId}/menus/${menuId}/items`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -133,7 +133,7 @@ export default function MenuItemManager({
 
     setLoading(`update-${itemId}`);
     try {
-      const response = await authFetch(`/api/lunch/menus/${menuId}/items/${itemId}`, {
+      const response = await authFetch(`/api/lunch/shops/${shopId}/menus/${menuId}/items/${itemId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -173,7 +173,7 @@ export default function MenuItemManager({
 
     setLoading(`delete-${itemId}`);
     try {
-      const response = await authFetch(`/api/lunch/menus/${menuId}/items/${itemId}`, {
+      const response = await authFetch(`/api/lunch/shops/${shopId}/menus/${menuId}/items/${itemId}`, {
         method: 'DELETE'
       });
 

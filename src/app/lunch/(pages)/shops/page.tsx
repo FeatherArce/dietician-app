@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from "react"
 import { FaEdit, FaEye, FaPause, FaPlay, FaPlus, FaStore, FaTrash, FaUtensils } from "react-icons/fa";
 import { MENU_DEFAULT_ID } from "./[id]/menus/[menuId]/page";
 import PageLink from "@/components/ui/PageLink";
+import { API_CONSTANTS, ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 interface ShopWithStats extends Shop {
   menuCount?: number;
@@ -71,7 +72,7 @@ export default function ShopsPage() {
   const fetchShops = useCallback(async () => {
     startFetchTransition(async () => {
       try {
-        const response = await fetch("/api/lunch/shops");
+        const response = await fetch(API_CONSTANTS.LUNCH_SHOPS_ENDPOINT);
         if (response.ok) {
           const result = await response.json();
           setShops(result.data?.shops || []);
@@ -91,7 +92,7 @@ export default function ShopsPage() {
   const toggleShopStatus = useCallback(async (shopId: string, isActive: boolean) => {
     startUpdateTransition(async () => {
       try {
-        const response = await fetch(`/api/lunch/shops/${shopId}`, {
+        const response = await fetch(API_CONSTANTS.LUNCH_SHOP_DETAIL_ENDPOINT(shopId), {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ is_active: !isActive }),
@@ -111,7 +112,7 @@ export default function ShopsPage() {
   const deleteShop = useCallback(async (shopId: string) => {
     startDeleteTransition(async () => {
       try {
-        const response = await fetch(`/api/lunch/shops/${shopId}`, {
+        const response = await fetch(API_CONSTANTS.LUNCH_SHOP_DETAIL_ENDPOINT(shopId), {
           method: "DELETE",
         });
         if (response.ok) {
@@ -136,7 +137,7 @@ export default function ShopsPage() {
       title: '商店名稱',
       render: (value, record) => (
         <Link
-          href={`/lunch/shops/${record.id}`}
+          href={ROUTE_CONSTANTS.LUNCH_SHOP_DETAIL(record.id)}
           className="btn btn-link"
           title="檢視詳細"
         >
@@ -209,7 +210,7 @@ export default function ShopsPage() {
       render: (_, record) => (
         <div className="flex justify-center space-x-1">
           <Link
-            href={`/lunch/shops/${record.id}/edit`}
+            href={ROUTE_CONSTANTS.LUNCH_SHOP_EDIT(record.id)}
             className="btn btn-ghost btn-xs"
             title="編輯資料"
           >
@@ -217,7 +218,7 @@ export default function ShopsPage() {
           </Link>
           {/* 編輯菜單 */}
           <Link
-            href={`/lunch/shops/${record.id}/menus/${MENU_DEFAULT_ID}`}
+            href={ROUTE_CONSTANTS.LUNCH_SHOP_MENU_DETAIL(record.id, MENU_DEFAULT_ID)}
             className="btn btn-ghost btn-xs"
             title="編輯菜單"
           >
@@ -279,7 +280,7 @@ export default function ShopsPage() {
           </p>
         </div>
         <div className="self-end flex items-center space-x-3">
-          <Link href="/lunch/shops/new" className="btn btn-primary">
+          <Link href={ROUTE_CONSTANTS.LUNCH_SHOP_NEW} className="btn btn-primary">
             <FaPlus className="w-4 h-4" />
             新增商店
           </Link>

@@ -23,6 +23,7 @@ import {
 } from "react-icons/fa";
 import EventOrderSummaryTable, { EventOrderSummaryTableRef } from "../../../_components/EventOrderSummaryTable";
 import moment from "moment-timezone";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 // interface EventWithSummary extends EventWithDetails {
 //   orderCount: number;
@@ -58,11 +59,11 @@ export default function EventDetailPage() {
       if (response.ok && result.success && result.data?.event) {
         setEvent(result.data?.event);
       } else {
-        router.push("/lunch/events");
+        router.push(ROUTE_CONSTANTS.LUNCH_EVENTS);
       }
     } catch (error) {
       console.error("Failed to fetch event:", error);
-      router.push("/lunch/events");
+      router.push(ROUTE_CONSTANTS.LUNCH_EVENTS);
     } finally {
       setLoading(false);
     }
@@ -188,7 +189,7 @@ export default function EventDetailPage() {
       <Breadcrumb
         items={[
           lunchBreadcrumbHomeItem,
-          { label: '活動管理', href: '/lunch/events' },
+          { label: '活動管理', href: ROUTE_CONSTANTS.LUNCH_EVENTS },
           { label: event.title, current: true }
         ]}
         className="mb-0"
@@ -218,7 +219,7 @@ export default function EventDetailPage() {
           {canEdit && (
             <>
               <PageLink
-                href={`/lunch/events/${eventId}/edit`}
+                href={ROUTE_CONSTANTS.LUNCH_EVENT_EDIT(eventId)}                
                 className="btn btn-ghost"
               >
                 <FaEdit className="w-4 h-4" />

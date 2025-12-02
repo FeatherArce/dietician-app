@@ -15,6 +15,7 @@ import {
   FaArrowLeft,
   FaEdit
 } from "react-icons/fa";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 
 export default function EditEventPage() {
   const router = useRouter();
@@ -125,8 +126,8 @@ export default function EditEventPage() {
       <Breadcrumb
         items={[
           lunchBreadcrumbHomeItem,
-          { label: '活動管理', href: '/lunch/events' },
-          { label: eventData?.title || '不明活動', href: `/lunch/events/${eventId}` },
+          { label: '活動管理', href: ROUTE_CONSTANTS.LUNCH_EVENTS },
+          { label: eventData?.title || '不明活動', href: ROUTE_CONSTANTS.LUNCH_EVENT_DETAIL(eventId) },
           { label: '編輯', current: true }
         ]}
       />
