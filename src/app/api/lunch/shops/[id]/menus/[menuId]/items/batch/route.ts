@@ -23,7 +23,7 @@ export async function POST(
             name: item.name?.trim(),
             description: item.description?.trim() || undefined,
             price: parseFloat(item.price),
-            is_available: item.is_available,
+            is_available: true, // 預設為可用
         }));
         const batchCreateResult = await menuItemService.batchCreateMenuItems(newItems);
         const response: PostBatchShopMenuItemsResponse = {

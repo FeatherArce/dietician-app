@@ -30,6 +30,7 @@ interface MenuCategoryFormData {
 }
 
 interface MenuCategoryManagerProps {
+  shopId: string;
   menuId: string;
   categories: MenuCategory[];
   onCategoriesChange: (categories: MenuCategory[]) => void;
@@ -37,6 +38,7 @@ interface MenuCategoryManagerProps {
 }
 
 export default function MenuCategoryManager({
+  shopId,
   menuId,
   categories,
   onCategoriesChange,
@@ -65,11 +67,11 @@ export default function MenuCategoryManager({
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = '分類名稱為必填';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -79,7 +81,7 @@ export default function MenuCategoryManager({
 
     setLoading('create');
     try {
-      const response = await authFetch(`/api/lunch/menus/${menuId}/categories`, {
+      const response = await authFetch(`/api/lunch/shops/${shopId}/menus/${menuId}/categories`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -92,7 +94,7 @@ export default function MenuCategoryManager({
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         onCategoriesChange([...categories, data.category]);
         setIsCreating(false);
@@ -112,7 +114,7 @@ export default function MenuCategoryManager({
 
     setLoading(`update-${categoryId}`);
     try {
-      const response = await authFetch(`/api/lunch/menus/${menuId}/categories/${categoryId}`, {
+      const response = await authFetch(`/api/lunch/shops/${shopId}/menus/${menuId}/categories/${categoryId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -125,9 +127,9 @@ export default function MenuCategoryManager({
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
-        const updatedCategories = categories.map(cat => 
+        const updatedCategories = categories.map(cat =>
           cat.id === categoryId ? { ...cat, ...data.category } : cat
         );
         onCategoriesChange(updatedCategories);
@@ -150,12 +152,12 @@ export default function MenuCategoryManager({
 
     setLoading(`delete-${categoryId}`);
     try {
-      const response = await authFetch(`/api/lunch/menus/${menuId}/categories/${categoryId}`, {
+      const response = await authFetch(`/api/lunch/shops/${shopId}/menus/${menuId}/categories/${categoryId}`, {
         method: 'DELETE'
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         const updatedCategories = categories.filter(cat => cat.id !== categoryId);
         onCategoriesChange(updatedCategories);
@@ -196,10 +198,10 @@ export default function MenuCategoryManager({
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : 
-               name === 'sort_order' ? parseInt(value) || 0 : value
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked :
+        name === 'sort_order' ? parseInt(value) || 0 : value
     }));
-    
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
