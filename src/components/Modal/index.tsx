@@ -58,7 +58,7 @@ function Modal({
 
     return (
         <dialog id={id} className={`modal`}>
-            <div className={cn('modal-box space-y-2 max-w-screen', `w-${size}`, className)} {...props}>
+            <div className={cn('modal-box space-y-2', `w-${size}`, className)} {...props}>
                 <div className=''>
                     {/* if there is a button in form, it will close the modal */}
                     <button

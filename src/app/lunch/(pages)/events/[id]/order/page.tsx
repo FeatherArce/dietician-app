@@ -6,7 +6,7 @@ import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import PageTitle from "@/components/page/PageTitle";
 import Tabs from "@/components/ui/Tabs";
 import { toast } from "@/components/Toast";
-import { AUTH_CONSTANTS } from "@/constants/app-constants";
+import { AUTH_CONSTANTS, ROUTE_CONSTANTS } from "@/constants/app-constants";
 import { authFetch } from "@/libs/auth-fetch";
 import { formatCurrency, formatNumber } from "@/libs/formatter";
 import { MenuCategory } from "@/prisma-generated/postgres-client";
@@ -358,7 +358,7 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
       if (data.success) {
         toast.success(existingOrder ? "訂單已更新！" : "訂單已提交！");
         // 使用瀏覽器返回上一頁，而不是強制跳轉到特定頁面
-        router.back();
+        router.push(ROUTE_CONSTANTS.LUNCH);
       } else {
         throw new Error(data.error || "提交失敗");
       }
