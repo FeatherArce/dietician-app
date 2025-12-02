@@ -26,6 +26,14 @@ export const API_CONSTANTS = {
   // Headers
   CONTENT_TYPE_JSON: "application/json",
   AUTHORIZATION_HEADER: "Authorization",
+
+  // Lunch API Endpoints
+  LUNCH_SHOPS_ENDPOINT: "/api/lunch/shops",
+  LUNCH_SHOP_DETAIL_ENDPOINT: (shopId: string) => `/api/lunch/shops/${shopId}`,
+  LUNCH_SHOP_MENUS_ENDPOINT: (shopId: string) => `/api/lunch/shops/${shopId}/menus`,
+  LUNCH_SHOP_MENU_DETAIL_ENDPOINT: (shopId: string, menuId: string) => `/api/lunch/shops/${shopId}/menus/${menuId}`,
+  LUNCH_SHOP_MENU_ITEMS_ENDPOINT: (shopId: string, menuId: string) => `/api/lunch/shops/${shopId}/menus/${menuId}/items`,
+  LUNCH_SHOP_MENU_ITEM_DETAIL_ENDPOINT: (shopId: string, menuId: string, itemId: string) => `/api/lunch/shops/${shopId}/menus/${menuId}/items/${itemId}`,
 } as const;
 
 // ==================== 路由相關 ====================
@@ -42,9 +50,9 @@ export const ROUTE_CONSTANTS = {
 
   // 商店相關路由
   LUNCH_SHOPS: "/lunch/shops",
-  LUNCH_SHOP_DETAIL: (id: string) => `/lunch/shops/${id}`,
-  LUNCH_SHOP_EDIT: (id: string) => `/lunch/shops/${id}/edit`,
-  LUNCH_SHOP_MENU_NEW: (id: string) => `/lunch/shops/${id}/menus/new`,
+  LUNCH_SHOP_DETAIL: (shopId: string) => `/lunch/shops/${shopId}`,
+  LUNCH_SHOP_EDIT: (shopId: string) => `/lunch/shops/${shopId}/edit`,
+  LUNCH_SHOP_MENU_NEW: (shopId: string) => `/lunch/shops/${shopId}/menus/new`,
   LUNCH_SHOP_MENU_EDIT: (shopId: string, menuId: string) =>
     `/lunch/shops/${shopId}/menus/${menuId}/edit`,
 } as const;

@@ -22,6 +22,7 @@ import PageLink from "@/components/ui/PageLink";
 import Fieldset from "@/components/ui/Fieldset";
 import PageContainer from "@/components/page/PageContainer";
 import { IShop } from "@/types/LunchEvent";
+import { API_CONSTANTS } from "@/constants/app-constants";
 
 export default function ShopDetailPage() {
   const params = useParams();
@@ -34,7 +35,7 @@ export default function ShopDetailPage() {
 
   const fetchShop = useCallback(async () => {
     try {
-      const response = await fetch(`/api/lunch/shops/${shopId}`);
+      const response = await fetch(API_CONSTANTS.LUNCH_SHOP_DETAIL_ENDPOINT(shopId));
       if (response.ok) {
         const data = await response.json();
         setShop(data.shop);
@@ -60,7 +61,7 @@ export default function ShopDetailPage() {
 
     setUpdating(true);
     try {
-      const response = await fetch(`/api/lunch/shops/${shopId}`, {
+      const response = await fetch(API_CONSTANTS.LUNCH_SHOP_DETAIL_ENDPOINT(shopId), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_active: !shop.is_active }),

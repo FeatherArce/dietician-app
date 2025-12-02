@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from "react"
 import { FaEdit, FaEye, FaPause, FaPlay, FaPlus, FaStore, FaTrash, FaUtensils } from "react-icons/fa";
 import { MENU_DEFAULT_ID } from "./[id]/menus/[menuId]/page";
 import PageLink from "@/components/ui/PageLink";
+import { API_CONSTANTS } from "@/constants/app-constants";
 
 interface ShopWithStats extends Shop {
   menuCount?: number;
@@ -91,7 +92,7 @@ export default function ShopsPage() {
   const toggleShopStatus = useCallback(async (shopId: string, isActive: boolean) => {
     startUpdateTransition(async () => {
       try {
-        const response = await fetch(`/api/lunch/shops/${shopId}`, {
+        const response = await fetch(API_CONSTANTS.LUNCH_SHOP_DETAIL_ENDPOINT(shopId), {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ is_active: !isActive }),
@@ -111,7 +112,7 @@ export default function ShopsPage() {
   const deleteShop = useCallback(async (shopId: string) => {
     startDeleteTransition(async () => {
       try {
-        const response = await fetch(`/api/lunch/shops/${shopId}`, {
+        const response = await fetch(API_CONSTANTS.LUNCH_SHOP_DETAIL_ENDPOINT(shopId), {
           method: "DELETE",
         });
         if (response.ok) {

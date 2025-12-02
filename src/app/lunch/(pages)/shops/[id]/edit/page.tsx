@@ -7,7 +7,7 @@ import FullShopForm, {
   ShopFormData,
   ShopFormErrors
 } from "@/components/shop/ShopForm";
-import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import { API_CONSTANTS, ROUTE_CONSTANTS } from "@/constants/app-constants";
 import { authFetch } from "@/libs/auth-fetch";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -74,7 +74,7 @@ export default function EditShopPage() {
     // 載入選中菜單的分類和項目
     const loadMenuContent = async (menuId: string) => {
       try {
-        const response = await authFetch(`/api/lunch/shops/${shopId}/menus/${menuId}`);
+        const response = await authFetch(API_CONSTANTS.LUNCH_SHOP_MENU_DETAIL_ENDPOINT(shopId, menuId));
         const data = await response.json();
 
         if (data.success && data.menu) {
@@ -101,7 +101,7 @@ export default function EditShopPage() {
 
     const fetchShopData = async () => {
       try {
-        const response = await authFetch(`/api/lunch/shops/${shopId}`);
+        const response = await authFetch(API_CONSTANTS.LUNCH_SHOP_DETAIL_ENDPOINT(shopId));
         const data = await response.json();
         console.log('Fetched shop data:', data);
 
@@ -149,7 +149,7 @@ export default function EditShopPage() {
 
     setLoading(true);
     try {
-      const response = await authFetch(`/api/lunch/shops/${shopId}`, {
+      const response = await authFetch(API_CONSTANTS.LUNCH_SHOP_DETAIL_ENDPOINT(shopId), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

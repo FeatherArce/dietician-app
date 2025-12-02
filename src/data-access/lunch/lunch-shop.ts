@@ -5,7 +5,6 @@ import { ShopFilters } from "@/services/lunch";
 import { DeleteShopMenuItemResponse, GetShopResponse, GetShopsResponse, PostBatchShopMenuItemsResponse, PostShopResponse } from "@/types/api/lunch";
 
 const shopsPath = '/api/lunch/shops';
-const menuPath = '/api/lunch/menus';
 
 // #region Shops
 
@@ -64,8 +63,8 @@ export async function getLunchShopMenus(shopId: string) {
 
 // #region Menu Items
 
-export async function getLunchShopMenuItems(menuId: string) {
-     const response = await authFetch(`${menuPath}/${menuId}/items`);
+export async function getLunchShopMenuItems(shopId: string, menuId: string) {
+     const response = await authFetch(`${shopsPath}/${shopId}/menus/${menuId}/items`);
      const result = await response.json();
      return { response, result };
 }
@@ -96,8 +95,8 @@ export async function batchCreateLunchShopMenuItems(shopId: string, menuId: stri
      return { response, result };
 }
 
-export async function updateLunchShopMenuItem(menuId: string, itemId: string, values: FormValues) {
-     const response = await authFetch(`${menuPath}/${menuId}/items/${itemId}`, {
+export async function updateLunchShopMenuItem(shopId: string, menuId: string, itemId: string, values: FormValues) {
+     const response = await authFetch(`${shopsPath}/${shopId}/menus/${menuId}/items/${itemId}`, {
           method: 'PATCH',
           headers: {
                'Content-Type': 'application/json',

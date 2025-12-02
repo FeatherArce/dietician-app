@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/libs/auth";
 import { menuCategoryService } from '@/services/lunch/shop-services';
 
-// GET /api/lunch/menus/[menuId]/categories - 獲取菜單的所有分類
+// GET /api/lunch/shops/[id]/menus/[menuId]/categories - 獲取菜單的所有分類
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ menuId: string }> }
@@ -31,7 +31,7 @@ export async function GET(
   }
 }
 
-// POST /api/lunch/menus/[menuId]/categories - 為菜單建立新分類
+// POST /api/lunch/shops/[id]/menus/[menuId]/categories - 為菜單建立新分類
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ menuId: string }> }

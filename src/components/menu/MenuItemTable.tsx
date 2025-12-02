@@ -3,7 +3,7 @@ import DataTable from '../DataTable'
 import { IShopMenuItem } from '@/types/LunchEvent'
 import { formatCurrency } from '@/libs/formatter'
 import { FaEdit, FaPlus, FaSpinner, FaTrash, FaUtensils } from 'react-icons/fa';
-import { batchCreateLunchShopMenuItems, getLunchShopMenuItems } from '@/data-access/lunch/lunch-shop';
+import { batchCreateLunchShopMenuItems } from '@/data-access/lunch/lunch-shop';
 import Modal, { ModalRef } from '../Modal';
 import MenuItemForm from './MenuItemForm';
 import { FormRef, FormValues } from '../form/types';
@@ -168,7 +168,7 @@ export default function MenuItemTable({
         }
         try {
             setIsLoading(true);
-            await updateLunchShopMenuItem(menuId, id, values);
+            await updateLunchShopMenuItem(shopId, menuId, id, values);
             modalCloseHandler();
             await mutate();
             toast.success('更新成功');
@@ -178,7 +178,7 @@ export default function MenuItemTable({
         } finally {
             setIsLoading(false);
         }
-    }, [mutate, menuId, modalCloseHandler]);
+    }, [mutate, shopId, menuId, modalCloseHandler]);
 
     const handleFinish = useCallback(async (values: FormValues) => {
         if (modalSettings.mode === 'create') {

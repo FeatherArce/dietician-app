@@ -13,7 +13,6 @@ export interface BatchCreateMenuItemSheetData {
     name: string;
     description?: string;
     price: number;
-    is_available: boolean;
     [key: string]: any;
 }
 
@@ -35,9 +34,9 @@ export default function BatchImportMenuModal({
     const handleDownloadTemplate = useCallback(() => {
         const workbook = xlsxUtils.book_new();
         const worksheet = xlsxUtils.json_to_sheet([
-            { name: '範例菜單項目', description: '這是一個範例描述', price: 100, is_available: true },
+            { name: '範例菜單項目', description: '這是一個範例描述', price: 100 },
         ]);
-        xlsxUtils.sheet_add_aoa(worksheet, [['name', 'description', 'price', 'is_available']], { origin: 'A1' });
+        xlsxUtils.sheet_add_aoa(worksheet, [['name', 'description', 'price']], { origin: 'A1' });
         xlsxUtils.book_append_sheet(workbook, worksheet, 'Template Menu Items');
         writeFile(workbook, 'template_menu_item_.xlsx', { bookType: 'xlsx', compression: true });
     }, []);
@@ -104,7 +103,6 @@ export default function BatchImportMenuModal({
                                 { title: '名稱', key: 'name' },
                                 { title: '描述', key: 'description' },
                                 { title: '價格', key: 'price' },
-                                { title: '是否可用', key: 'is_available' },
                             ]}
                         />
                     </div>

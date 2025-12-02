@@ -18,6 +18,7 @@ import {
   FaToggleOn,
   FaUtensils,
 } from "react-icons/fa";
+import { API_CONSTANTS } from "@/constants/app-constants";
 
 export const MENU_DEFAULT_ID = "default";
 
@@ -86,7 +87,7 @@ export default function MenuDetailPage() {
     setUpdating(true);
     try {
       const response = await authFetch(
-        `/api/lunch/shops/${shopId}/menus/${menuId}`,
+        API_CONSTANTS.LUNCH_SHOP_MENU_DETAIL_ENDPOINT(shopId, menuId),
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

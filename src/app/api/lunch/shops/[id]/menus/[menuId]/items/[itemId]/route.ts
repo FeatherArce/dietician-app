@@ -3,7 +3,7 @@ import { auth } from "@/libs/auth";
 import { menuItemService } from '@/services/lunch/shop-services';
 import { DeleteShopMenuItemResponse } from '@/types/api/lunch';
 
-// PATCH /api/lunch/menus/[menuId]/items/[itemId] - 更新項目
+// PATCH /api/lunch/shops/[id]/menus/[menuId]/items/[itemId] - 更新項目
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ menuId: string; itemId: string }> }
@@ -66,7 +66,7 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/lunch/menus/[menuId]/items/[itemId] - 刪除項目
+// DELETE /api/lunch/shops/[id]/menus/[menuId]/items/[itemId] - 刪除項目
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ menuId: string; itemId: string }> }
