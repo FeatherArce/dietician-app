@@ -204,7 +204,7 @@ export default function EditShopPage() {
           <FaExclamationCircle className="w-16 h-16 mx-auto text-error mb-4" />
           <h2 className="text-2xl font-bold mb-2">商店不存在</h2>
           <p className="text-base-content/70 mb-6">找不到指定的商店資料</p>
-          <Link href="/lunch/shops" className="btn btn-primary">
+          <Link href={ROUTE_CONSTANTS.LUNCH_SHOPS} className="btn btn-primary">
             返回商店列表
           </Link>
         </div>
@@ -218,8 +218,8 @@ export default function EditShopPage() {
       <Breadcrumb
         items={[
           lunchBreadcrumbHomeItem,
-          { label: '商店管理', href: '/lunch/shops' },
-          { label: shopData.name, href: `/lunch/shops/${shopId}` },
+          { label: '商店管理', href: ROUTE_CONSTANTS.LUNCH_SHOPS },
+          { label: shopData.name, href: ROUTE_CONSTANTS.LUNCH_SHOP_DETAIL(shopId) },
           { label: '編輯', current: true }
         ]}
       />

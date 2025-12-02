@@ -108,7 +108,7 @@ export default function NewShopPageExample() {
       {/* 麵包屑導航 */}
       <Breadcrumb
         items={[
-          { label: '商店管理', href: '/lunch/shops' },
+          { label: '商店管理', href: ROUTE_CONSTANTS.LUNCH_SHOPS },
           { label: '建立商店', current: true }
         ]}
       />

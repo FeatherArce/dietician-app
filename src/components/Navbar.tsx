@@ -1,5 +1,5 @@
 "use client";
-import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import { APP_NAME, ROUTE_CONSTANTS } from "@/constants/app-constants";
 import { useCallback, useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
@@ -49,9 +49,9 @@ export default function Navbar() {
   const menuItems: MenuItem[] = useMemo(() => {
     const newItems: MenuItem[] = [];
     if (user?.role === UserRole.ADMIN) {
-      newItems.push({ label: "使用者管理", href: "/users" });
+      newItems.push({ label: "使用者管理", href: ROUTE_CONSTANTS.USERS });
     }
-    newItems.push({ label: "訂餐系統", href: "/lunch" });
+    newItems.push({ label: "訂餐系統", href: ROUTE_CONSTANTS.LUNCH });
     return newItems;
   }, [user?.role]);
 
@@ -76,13 +76,13 @@ export default function Navbar() {
         </div>
         {/* 桌面板: 標題 */}
         <div className="hidden md:block">
-          <PageLink href="/" className="btn btn-ghost text-xl normal-case">訂餐管理系統</PageLink>
+          <PageLink href="/" className="btn btn-ghost text-xl normal-case">{APP_NAME}</PageLink>
         </div>
       </div>
       <div className="navbar-center">
         {/* 手機板: 標題 */}
         <div className="block md:hidden">
-          <PageLink href="/" className="btn btn-ghost text-xl normal-case">訂餐管理系統</PageLink>
+          <PageLink href="/" className="btn btn-ghost text-xl normal-case">{APP_NAME}</PageLink>
         </div>
         {/* 桌面板: 功能選單 */}
         <div className="hidden md:block">

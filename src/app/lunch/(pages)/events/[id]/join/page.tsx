@@ -97,7 +97,7 @@ export default function JoinEventPage() {
                 <div className="text-center">
                     <h2 className="text-2xl font-bold mb-4">載入失敗</h2>
                     <p className="mb-4">{error}</p>
-                    <Link href="/lunch" className="btn btn-primary">
+                    <Link href={ROUTE_CONSTANTS.LUNCH} className="btn btn-primary">
                         回到訂餐首頁
                     </Link>
                 </div>
@@ -111,7 +111,7 @@ export default function JoinEventPage() {
                 <div className="text-center">
                     <h2 className="text-2xl font-bold mb-4">活動不存在</h2>
                     <p className="mb-4">您要查看的訂餐活動不存在或已被刪除</p>
-                    <Link href="/lunch" className="btn btn-primary">
+                    <Link href={ROUTE_CONSTANTS.LUNCH} className="btn btn-primary">
                         回到訂餐首頁
                     </Link>
                 </div>
@@ -157,7 +157,7 @@ export default function JoinEventPage() {
                         )}
 
                         <div className="text-center">
-                            <Link href="/lunch" className="link link-primary text-sm">
+                            <Link href={ROUTE_CONSTANTS.LUNCH} className="link link-primary text-sm">
                                 回到我的訂餐首頁
                             </Link>
                         </div>

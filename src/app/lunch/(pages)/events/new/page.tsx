@@ -4,6 +4,7 @@ import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import { Notification } from "@/components/Notification";
 import PageAuthBlocker from "@/components/page/PageAuthBlocker";
 import { toast } from "@/components/Toast";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 import { createLunchEvent } from "@/data-access/lunch/lunch-event";
 import moment from "moment-timezone";
 import { useSession } from "next-auth/react";
@@ -95,7 +96,7 @@ export default function NewEventPage() {
       <Breadcrumb
         items={[
           lunchBreadcrumbHomeItem,
-          { label: '活動管理', href: '/lunch/events' },
+          { label: '活動管理', href: ROUTE_CONSTANTS.LUNCH_EVENTS },
           { label: '建立活動', current: true }
         ]}
       />

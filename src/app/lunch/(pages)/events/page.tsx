@@ -6,6 +6,7 @@ import SearchContainer from "@/components/SearchContainer";
 import { SearchInput, Select } from "@/components/SearchContainer/SearchFields";
 import { toast, useToastAPI } from "@/components/Toast";
 import PageContainer from "@/components/page/PageContainer";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
 import { LunchEvent, UserRole } from "@/prisma-generated/postgres-client";
 import moment from "moment-timezone";
 import { useSession } from "next-auth/react";
@@ -15,9 +16,7 @@ import {
   FaCalendarAlt,
   FaEdit,
   FaEye,
-  FaPlus,
-  FaToggleOff,
-  FaToggleOn
+  FaPlus
 } from "react-icons/fa";
 
 interface EventWithStats extends LunchEvent {
@@ -45,6 +44,7 @@ export default function EventsPage() {
   const user = session?.user;
   const [events, setEvents] = useState<EventWithStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isActiveChanging, setIsActiveChanging] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [dateFilter, setDateFilter] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -158,6 +158,7 @@ export default function EventsPage() {
           label: '確認',
           onClick: async () => {
             try {
+              setIsActiveChanging(true);
               const response = await fetch(`/api/lunch/events/${eventId}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
@@ -175,6 +176,8 @@ export default function EventsPage() {
               console.error("Failed to update event status:", error);
               // 使用 toast 顯示錯誤訊息
               toast.error(`無法${action}活動，請稍後再試。`);
+            } finally {
+              setIsActiveChanging(false);
             }
           },
           className: 'btn-warning'
@@ -220,11 +223,22 @@ export default function EventsPage() {
       key: 'description',
       title: '描述',
       dataIndex: 'description',
-      render: (value) => (
-        <div className="max-w-xs truncate" title={value as string}>
-          {value as string}
-        </div>
-      )
+      width: 100,
+      render: (value) => {
+        const description = value as string;
+        if (!description) {
+          return ""
+        }
+        return (
+          <div
+            className="tooltip max-w-[100px] truncate"
+            title={description}
+            data-tip={description}
+          >
+            {description}
+          </div>
+        );
+      }
     },
     {
       key: 'location',
@@ -268,7 +282,7 @@ export default function EventsPage() {
       render: (_, record) => (
         record.shop ? (
           <Link
-            href={`/lunch/shops/${record.shop.id}`}
+            href={ROUTE_CONSTANTS.LUNCH_SHOP_DETAIL(record.shop.id)}
             className="link link-primary text-sm"
           >
             {record.shop.name}
@@ -329,32 +343,36 @@ export default function EventsPage() {
       title: '操作',
       align: 'center',
       render: (_, record) => (
-        <div className="flex items-center justify-center space-x-1">
+        <div className="flex items-center justify-center gap-1">
           <Link
-            href={`/lunch/events/${record.id}`}
-            className="btn btn-ghost btn-xs"
+            href={ROUTE_CONSTANTS.LUNCH_EVENT_DETAIL(record.id)}
+            className="btn btn-sm btn-primary btn-ghost"
             title="檢視詳細"
           >
-            <FaEye className="w-3 h-3" />
+            <FaEye className="w-4 h-4" />
           </Link>
+
           <Link
-            href={`/lunch/events/${record.id}/edit`}
-            className="btn btn-ghost btn-xs"
+            href={ROUTE_CONSTANTS.LUNCH_EVENT_EDIT(record.id)}
+            className="btn btn-sm btn-primary btn-ghost"
             title="編輯"
           >
-            <FaEdit className="w-3 h-3" />
+            <FaEdit className="w-4 h-4" />
           </Link>
-          <button
-            className="btn btn-ghost btn-xs"
-            title={record.is_active ? "關閉活動" : "開啟活動"}
-            onClick={() => toggleEventStatus(record.id, record.is_active)}
-          >
-            {record.is_active ? (
-              <FaToggleOn className="w-3 h-3 text-success" />
-            ) : (
-              <FaToggleOff className="w-3 h-3 text-error" />
-            )}
-          </button>
+
+          {isActiveChanging ? (
+            <span className="btn btn-ghost loading loading-spinner loading-sm" title="變更中..."></span>
+          ) : (
+            <input
+              type="checkbox"
+              checked={record.is_active}
+              className="toggle toggle-success"
+              onChange={(e) => {
+                // const newState = e.target.checked;
+                toggleEventStatus(record.id, record.is_active)
+              }}
+            />
+          )}
         </div>
       )
     }
@@ -389,7 +407,7 @@ export default function EventsPage() {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <Link href="/lunch/events/new" className="btn btn-primary">
+          <Link href={ROUTE_CONSTANTS.LUNCH_EVENT_NEW} className="btn btn-primary">
             <FaPlus className="w-4 h-4" />
             建立活動
           </Link>
@@ -441,6 +459,11 @@ export default function EventsPage() {
         columns={columns}
         dataSource={filteredEvents}
         loading={loading}
+        size="sm"
+        hover={true}
+        striped={true}
+        bordered={true}
+        emptyText="沒有找到活動"
         pagination={{
           current: 1,
           pageSize: 20,
@@ -449,45 +472,40 @@ export default function EventsPage() {
           showQuickJumper: true,
           showTotal: true
         }}
-        summary={{
-          show: true,
-          fixed: true,
-          columns: [
-            {
-              key: 'title',
-              render: () => <span className="font-bold">總計</span>
-            },
-            {
-              key: 'orderCount',
-              type: 'sum',
-              render: (data) => {
-                const total = data.reduce((sum, item) => sum + (item.orderCount || 0), 0);
-                return <span className="font-bold text-primary">{total}</span>;
-              }
-            },
-            {
-              key: 'participantCount',
-              type: 'sum',
-              render: (data) => {
-                const total = data.reduce((sum, item) => sum + (item.participantCount || 0), 0);
-                return <span className="font-bold text-secondary">{total}</span>;
-              }
-            },
-            {
-              key: 'totalAmount',
-              type: 'sum',
-              render: (data) => {
-                const total = data.reduce((sum, item) => sum + (item.totalAmount || 0), 0);
-                return <span className="font-bold text-accent">${total}</span>;
-              }
-            }
-          ]
-        }}
-        size="sm"
-        hover={true}
-        striped={true}
-        bordered={true}
-        emptyText="沒有找到活動"
+      // summary={{
+      //   show: true,
+      //   fixed: true,
+      //   columns: [
+      //     {
+      //       key: 'title',
+      //       render: () => <span className="font-bold">總計</span>
+      //     },
+      //     {
+      //       key: 'orderCount',
+      //       type: 'sum',
+      //       render: (data) => {
+      //         const total = data.reduce((sum, item) => sum + (item.orderCount || 0), 0);
+      //         return <span className="font-bold text-primary">{total}</span>;
+      //       }
+      //     },
+      //     {
+      //       key: 'participantCount',
+      //       type: 'sum',
+      //       render: (data) => {
+      //         const total = data.reduce((sum, item) => sum + (item.participantCount || 0), 0);
+      //         return <span className="font-bold text-secondary">{total}</span>;
+      //       }
+      //     },
+      //     {
+      //       key: 'totalAmount',
+      //       type: 'sum',
+      //       render: (data) => {
+      //         const total = data.reduce((sum, item) => sum + (item.totalAmount || 0), 0);
+      //         return <span className="font-bold text-accent">${total}</span>;
+      //       }
+      //     }
+      //   ]
+      // }}
       />
 
       {filteredEvents.length === 0 && (

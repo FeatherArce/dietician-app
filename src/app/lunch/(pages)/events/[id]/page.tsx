@@ -2,27 +2,26 @@
 import Breadcrumb, { lunchBreadcrumbHomeItem } from "@/components/Breadcrumb";
 import DataTable from "@/components/DataTable";
 import { toast } from "@/components/Toast";
+import Dropdowns from "@/components/ui/Dropdowns";
 import Fieldset from "@/components/ui/Fieldset";
 import PageLink from "@/components/ui/PageLink";
+import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import { getLunchEventById, updateLunchEvent } from "@/data-access/lunch/lunch-event";
 import { authFetch } from "@/libs/auth-fetch";
 import { UserRole } from "@/prisma-generated/postgres-client";
-import { getLunchEventById, updateLunchEvent } from "@/data-access/lunch/lunch-event";
 import { ILunchEvent, ILunchOrder } from "@/types/LunchEvent";
+import moment from "moment-timezone";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FaArrowLeft,
   FaDollarSign,
-  FaDownload,
   FaEdit,
   FaShoppingCart,
-  FaToggleOff,
-  FaToggleOn,
   FaUsers
 } from "react-icons/fa";
 import EventOrderSummaryTable, { EventOrderSummaryTableRef } from "../../../_components/EventOrderSummaryTable";
-import moment from "moment-timezone";
 
 // interface EventWithSummary extends EventWithDetails {
 //   orderCount: number;
@@ -30,6 +29,11 @@ import moment from "moment-timezone";
 //   participantCount: number;
 //   itemSummary: Array<ItemSummary>;
 // }
+
+enum ActionKey {
+  TOGGLE = 'toggle',
+  EXPORT = 'export'
+}
 
 export default function EventDetailPage() {
   const params = useParams();
@@ -58,11 +62,11 @@ export default function EventDetailPage() {
       if (response.ok && result.success && result.data?.event) {
         setEvent(result.data?.event);
       } else {
-        router.push("/lunch/events");
+        router.push(ROUTE_CONSTANTS.LUNCH_EVENTS);
       }
     } catch (error) {
       console.error("Failed to fetch event:", error);
-      router.push("/lunch/events");
+      router.push(ROUTE_CONSTANTS.LUNCH_EVENTS);
     } finally {
       setLoading(false);
     }
@@ -127,7 +131,7 @@ export default function EventDetailPage() {
     const now = new Date();
     const orderDeadline = new Date(event.order_deadline);
     if (!event.is_active) return "已關閉";
-    if (orderDeadline < now) return "訂餐結束";
+    if (orderDeadline < now) return "訂餐時間已截止";
     return "進行中";
   };
 
@@ -155,6 +159,34 @@ export default function EventDetailPage() {
 
     return { totalOrders, paidOrders, unpaidOrders }
   }, [event]);
+
+  const actionItems = useMemo(() => {
+    return [
+      { label: '目前狀態： ' + (event?.is_active ? '開啟中' : '已關閉') },
+      { divider: true },
+      {
+        key: ActionKey.TOGGLE,
+        label: event?.is_active ? '關閉活動' : '開啟活動',
+        disabled: updating
+      },
+      { key: ActionKey.EXPORT, label: '匯出' }
+    ];
+  }, [event, updating]);
+
+  const handleActionSelect = useCallback((key: string) => {
+    console.log('Selected action:', key);
+    // 根據 key 執行相應的操作
+    switch (key) {
+      case ActionKey.TOGGLE:
+        toggleEventStatus();
+        break;
+      case ActionKey.EXPORT:
+        eventTableRef.current?.download();
+        break;
+      default:
+        break;
+    }
+  }, [toggleEventStatus]);
 
   if (loading) {
     return (
@@ -188,7 +220,7 @@ export default function EventDetailPage() {
       <Breadcrumb
         items={[
           lunchBreadcrumbHomeItem,
-          { label: '活動管理', href: '/lunch/events' },
+          { label: '活動管理', href: ROUTE_CONSTANTS.LUNCH_EVENTS },
           { label: event.title, current: true }
         ]}
         className="mb-0"
@@ -218,40 +250,25 @@ export default function EventDetailPage() {
           {canEdit && (
             <>
               <PageLink
-                href={`/lunch/events/${eventId}/edit`}
-                className="btn btn-ghost"
+                href={ROUTE_CONSTANTS.LUNCH_EVENT_EDIT(eventId)}
+                className="btn btn-primary"
               >
-                <FaEdit className="w-4 h-4" />
+                <FaEdit className="w-3 h-3" />
                 編輯
               </PageLink>
-              <button
-                className={`btn ${event.is_active ? "btn-error" : "btn-success"}`}
-                onClick={toggleEventStatus}
-                disabled={updating}
-              >
-                {updating ? (
-                  <span className="loading loading-spinner loading-sm"></span>
-                ) : event.is_active ? (
-                  <>
-                    <FaToggleOff className="w-4 h-4" />
-                    關閉活動
-                  </>
-                ) : (
-                  <>
-                    <FaToggleOn className="w-4 h-4" />
-                    開啟活動
-                  </>
+
+              <Dropdowns
+                items={actionItems}
+                onSelect={handleActionSelect}
+                trigger={(
+                  <button className="btn btn-outline btn-secondary">
+                    {updating ? (
+                      <span className="loading loading-spinner loading-sm"></span>
+                    ) : null}
+                    操作
+                  </button>
                 )}
-              </button>
-              <button
-                className="btn btn-outline btn-primary"
-                onClick={() => {
-                  eventTableRef.current?.download();
-                }}
-              >
-                <FaDownload />
-                匯出訂單
-              </button>
+              />
             </>
           )}
         </div>
@@ -327,7 +344,7 @@ export default function EventDetailPage() {
           items={[
             { label: '主辦人', content: <>{event.owner ? event.owner.name : '未知'}</> },
             { label: '狀態', content: getEventStatus() },
-            { label: '活動日期', content: <>{new Date(event.event_date).toLocaleDateString("zh-TW")}</> },            
+            { label: '活動日期', content: <>{new Date(event.event_date).toLocaleDateString("zh-TW")}</> },
             { label: '訂餐截止時間', content: <>{moment(event.order_deadline).tz("Asia/Taipei").format("YYYY-MM-DD HH:mm:ss")}</> },
             { label: '商店', content: <>{event.shop ? event.shop.name : '未指定'}</> },
             { label: '商店地址', content: <>{event.shop?.address || '-'}</> },

@@ -1,24 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ROUTE_CONSTANTS } from './constants/app-constants';
+import { API_CONSTANTS, ROUTE_CONSTANTS } from './constants/app-constants';
 import { getToken } from 'next-auth/jwt';
 
 // 需要認證的路由模式
 const protectedRoutes = [
-    '/lunch',
-    '/api/lunch',
+    ROUTE_CONSTANTS.LUNCH,
+    API_CONSTANTS.LUNCH_API_BASE,
 ];
 
 const adminOnlyRoutes = [
     // 在此添加僅限管理員訪問的路由模式
-    '/crm',
-    '/erp',
-    '/api/crm',
-    '/api/erp',
-    '/users',    
+    ROUTE_CONSTANTS.CRM,
+    ROUTE_CONSTANTS.ERP,
+    API_CONSTANTS.CRM_API_BASE,
+    API_CONSTANTS.ERP_API_BASE,
+    ROUTE_CONSTANTS.USERS,
 ];
 
 const rootPage = '/';
-const defaultAuthRedirectPage = '/lunch';
+const defaultAuthRedirectPage = ROUTE_CONSTANTS.LUNCH;
 
 // 認證相關路由（已登入時重定向）
 const loginRoutes = [
@@ -28,7 +28,7 @@ const loginRoutes = [
 
 // 公開路由（不需要認證）
 const publicRoutes = [
-    '/api/auth',
+    API_CONSTANTS.AUTH_API_BASE,
     '/auth/reset-password'
 ];
 

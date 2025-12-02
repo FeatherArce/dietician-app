@@ -226,9 +226,9 @@ export default function EditMenuPage() {
       <Breadcrumb
         items={[
           lunchBreadcrumbHomeItem,
-          { label: '商店管理', href: '/lunch/shops' },
-          { label: shopData.name, href: `/lunch/shops/${shopId}` },
-          { label: menuData.name, href: `/lunch/shops/${shopId}/menus/${menuId}` },
+          { label: '商店管理', href: ROUTE_CONSTANTS.LUNCH_SHOPS},
+          { label: shopData.name, href: ROUTE_CONSTANTS.LUNCH_SHOP_DETAIL(shopId) },
+          { label: menuData.name, href: ROUTE_CONSTANTS.LUNCH_SHOP_MENU_DETAIL(shopId, menuId) },
           { label: '編輯', current: true }
         ]}
       />

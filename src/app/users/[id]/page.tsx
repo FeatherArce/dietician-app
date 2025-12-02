@@ -306,7 +306,7 @@ export default function UserDetailPage() {
               <div className="flex justify-between items-center mb-4">
                 <h3 className="card-title">最近訂單</h3>
                 <Link
-                  href={`/lunch/orders?userId=${userId}`}
+                  href={`/users/${userId}/lunch-orders`}
                   className="btn btn-ghost btn-sm"
                 >
                   查看全部

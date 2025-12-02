@@ -1,6 +1,7 @@
 "use client";
 import { toast } from '@/components/Toast';
 import PageLink from '@/components/ui/PageLink';
+import { ROUTE_CONSTANTS } from '@/constants/app-constants';
 import { formatCurrency } from '@/libs/formatter';
 import { LunchEvent, UserRole } from '@/prisma-generated/postgres-client';
 import { ILunchEvent, MyOrder } from '@/types/LunchEvent';
@@ -70,18 +71,12 @@ export default function EventCard({
                         {hasManagePermission && (
                             <>
                                 <PageLink
-                                    href={`/lunch/events/${event.id}`}
+                                    href={ROUTE_CONSTANTS.LUNCH_EVENT_DETAIL(event.id)}
                                     className="btn btn-ghost btn-sm"
                                 >
                                     <FaEdit className="w-3 h-3" />
                                     編輯
                                 </PageLink>
-                                {/* <Link
-                                href={`/lunch/events/${event.id}/edit`}
-                                className="btn btn-warning btn-sm"
-                            >
-                                編輯
-                            </Link> */}
                             </>
                         )}
 
@@ -181,21 +176,12 @@ export default function EventCard({
                 <div className="card-actions justify-end">
                     {/* 訂餐相關按鈕 - 根據狀態顯示 */}
                     {(event.is_active && new Date(event.order_deadline) > new Date()) ? (
-                        !hasOrder ? (
-                            <PageLink
-                                href={`/lunch/events/${event.id}/order`}
-                                className="btn btn-primary btn-sm"
-                            >
-                                參與訂餐
-                            </PageLink>
-                        ) : (
-                            <PageLink
-                                href={`/lunch/events/${event.id}/order`}
-                                className="btn btn-primary btn-sm"
-                            >
-                                修改訂單
-                            </PageLink>
-                        )
+                        <PageLink
+                            href={ROUTE_CONSTANTS.LUNCH_EVENT_ORDER(event.id)}
+                            className="btn btn-primary btn-sm"
+                        >
+                            {hasOrder ? '修改訂單' : '參與訂餐'}
+                        </PageLink>
                     ) : null}
 
                     {/* 統計按鈕 - 當有訂單資料時顯示 */}

@@ -16,7 +16,7 @@ export default function LoginPage() {
     // 登入成功，重定向到主頁或指定頁面
     const redirectTo = searchParams.get("redirect");
     if (redirectTo === ROUTE_CONSTANTS.LOGIN || !redirectTo) {
-      router.push("/lunch");
+      router.push(ROUTE_CONSTANTS.LUNCH);
     } else {
       router.push(redirectTo);
     }

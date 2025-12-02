@@ -1,6 +1,6 @@
 "use client";
 
-import { APP_NAME, AUTH_CONSTANTS } from '@/constants/app-constants';
+import { APP_NAME, AUTH_CONSTANTS, ROUTE_CONSTANTS } from '@/constants/app-constants';
 import Link from 'next/link';
 import { FaHome, FaUser } from 'react-icons/fa';
 
@@ -19,13 +19,13 @@ export const appBreadcrumbHomeItem: BreadcrumbItem = {
 
 export const lunchBreadcrumbHomeItem: BreadcrumbItem = {
   label: '訂餐系統',
-  href: '/lunch',
+  href: ROUTE_CONSTANTS.LUNCH,
   icon: <FaHome />
 };
 
 export const usersBreadcrumbHomeItem: BreadcrumbItem = {
   label: '使用者管理',
-  href: '/users',
+  href: ROUTE_CONSTANTS.USERS,
   icon: <FaUser />
 };
 

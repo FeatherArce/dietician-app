@@ -185,8 +185,8 @@ export default function NewMenuPage() {
       <Breadcrumb
         items={[
           lunchBreadcrumbHomeItem,
-          { label: '商店管理', href: '/lunch/shops' },
-          { label: shop.name, href: `/lunch/shops/${shopId}` },
+          { label: '商店管理', href: ROUTE_CONSTANTS.LUNCH_SHOPS },
+          { label: shop.name, href: ROUTE_CONSTANTS.LUNCH_SHOP_DETAIL(shopId) },
           { label: '新增菜單', current: true }
         ]}
       />

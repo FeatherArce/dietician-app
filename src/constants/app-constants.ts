@@ -18,16 +18,14 @@ export const AUTH_CONSTANTS = {
 // ==================== API 相關 ====================
 export const API_CONSTANTS = {
   // Base URLs
-  LUNCH_API_BASE: "/api/lunch",
   AUTH_API_BASE: "/api/auth",
+  LUNCH_API_BASE: "/api/lunch",
   CRM_API_BASE: "/api/crm",
   ERP_API_BASE: "/api/erp",
 
-  // Headers
-  CONTENT_TYPE_JSON: "application/json",
-  AUTHORIZATION_HEADER: "Authorization",
-
   // Lunch API Endpoints
+  LUNCH_EVENTS_ENDPOINT: "/api/lunch/events",
+  LUNCH_EVENT_DETAIL_ENDPOINT: (eventId: string) => `/api/lunch/events/${eventId}`,
   LUNCH_SHOPS_ENDPOINT: "/api/lunch/shops",
   LUNCH_SHOP_DETAIL_ENDPOINT: (shopId: string) => `/api/lunch/shops/${shopId}`,
   LUNCH_SHOP_MENUS_ENDPOINT: (shopId: string) => `/api/lunch/shops/${shopId}/menus`,
@@ -47,12 +45,20 @@ export const ROUTE_CONSTANTS = {
   LUNCH: "/lunch",
   CRM: "/crm",
   ERP: "/erp",
+  USERS: "/users",
 
   // 商店相關路由
+  LUNCH_EVENTS: "/lunch/events",
+  LUNCH_EVENT_NEW: "/lunch/events/new",
+  LUNCH_EVENT_DETAIL: (eventId: string) => `/lunch/events/${eventId}`,
+  LUNCH_EVENT_EDIT: (eventId: string) => `/lunch/events/${eventId}/edit`,
+  LUNCH_EVENT_ORDER: (eventId: string) => `/lunch/events/${eventId}/order`,
   LUNCH_SHOPS: "/lunch/shops",
+  LUNCH_SHOP_NEW: "/lunch/shops/new",
   LUNCH_SHOP_DETAIL: (shopId: string) => `/lunch/shops/${shopId}`,
   LUNCH_SHOP_EDIT: (shopId: string) => `/lunch/shops/${shopId}/edit`,
   LUNCH_SHOP_MENU_NEW: (shopId: string) => `/lunch/shops/${shopId}/menus/new`,
+  LUNCH_SHOP_MENU_DETAIL: (shopId: string, menuId: string) => `/lunch/shops/${shopId}/menus/${menuId}`,
   LUNCH_SHOP_MENU_EDIT: (shopId: string, menuId: string) =>
     `/lunch/shops/${shopId}/menus/${menuId}/edit`,
 } as const;

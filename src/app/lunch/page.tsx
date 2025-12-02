@@ -183,7 +183,7 @@ export default function LunchPage() {
 
                     <div className="flex space-x-2">
                         <Link
-                            href="/lunch/events/new"
+                            href={ROUTE_CONSTANTS.LUNCH_EVENT_NEW}
                             className="btn btn-primary btn-sm"
                         >
                             <FaPlus className="w-4 h-4" />
