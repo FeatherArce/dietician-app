@@ -31,6 +31,7 @@ import { ILunchOrderItem, ILunchEvent, IShopMenu, IShopMenuCategory, IShopMenuIt
 import { cn } from "@/libs/utils";
 import { deleteOrder } from "@/data-access/lunch/lunch-order";
 import moment from "moment-timezone";
+import MenuTable from "./_components/MenuTable";
 
 interface ExistingOrder {
   id: string;
@@ -286,15 +287,15 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
   }, []);
 
   // 更新項目數量
-  const updateItemQuantity = (index: number, change: number) => {
-    setOrderItems(orderItems.map((item, i) => {
-      if (i === index) {
-        const newQuantity = Math.max(0, item.quantity + change);
-        return newQuantity === 0 ? null : { ...item, quantity: newQuantity };
-      }
-      return item;
-    }).filter(Boolean) as ILunchOrderItem[]);
-  };
+  // const updateItemQuantity = (index: number, change: number) => {
+  //   setOrderItems(orderItems.map((item, i) => {
+  //     if (i === index) {
+  //       const newQuantity = Math.max(0, item.quantity + change);
+  //       return newQuantity === 0 ? null : { ...item, quantity: newQuantity };
+  //     }
+  //     return item;
+  //   }).filter(Boolean) as ILunchOrderItem[]);
+  // };
 
   // 移除項目
   const removeItem = (index: number) => {
@@ -412,39 +413,6 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     console.log("Generating tabs", { menus: event?.shop?.menus, newMenus });
     return newMenus;
   }, [event]);
-
-  const TabMenuContent = ({ category }: { category: IShopMenuCategory }) => {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {category.items.map(item => (
-          <div
-            key={item.id}
-            className={`card border cursor-pointer transition-all hover:shadow-md ${!item.is_available ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary'
-              }`}
-            onClick={() => item.is_available && openAddMenuMealModal(item)}
-          >
-            <div className="card-body p-4">
-              <h4 className="font-semibold text-sm">{item.name}</h4>
-              {item.description && (
-                <p className="text-xs text-base-content/70 mb-2">{item.description}</p>
-              )}
-              <div className="flex justify-between items-center">
-                <span className="text-primary font-bold">${item.price}</span>
-                <div className={`badge badge-sm ${item.is_available ? 'badge-success' : 'badge-error'}`}>
-                  {item.is_available ? '供應中' : '停售'}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-        {category.items.length === 0 && (
-          <div className="col-span-full text-center py-8 text-base-content/50">
-            此分類暫無餐點
-          </div>
-        )}
-      </div>
-    );
-  }
 
   const handleDeleteOrder = useCallback(async () => {
     if (!canCancelOrder) {
@@ -587,30 +555,12 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
             </div>
             <p className="text-gray-500">請選擇您想要的餐點，若餐點不在菜單上，請透過 &quot;自訂餐點&quot; 功能新增。</p>
 
-            {tabMenus?.length > 0 ? (
-              tabMenus?.map((menu, index) => (
-                <Tabs
-                  key={`tab-menu-${index}`}
-                  items={(menu?.categories || []).map(category => ({
-                    id: category.id,
-                    label: category.name,
-                    icon: <FaUtensils className="w-3 h-3 mr-1" />,
-                    content: (
-                      <TabMenuContent category={category} />
-                    )
-                  }))}
-                  variant="boxed"
-                />
-              ))
-            ) : (
-              <div className="text-center py-8 text-base-content/50">
-                <FaUtensils className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                <p>此活動尚未設定菜單</p>
-                {event.allow_custom_items && (
-                  <p className="mt-2">您可以使用上方的「自訂餐點」按鈕新增項目</p>
-                )}
-              </div>
-            )}
+            <MenuTable
+              shop={event.shop || undefined}
+              allowCustomItems={event.allow_custom_items}
+              onMenuItemClick={(item) => { openAddMenuMealModal(item) }}
+            />
+
           </div>
         </div>
 
