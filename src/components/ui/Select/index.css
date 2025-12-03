@@ -1,0 +1,26 @@
+.select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.select-wrapper select {
+  width: 100%;
+  padding-right: 25px; /* Make room for the clear button */
+}
+
+.select-wrapper .clear-button {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  cursor: pointer;
+  line-height: 1;
+  display: none;
+}
+
+.select-wrapper .clear-button.show {
+  display: block;
+  z-index: 9999;
+}
