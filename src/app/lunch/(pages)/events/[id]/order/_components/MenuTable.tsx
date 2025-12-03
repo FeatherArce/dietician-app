@@ -182,6 +182,7 @@ export default function MenuTable({
                                             {
                                                 key: 'actions',
                                                 title: '操作',
+                                                width: 100,
                                                 render: (_, record) => (<button
                                                     className="btn btn-sm btn-accent btn-outline"
                                                     onClick={() => onMenuItemClick?.(record)}
