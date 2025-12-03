@@ -26,12 +26,15 @@ export const API_CONSTANTS = {
   // Lunch API Endpoints
   LUNCH_EVENTS_ENDPOINT: "/api/lunch/events",
   LUNCH_EVENT_DETAIL_ENDPOINT: (eventId: string) => `/api/lunch/events/${eventId}`,
+  
   LUNCH_SHOPS_ENDPOINT: "/api/lunch/shops",
   LUNCH_SHOP_DETAIL_ENDPOINT: (shopId: string) => `/api/lunch/shops/${shopId}`,
   LUNCH_SHOP_MENUS_ENDPOINT: (shopId: string) => `/api/lunch/shops/${shopId}/menus`,
   LUNCH_SHOP_MENU_DETAIL_ENDPOINT: (shopId: string, menuId: string) => `/api/lunch/shops/${shopId}/menus/${menuId}`,
   LUNCH_SHOP_MENU_ITEMS_ENDPOINT: (shopId: string, menuId: string) => `/api/lunch/shops/${shopId}/menus/${menuId}/items`,
   LUNCH_SHOP_MENU_ITEM_DETAIL_ENDPOINT: (shopId: string, menuId: string, itemId: string) => `/api/lunch/shops/${shopId}/menus/${menuId}/items/${itemId}`,
+
+  LUNCH_ORDERS_ENDPOINT: "/api/lunch/orders",
 } as const;
 
 // ==================== 路由相關 ====================

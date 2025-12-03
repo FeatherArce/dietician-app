@@ -1,5 +1,7 @@
 import prisma from '@/libs/prisma';
 import { Prisma } from '@/prisma-generated/postgres-client';
+import { LunchOrderWithArgs } from '@/types/api/lunch';
+import { LunchOrderFilters } from './lunch-event-services';
 
 // 類型定義
 export type CreateOrderData = {
@@ -23,13 +25,6 @@ export type UpdateOrderData = {
     note?: string;
     items?: CreateOrderItemData[];
 };
-
-export interface OrderFilters {
-    userId?: string;
-    eventId?: string;
-    dateFrom?: Date;
-    dateTo?: Date;
-}
 
 // Order Service
 export const orderService = {
@@ -64,7 +59,7 @@ export const orderService = {
     },
 
     // 獲取訂單列表
-    async getOrders(filters: OrderFilters = {}) {
+    async getOrders(filters: LunchOrderFilters) {
         try {
             const where: Prisma.LunchOrderWhereInput = {};
             
@@ -75,46 +70,10 @@ export const orderService = {
             if (filters.eventId) {
                 where.event_id = filters.eventId;
             }
-            
-            if (filters.dateFrom || filters.dateTo) {
-                where.created_at = {};
-                if (filters.dateFrom) {
-                    where.created_at.gte = filters.dateFrom;
-                }
-                if (filters.dateTo) {
-                    where.created_at.lte = filters.dateTo;
-                }
-            }
 
             const orders = await prisma.lunchOrder.findMany({
                 where,
-                include: {
-                    user: {
-                        select: { id: true, name: true }
-                    },
-                    event: {
-                        select: { 
-                            id: true, 
-                            title: true, 
-                            event_date: true,
-                            order_deadline: true,
-                            is_active: true
-                        }
-                    },
-                    items: {
-                        include: {
-                            menu_item: {
-                                select: { 
-                                    id: true, 
-                                    name: true, 
-                                    description: true,
-                                    image_url: true
-                                }
-                            },                            
-                        },
-                        orderBy: { id: 'asc' }
-                    }
-                },
+                include: LunchOrderWithArgs.include,
                 orderBy: { created_at: 'desc' }
             });
             
