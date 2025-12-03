@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { FaThLarge, FaTable } from 'react-icons/fa';
 
-enum ViewModes {
+export enum ViewModes {
     Cards = 'cards',
     Table = 'table'
 }

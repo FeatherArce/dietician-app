@@ -3,6 +3,7 @@ import { lunchEventService, type CreateLunchEventData, type LunchEventFilters } 
 import { NextRequest, NextResponse } from 'next/server';
 import { getEventDetails, getEventRequestFilters } from './utils';
 import { ILunchEvent } from '@/types/LunchEvent';
+import { GetEventsResponse } from '@/types/api/lunch';
 
 export async function GET(request: NextRequest) {
     try {
@@ -16,7 +17,14 @@ export async function GET(request: NextRequest) {
             newEvents.push(newEvent);
         }
 
-        return NextResponse.json({ events: newEvents, success: true });
+        const response: GetEventsResponse = {
+            success: true,
+            data: {
+                events: newEvents,
+            },          
+        };
+
+        return NextResponse.json(response);
     } catch (error) {
         console.error('GET /api/lunch/events error:', error);
         return NextResponse.json(

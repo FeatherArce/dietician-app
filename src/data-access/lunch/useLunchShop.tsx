@@ -3,8 +3,9 @@ import useSWR from 'swr';
 import { GetShopMenuItemsResponse, GetShopResponse, GetShopsResponse } from "@/types/api/lunch";
 import { removedUndefinedFields } from '@/libs/utils';
 import { ShopFilters } from '@/services/lunch';
+import { API_CONSTANTS } from '@/constants/app-constants';
 
-const shopsPath = '/api/lunch/shops';
+const shopsPath = API_CONSTANTS.LUNCH_SHOPS_ENDPOINT;
 // const menusPath = /api/lunch/shops/[id]/menus/[id or default]/items';
 
 export function useLunchShops(filters?: ShopFilters) {

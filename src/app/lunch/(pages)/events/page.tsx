@@ -7,7 +7,10 @@ import { SearchInput, Select } from "@/components/SearchContainer/SearchFields";
 import { toast, useToastAPI } from "@/components/Toast";
 import PageContainer from "@/components/page/PageContainer";
 import { ROUTE_CONSTANTS } from "@/constants/app-constants";
+import { updateLunchEvent } from "@/data-access/lunch/lunch-event";
+import { useLunchEvents } from "@/data-access/lunch/useLunchEvent";
 import { LunchEvent, UserRole } from "@/prisma-generated/postgres-client";
+import { ILunchEvent } from "@/types/LunchEvent";
 import moment from "moment-timezone";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -42,15 +45,19 @@ export default function EventsPage() {
   const authLoading = status === 'loading';
   const isAuthenticated = status === 'authenticated';
   const user = session?.user;
-  const [events, setEvents] = useState<EventWithStats[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    lunchEvents: events,
+    isLoading: lunchEventsLoading,
+    isError: lunchEventsError,
+    mutate: mutateLunchEvents
+  } = useLunchEvents();
   const [isActiveChanging, setIsActiveChanging] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [dateFilter, setDateFilter] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   // 統一的篩選邏輯
-  const filteredEvents: EventWithStats[] = useMemo(() => {
+  const filteredEvents: ILunchEvent[] = useMemo(() => {
     return (events || []).filter(event => {
       // 狀態篩選
       if (statusFilter) {
@@ -119,33 +126,6 @@ export default function EventsPage() {
     setSearchTerm('');
   }, []);
 
-  const fetchEvents = useCallback(async () => {
-    try {
-      const newParameters = new URLSearchParams();
-      newParameters.append("include", "stats");
-      if (user?.role === UserRole.ADMIN || user?.role === UserRole.MODERATOR) {
-        // 管理員和版主可以查看所有活動
-      } else {
-        if (user?.id) { newParameters.append("owner_id", user.id); }
-      }
-
-      const response = await fetch(`/api/lunch/events?${newParameters.toString()}`);
-      if (response.ok) {
-        const data = await response.json();
-        setEvents(data.events || []);
-      }
-    } catch (error) {
-      console.error("Failed to fetch events:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  // 載入活動資料
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
-
   const toggleEventStatus = useCallback(async (eventId: string, isActive: boolean) => {
     const action = isActive ? "關閉" : "開啟";
 
@@ -159,14 +139,11 @@ export default function EventsPage() {
           onClick: async () => {
             try {
               setIsActiveChanging(true);
-              const response = await fetch(`/api/lunch/events/${eventId}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ is_active: !isActive }),
-              });
+              const {response, result} = await updateLunchEvent(eventId, { is_active: !isActive });
+              console.log("Response from toggleEventStatus:", { response, result });
 
-              if (response.ok) {
-                await fetchEvents(); // 重新載入資料
+              if (response.ok && result.success) {
+                await mutateLunchEvents(); // 重新載入資料
                 // 使用 toast 顯示成功訊息
                 toast.success(`活動已成功${action}！`);
               } else {
@@ -191,9 +168,9 @@ export default function EventsPage() {
         }
       ]
     });
-  }, [fetchEvents]);
+  }, [mutateLunchEvents]);
 
-  const getStatusBadge = (event: EventWithStats) => {
+  const getStatusBadge = (event: ILunchEvent) => {
     const now = new Date();
     const orderDeadline = new Date(event.order_deadline);
 
@@ -209,7 +186,7 @@ export default function EventsPage() {
   };
 
   // DataTable 欄位定義
-  const columns: Column<EventWithStats>[] = [
+  const columns: Column<ILunchEvent>[] = [
     {
       key: 'title',
       title: '活動名稱',
@@ -378,16 +355,6 @@ export default function EventsPage() {
     }
   ];
 
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center h-64">
-          <span className="loading loading-spinner loading-lg"></span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <PageContainer>
       {/* 麵包屑導航 */}
@@ -455,10 +422,10 @@ export default function EventsPage() {
       </SearchContainer>
 
       {/* 活動列表 */}
-      <DataTable<EventWithStats>
+      <DataTable<ILunchEvent>
         columns={columns}
         dataSource={filteredEvents}
-        loading={loading}
+        loading={lunchEventsLoading}
         size="sm"
         hover={true}
         striped={true}

@@ -70,6 +70,11 @@ export interface LunchEventFilters {
     allowCustomItems?: boolean;
 }
 
+export interface LunchOrderFilters {
+    eventId?: string;
+    userId?: string;
+}
+
 // Lunch Event Service
 export const lunchEventService = {
     // 獲取事件列表（支援過濾）

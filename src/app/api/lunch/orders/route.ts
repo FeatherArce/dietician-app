@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/libs/auth";
 import { orderService } from "@/services/lunch/order-services";
 import { ApiMessage } from "../../utils";
-import { DeleteOrderResponse } from "@/types/api/lunch";
+import { DeleteOrderResponse, GetLunchOrdersResponse } from "@/types/api/lunch";
 
 // 創建新訂單
 export async function POST(request: NextRequest) {
@@ -84,7 +84,14 @@ export async function GET(request: NextRequest) {
       orders = await orderService.getOrders({ userId: session.user?.id });
     }
 
-    return NextResponse.json({ orders, success: true });
+    const response: GetLunchOrdersResponse = {
+      success: true,
+      data: {
+        orders,
+      },
+    };
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error("GET /api/lunch/orders error:", error);
     return NextResponse.json(

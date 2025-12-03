@@ -50,9 +50,26 @@ export const shopWithArgs = Prisma.validator<Prisma.ShopDefaultArgs>()({
 });
 export type ShopWithArgs = Prisma.ShopGetPayload<typeof shopWithArgs>;
 
+// src/app/api/lunch/orders/ 的回應型別定義
+export const LunchOrderWithArgs = Prisma.validator<Prisma.LunchOrderDefaultArgs>()({
+    include: {
+        user: {
+            select: { id: true, name: true }
+        },
+        event: true,
+        items: {
+            include: {
+                menu_item: true,
+            },
+            orderBy: { id: 'asc' }
+        }
+    }
+});
+export type LunchOrderWithArgs = Prisma.LunchOrderGetPayload<typeof LunchOrderWithArgs>;
 
 
 // src/app/api/lunch/events 的回應型別定義
+export type GetEventsResponse = ApiResponse<{ events: ILunchEvent[] }>;
 export type GetEventResponse = ApiResponse<{ event: ILunchEvent }>;
 
 // src/app/api/lunch/shops 的回應型別定義
@@ -73,3 +90,5 @@ export type PostShopMenuItemResponse = ApiResponse<{ item: MenuItemWithArgs }>;
 export type PostBatchShopMenuItemsResponse = ApiResponse<{ count: number }>;
 export type PutShopMenuItemResponse = ApiResponse<{ item: MenuItemWithArgs }>;
 export type DeleteShopMenuItemResponse = ApiResponse<{ id: string, item: MenuItemWithArgs }>;
+
+export type GetLunchOrdersResponse = ApiResponse<{ orders: LunchOrderWithArgs[] }>;

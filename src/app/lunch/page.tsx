@@ -1,14 +1,17 @@
 "use client";
-import { ErrorBoundary } from '@/components/swr/ErrorBoundary';
 import Modal, { ModalRef } from '@/components/Modal';
+import PageAuthBlocker from '@/components/page/PageAuthBlocker';
 import PageContainer from '@/components/page/PageContainer';
 import SearchContainer from '@/components/SearchContainer';
 import { Select } from '@/components/SearchContainer/SearchFields';
+import { ErrorBoundary } from '@/components/swr/ErrorBoundary';
 import { ROUTE_CONSTANTS } from '@/constants/app-constants';
-import { authFetch } from '@/libs/auth-fetch';
+import { useLunchEvents } from '@/data-access/lunch/useLunchEvent';
+import { useLunchOrders } from '@/data-access/lunch/useLunchOrder';
+import { ILunchEvent, MyOrder } from '@/types/LunchEvent';
 import { useSession } from "next-auth/react";
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
     FaCalendarAlt,
     FaPlus,
@@ -17,10 +20,6 @@ import {
 import EventCard from './_components/EventCard';
 import EventOrderSummaryTable from './_components/EventOrderSummaryTable';
 import OrderDetailModal from './_components/OrderDetailModal';
-import PageAuthBlocker from '@/components/page/PageAuthBlocker';
-import { ILunchEvent, MyOrder } from '@/types/LunchEvent';
-import { getLunchEventById } from '@/data-access/lunch/lunch-event';
-import { toast } from '@/components/Toast';
 
 enum EventActiveType {
     ACTIVE = 'active',
@@ -43,17 +42,27 @@ export default function LunchPage() {
     const authLoading = status === 'loading';
     const isAuthenticated = status === 'authenticated';
     const user = session?.user;
-    const [myEvents, setMyEvents] = useState<ILunchEvent[]>([]);
-    const [myOrders, setMyOrders] = useState<MyOrder[]>([]);
-    const [loading, setLoading] = useState(true);
+    const {
+        lunchEvents: myEvents,
+        isLoading: eventsLoading,
+        isError: eventsError,
+        mutate: mutateEvents
+    } = useLunchEvents();
+    const {
+        lunchOrders: myOrders,
+        isLoading: ordersLoading,
+        isError: ordersError,
+        mutate: mutateOrders
+    } = useLunchOrders({ userId: user?.id });
+
+    const [loading, setLoading] = useState(false);
     const [selectedActiveType, setSelectedActiveType] = useState<string>(EventActiveType.ACTIVE); // 活動類型篩選
     const [selectedOrder, setSelectedOrder] = useState<MyOrder | null>(null);
     const [showOrderModal, setShowOrderModal] = useState(false);
 
     // 個別事件統計相關狀態
     const statisticModalRef = useRef<ModalRef>(null);
-    const [selectedEvent, setSelectedEvent] = useState<ILunchEvent | undefined>(undefined);
-    const [loadingEventStats, setLoadingEventStats] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<ILunchEvent | undefined>(undefined);    
 
     const filteredEvents = useMemo(() => {
         return (myEvents || []).filter(event => {
@@ -68,74 +77,15 @@ export default function LunchPage() {
         });
     }, [myEvents, selectedActiveType]);
 
-    const fetchEvents = useCallback(async () => {
-        try {
-            setLoading(true);
-            // 獲取使用者已參與的活動（包含建立的和有訂單的）
-            // const url = `/api/lunch/events/participated?userId=${user?.id}`;
-            const url = `/api/lunch/events`;
-            const response = await authFetch(url);
-            const data = await response.json();
-
-            if (data.success && data.events) {
-                const events = data.events as ILunchEvent[];
-                setMyEvents(events);
-            }
-        } catch (error) {
-            console.error('Failed to fetch events:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    const fetchMyOrders = useCallback(async () => {
-        if (!user?.id) return;
-
-        try {
-            const response = await authFetch(`/api/lunch/orders?userId=${user.id}`);
-            const data = await response.json();
-
-            if (data.success && data.orders) {
-                setMyOrders(data.orders);
-            }
-        } catch (error) {
-            console.error('Failed to fetch orders:', error);
-        }
-    }, [user?.id]);
-
-    // 獲取個別事件統計資料
-    const fetchEventById = useCallback(async (eventId: string) => {
-        if (!user?.id) return;
-
-        setLoadingEventStats(true);
-        try {
-            const { response, result } = await getLunchEventById(eventId);
-
-            const event = result.data?.event;
-            if (!response.ok || !result.success || !event) {
-                throw new Error(result.message || `無法取得活動資料 (狀態碼: ${response.status})`);
-            }
-
-            setSelectedEvent(event);
-        } catch (error) {
-            console.error('獲取事件統計資料失敗:', error);
-            toast.error(`無法取得活動資料: ${error instanceof Error ? error.message : String(error)}`);
-        } finally {
-            setLoadingEventStats(false);
-        }
-    }, [user?.id]);
-
-    useEffect(() => {
-        if (!authLoading && isAuthenticated) {
-            fetchEvents();
-            fetchMyOrders();
-        }
-    }, [isAuthenticated, authLoading, user?.id, fetchEvents, fetchMyOrders]);
+    const findEventById = useCallback((eventId: string): ILunchEvent | undefined => {
+        return (myEvents || []).find(event => event.id === eventId);
+    }, [myEvents]);
 
     // 顯示事件統計
     const handleEventCardShowStats = (eventId: string) => {
         statisticModalRef.current?.open();
-        fetchEventById(eventId);
+        const founded = findEventById(eventId);
+        setSelectedEvent(founded);
     };
 
     // 關閉事件統計
@@ -145,7 +95,7 @@ export default function LunchPage() {
 
     // 檢查使用者是否有特定活動的訂單
     const handleEventCardGetUserOrderForEvent = (eventId: string): MyOrder | null => {
-        return myOrders.find(order => order.event.id === eventId) || null;
+        return (myOrders || []).find(order => order.event_id === eventId) || null;
     };
 
     // 關閉訂單詳情 modal
@@ -258,7 +208,7 @@ export default function LunchPage() {
                     dataSource={filteredEvents}
                 /> */}
 
-                {loading ? (
+                {(loading || eventsLoading || ordersLoading) ? (
                     <div className="flex justify-center py-8">
                         <FaSpinner className="w-6 h-6 animate-spin" />
                     </div>
@@ -299,12 +249,12 @@ export default function LunchPage() {
                         statisticModalRef.current?.close();
                         handleStatisticsModalClose();
                     }}
-                    loading={loadingEventStats}
+                    loading={eventsLoading}
                 >
                     <EventOrderSummaryTable
                         event={selectedEvent}
                         className="w-full"
-                        loading={loadingEventStats}
+                        loading={eventsLoading}
                     />
                 </Modal>
             </PageContainer>
