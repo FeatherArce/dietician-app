@@ -71,7 +71,7 @@ export default function EditUserPage() {
       const response = await fetch(`/api/users/${userId}`);
       if (response.ok) {
         const data = await response.json();
-        const user = data.user;
+        const user = data.data?.user;
         setUserData(user);
         setFormData({
           name: user.name,
